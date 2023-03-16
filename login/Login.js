@@ -10,7 +10,6 @@ function Login({ navigation: { navigate } }) {
   const onChangePw = (payload) => {
     setPassword(payload);
   };
-
   const onPressLogin = () => {
     if (id === "") {
       alert("아이디를 입력해주세요");
@@ -18,6 +17,7 @@ function Login({ navigation: { navigate } }) {
       alert("비밀번호를 입력해주세요");
     } else {
       alert("Login!");
+      navigate("Main");
     }
   };
 
