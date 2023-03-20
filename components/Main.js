@@ -17,9 +17,9 @@ const Main = () => {
     const {
       coords: { latitude, longitude },
     } = await Location.getCurrentPositionAsync({ accuracy: 5 });
-    const setGoogle = Location.setGoogleApiKey(
+    /*const setGoogle = Location.setGoogleApiKey(
       "AIzaSyCi-vziLZekzgQjSAJIw_xNPpqvAC25UNo"
-    );
+    );*/
     const city = await Location.reverseGeocodeAsync(
       { latitude, longitude },
       { useGoogleMaps: false }
@@ -42,6 +42,7 @@ const Main = () => {
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
           }}
+          showsUserLocation={true}
         >
           <Marker
             coordinate={{
