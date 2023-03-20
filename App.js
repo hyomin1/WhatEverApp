@@ -1,15 +1,13 @@
 import { NavigationContainer } from "@react-navigation/native";
-import { StatusBar } from "expo-status-bar";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import Join from "./login/Join";
-import Login from "./login/Login";
+import Root from "./navigation/Root";
 import Stack from "./navigation/Stack";
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack />
+      <Root />
     </NavigationContainer>
   );
 }

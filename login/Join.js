@@ -1,9 +1,31 @@
+import { useState } from "react";
 import { Pressable, StyleSheet, TextInput } from "react-native";
 import { Text, View } from "react-native";
 
-function Join() {
-  const onPress = () => {
-    alert("회원가입 완료!");
+function Join({ navigation: { navigate } }) {
+  const [id, setId] = useState(null);
+  const [pw, setPw] = useState(null);
+  const [pw2, setPw2] = useState(null);
+  const onChangeId = (payload) => {
+    setId(payload);
+  };
+  const onChangePw = (payload) => {
+    setPw(payload);
+  };
+  const onChangePw2 = (payload) => {
+    setPw2(payload);
+  };
+  const onPressJoin = () => {
+    if (id === null) {
+      alert("아이디를 입력해주세요");
+    } else if (pw === null || pw2 === null) {
+      alert("비밀번호를 입력해주세요");
+    } else if (pw !== pw2) {
+      alert("비밀번호가 동일하지 않습니다");
+    } else {
+      alert("회원가입 성공!");
+      navigate("Login");
+    }
   };
   return (
     <View style={styles.container}>
@@ -12,12 +34,29 @@ function Join() {
       </View>
       <View style={styles.joinForm}>
         <Text style={styles.formText}>ID</Text>
-        <TextInput style={styles.formInput} placeholder="영문 3자 이상" />
+        <TextInput
+          style={styles.formInput}
+          placeholder="영문 3자 이상"
+          value={id}
+          onChangeText={onChangeId}
+        />
         <Text style={styles.formText}>Password</Text>
-        <TextInput style={styles.formInput} placeholder="8자 이상" />
+        <TextInput
+          style={styles.formInput}
+          placeholder="8자 이상"
+          secureTextEntry
+          value={pw}
+          onChangeText={onChangePw}
+        />
         <Text style={styles.formText}>Confirm Password</Text>
-        <TextInput style={styles.formInput} placeholder="8자 이상" />
-        <Pressable onPress={onPress} style={styles.button}>
+        <TextInput
+          style={styles.formInput}
+          placeholder="8자 이상"
+          secureTextEntry
+          value={pw2}
+          onChangeText={onChangePw2}
+        />
+        <Pressable onPress={onPressJoin} style={styles.button}>
           <Text style={styles.buttonText}>완료</Text>
         </Pressable>
       </View>
