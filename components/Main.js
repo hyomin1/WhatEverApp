@@ -11,8 +11,6 @@ import { MapStyle } from "../MapStyle";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-
-
 const Main = ({ navigation: { navigate } }) => {
   const [location, setLocation] = useState();
   const [ok, setOk] = useState();
@@ -21,9 +19,6 @@ const Main = ({ navigation: { navigate } }) => {
     { id: 1, latitude: 35.1230467, longitude: 126.8935155 },
     { id: 2, latitude: 35.118835, longitude: 126.8936783 },
   ];
-  const onBellPress = () => {
-    Alert.alert("알람클릭");
-  };
 
   const getLocation = async () => {
     const { granted } = await Location.requestForegroundPermissionsAsync();
@@ -45,9 +40,6 @@ const Main = ({ navigation: { navigate } }) => {
   console.log(location);
   return (
     <View style={{ flex: 1 }}>
-   
-   
-
       {location ? (
         <MapView
           style={{ width: "100%", height: SCREEN_HEIGHT / 1.5 }}

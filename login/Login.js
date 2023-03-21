@@ -1,12 +1,59 @@
 import { useState } from "react";
-import {
-  Text,
-  View,
-  StyleSheet,
-  TextInput,
-  Pressable,
-  Alert,
-} from "react-native";
+import { View, Alert } from "react-native";
+import styled from "styled-components/native";
+
+const Container = styled.View`
+  background-color: #0fbcf9;
+  flex: 1;
+  padding: 0 80px;
+`;
+
+const Title = styled.Text`
+  color: white;
+  font-weight: 600;
+  font-size: 50px;
+`;
+const TinyText = styled.Text`
+  color: white;
+  opacity: 0.8;
+  font-weight: 300;
+`;
+const Input = styled.TextInput`
+  padding: 0 15px;
+  height: 40px;
+  background-color: white;
+  border-radius: 10px;
+  margin: 5px 0;
+`;
+const Button = styled.Pressable`
+  padding: 0 15px;
+  height: 40px;
+  border-radius: 10px;
+  margin: 5px 0;
+  align-items: center;
+  justify-content: center;
+  background-color: #2196f3;
+`;
+const LoginText = styled.Text`
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+`;
+const Line = styled.View`
+  border-bottom-color: white;
+  border-bottom-width: 1px;
+  margin: 10px 0;
+`;
+const JoinBtn = styled.Pressable`
+  align-items: center;
+  justify-content: center;
+`;
+const JoinText = styled.Text`
+  color: white;
+  opacity: 0.9;
+  font-size: 15px;
+  font-weight: 600;
+`;
 
 function Login({ navigation: { navigate } }) {
   const [id, setId] = useState("");
@@ -29,101 +76,30 @@ function Login({ navigation: { navigate } }) {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.blank}></View>
-      <View style={styles.title}>
-        <Text style={styles.name}>WhatEver</Text>
-        <Text style={styles.tinyText}>서비스 이용을 위해 로그인 해주세요.</Text>
+    <Container>
+      <View style={{ flex: 1 }}></View>
+      <View style={{ flex: 1 }}>
+        <Title>WhatEver</Title>
+        <TinyText>서비스 이용을 위해 로그인 해주세요.</TinyText>
       </View>
-      <View style={styles.login}>
-        <TextInput
-          onChangeText={onChangeId}
-          style={styles.input}
-          placeholder="ID"
-          value={id}
-        />
-        <TextInput
+      <View style={{ flex: 2 }}>
+        <Input onChangeText={onChangeId} placeholder="ID" value={id} />
+        <Input
           onChangeText={onChangePw}
           value={password}
-          style={styles.input}
           placeholder="Password"
           secureTextEntry
         />
-        <Pressable onPress={onPressLogin} style={styles.button}>
-          <Text style={styles.loginText}>로그인</Text>
-        </Pressable>
-        <View style={styles.line}></View>
-        <Pressable style={styles.join}>
-          <Text onPress={() => navigate("Join")} style={styles.joinText}>
-            회원가입
-          </Text>
-        </Pressable>
+        <Button onPress={onPressLogin}>
+          <LoginText>로그인</LoginText>
+        </Button>
+        <Line />
+        <JoinBtn>
+          <JoinText onPress={() => navigate("Join")}>회원가입</JoinText>
+        </JoinBtn>
       </View>
-    </View>
+    </Container>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#0fbcf9",
-    flex: 1,
-    paddingHorizontal: 80,
-  },
-  title: {
-    flex: 1,
-  },
-  blank: {
-    flex: 1,
-  },
-  login: {
-    flex: 2,
-  },
-  name: {
-    color: "white",
-    fontWeight: "600",
-    fontSize: 50,
-  },
-  tinyText: {
-    color: "white",
-    opacity: 0.8,
-    fontWeight: "300",
-  },
-  input: {
-    paddingHorizontal: 15,
-    height: 40,
-    backgroundColor: "white",
-    borderRadius: 10,
-
-    marginVertical: 5,
-  },
-  button: {
-    paddingHorizontal: 15,
-    height: 40,
-    borderRadius: 10,
-    marginVertical: 5,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#2196F3",
-  },
-  loginText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  line: {
-    borderBottomColor: "white",
-    borderBottomWidth: 1,
-
-    marginVertical: 10,
-  },
-  join: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  joinText: {
-    color: "white",
-    opacity: 0.9,
-    fontSize: 12,
-  },
-});
 export default Login;

@@ -1,11 +1,55 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, TextInput, Alert } from "react-native";
-import { Text, View } from "react-native";
+import { Alert, View } from "react-native";
+import styled from "styled-components/native";
+
+const Container = styled.View`
+  flex: 1;
+  background-color: #0fbcf9;
+  padding: 120px 60px;
+`;
+const JoinText = styled.Text`
+  color: white;
+  font-weight: 600;
+  font-size: 28px;
+`;
+const JoinForm = styled.View``;
+const FormText = styled.Text`
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 5px 0;
+`;
+const Input = styled.TextInput`
+  padding: 0px 15px;
+  height: 45px;
+  background-color: white;
+  border-radius: 10px;
+  margin-bottom: 5px;
+`;
+const Button = styled.Pressable`
+  padding: 0px 15px;
+  height: 45px;
+  background-color: white;
+  border-radius: 10px;
+  margin-top: 20px;
+  align-items: center;
+  justify-content: center;
+  background-color: #2196f3;
+`;
+const ButtonText = styled.Text`
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+`;
 
 const Join = ({ navigation: { navigate } }) => {
+  const [name, setName] = useState(null);
   const [id, setId] = useState(null);
   const [pw, setPw] = useState(null);
   const [pw2, setPw2] = useState(null);
+  const onChangeName = (payload) => {
+    setName(name);
+  };
   const onChangeId = (payload) => {
     setId(payload);
   };
@@ -28,86 +72,39 @@ const Join = ({ navigation: { navigate } }) => {
     }
   };
   return (
-    <View style={styles.container}>
-      <View style={styles.join}>
-        <Text style={styles.joinText}>회원가입</Text>
+    <Container>
+      <View style={{ marginBottom: 20 }}>
+        <JoinText>회원가입</JoinText>
       </View>
-      <View style={styles.joinForm}>
-        <Text style={styles.formText}>ID</Text>
-        <TextInput
-          style={styles.formInput}
+      <JoinForm>
+        <FormText>이름</FormText>
+        <Input placeholder="이름" value={name} onChangeText={onChangeName} />
+        <FormText>ID</FormText>
+        <Input
           placeholder="영문 3자 이상"
           value={id}
           onChangeText={onChangeId}
         />
-        <Text style={styles.formText}>Password</Text>
-        <TextInput
-          style={styles.formInput}
+        <FormText>Password</FormText>
+        <Input
           placeholder="8자 이상"
           secureTextEntry
           value={pw}
           onChangeText={onChangePw}
         />
-        <Text style={styles.formText}>Confirm Password</Text>
-        <TextInput
-          style={styles.formInput}
+        <FormText>Confirm Password</FormText>
+        <Input
           placeholder="8자 이상"
           secureTextEntry
           value={pw}
           onChangeText={onChangePw2}
         />
-        <Pressable onPress={onPressJoin} style={styles.button}>
-          <Text style={styles.buttonText}>완료</Text>
-        </Pressable>
-      </View>
-    </View>
+        <Button onPress={onPressJoin}>
+          <ButtonText>완료</ButtonText>
+        </Button>
+      </JoinForm>
+    </Container>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#0fbcf9",
-    paddingHorizontal: 60,
-    paddingVertical: 120,
-  },
-  join: {
-    marginBottom: 20,
-  },
-  joinText: {
-    color: "white",
-    fontWeight: "600",
-    fontSize: 28,
-  },
-  joinForm: {},
-  formText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "600",
-    marginVertical: 5,
-  },
-  formInput: {
-    paddingHorizontal: 20,
-    height: 45,
-    backgroundColor: "white",
-    borderRadius: 10,
-    marginBottom: 5,
-  },
-  button: {
-    paddingHorizontal: 15,
-    height: 45,
-    backgroundColor: "white",
-    borderRadius: 10,
-    marginTop: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#2196F3",
-  },
-  buttonText: {
-    color: "white",
-    fontWeight: "600",
-    fontSize: 18,
-  },
-});
 
 export default Join;
