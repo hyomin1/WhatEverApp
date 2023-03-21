@@ -4,11 +4,16 @@ import Geolocation from "react-native-geolocation-service";
 import { View, Dimensions, Image } from "react-native";
 import * as Location from "expo-location";
 
+interface LocationProps {
+  latitude: number;
+  longitude: number;
+}
+
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const Main = () => {
-  const [location, setLocation] = useState();
-  const [ok, setOk] = useState();
+  const [location, setLocation] = useState<LocationProps>();
+  const [ok, setOk] = useState<string>();
   const getLocation = async () => {
     const { granted } = await Location.requestForegroundPermissionsAsync();
     if (!granted) {

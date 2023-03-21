@@ -4,10 +4,10 @@ import { Text, View, StyleSheet, TextInput, Pressable } from "react-native";
 function Login({ navigation: { navigate } }) {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
-  const onChangeId = (payload) => {
+  const onChangeId = (payload: any) => {
     setId(payload);
   };
-  const onChangePw = (payload) => {
+  const onChangePw = (payload: any) => {
     setPassword(payload);
   };
   const onPressLogin = () => {

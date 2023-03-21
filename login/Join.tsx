@@ -6,13 +6,13 @@ function Join({ navigation: { navigate } }) {
   const [id, setId] = useState(null);
   const [pw, setPw] = useState(null);
   const [pw2, setPw2] = useState(null);
-  const onChangeId = (payload) => {
+  const onChangeId = (payload: any) => {
     setId(payload);
   };
-  const onChangePw = (payload) => {
+  const onChangePw = (payload: any) => {
     setPw(payload);
   };
-  const onChangePw2 = (payload) => {
+  const onChangePw2 = (payload: any) => {
     setPw2(payload);
   };
   const onPressJoin = () => {
@@ -53,7 +53,7 @@ function Join({ navigation: { navigate } }) {
           style={styles.formInput}
           placeholder="8자 이상"
           secureTextEntry
-          value={pw2}
+          value={pw}
           onChangeText={onChangePw2}
         />
         <Pressable onPress={onPressJoin} style={styles.button}>
