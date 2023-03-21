@@ -1,29 +1,29 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, TextInput } from "react-native";
+import { Pressable, StyleSheet, TextInput, Alert } from "react-native";
 import { Text, View } from "react-native";
 
-function Join({ navigation: { navigate } }) {
+const Join = ({ navigation: { navigate } }) => {
   const [id, setId] = useState(null);
   const [pw, setPw] = useState(null);
   const [pw2, setPw2] = useState(null);
-  const onChangeId = (payload: any) => {
+  const onChangeId = (payload) => {
     setId(payload);
   };
-  const onChangePw = (payload: any) => {
+  const onChangePw = (payload) => {
     setPw(payload);
   };
-  const onChangePw2 = (payload: any) => {
+  const onChangePw2 = (payload) => {
     setPw2(payload);
   };
   const onPressJoin = () => {
     if (id === null) {
-      alert("아이디를 입력해주세요");
+      Alert.alert("아이디를 입력해주세요");
     } else if (pw === null || pw2 === null) {
-      alert("비밀번호를 입력해주세요");
+      Alert.alert("비밀번호를 입력해주세요");
     } else if (pw !== pw2) {
-      alert("비밀번호가 동일하지 않습니다");
+      Alert.alert("비밀번호가 동일하지 않습니다");
     } else {
-      alert("회원가입 성공!");
+      Alert.alert("회원가입 성공!");
       navigate("Login");
     }
   };
@@ -62,7 +62,7 @@ function Join({ navigation: { navigate } }) {
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

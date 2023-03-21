@@ -1,22 +1,29 @@
 import { useState } from "react";
-import { Text, View, StyleSheet, TextInput, Pressable } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  TextInput,
+  Pressable,
+  Alert,
+} from "react-native";
 
 function Login({ navigation: { navigate } }) {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
-  const onChangeId = (payload: any) => {
+  const onChangeId = (payload: string) => {
     setId(payload);
   };
-  const onChangePw = (payload: any) => {
+  const onChangePw = (payload: string) => {
     setPassword(payload);
   };
   const onPressLogin = () => {
     if (id === "") {
-      alert("아이디를 입력해주세요");
+      Alert.alert("아이디를 입력해주세요");
     } else if (password === "") {
-      alert("비밀번호를 입력해주세요");
+      Alert.alert("비밀번호를 입력해주세요");
     } else {
-      alert("Login!");
+      Alert.alert("Login!");
       navigate("Main");
     }
   };
@@ -92,7 +99,7 @@ const styles = StyleSheet.create({
   button: {
     paddingHorizontal: 15,
     height: 40,
-    backgroundColor: "white",
+
     borderRadius: 10,
     marginVertical: 5,
     alignItems: "center",
