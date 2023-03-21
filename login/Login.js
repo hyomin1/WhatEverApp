@@ -11,10 +11,10 @@ import {
 function Login({ navigation: { navigate } }) {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
-  const onChangeId = (payload: string) => {
+  const onChangeId = (payload) => {
     setId(payload);
   };
-  const onChangePw = (payload: string) => {
+  const onChangePw = (payload) => {
     setPassword(payload);
   };
   const onPressLogin = () => {
@@ -24,7 +24,7 @@ function Login({ navigation: { navigate } }) {
       Alert.alert("비밀번호를 입력해주세요");
     } else {
       Alert.alert("Login!");
-      navigate("Main");
+      navigate("Tabs");
     }
   };
 
@@ -99,7 +99,6 @@ const styles = StyleSheet.create({
   button: {
     paddingHorizontal: 15,
     height: 40,
-
     borderRadius: 10,
     marginVertical: 5,
     alignItems: "center",

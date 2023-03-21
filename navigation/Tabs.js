@@ -1,5 +1,4 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { FontAwesome5 } from "@expo/vector-icons";
 import Main from "../components/Main";
 import History from "../components/History";
 import Chat from "../components/Chat";
@@ -7,13 +6,15 @@ import Login from "../login/Login";
 import { Ionicons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Octicons } from "@expo/vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
 const Tab = createBottomTabNavigator();
 
-const Tabs = () => {
+const Tabs = ({ navigation: { navigate } }) => {
   return (
     <Tab.Navigator
       screenOptions={{
-        headerShown: false,
+        // headerShown: false,
 
         tabBarLabelStyle: {
           fontSize: 12,
@@ -33,6 +34,38 @@ const Tabs = () => {
                 name={focused ? "smile-circle" : "smileo"}
                 size={20}
                 color={color}
+              />
+            );
+          },
+          headerTitle: "심부름 요청",
+          headerStyle: {
+            backgroundColor: "#0fbcf9",
+            borderBottomWidth: 3,
+            borderBottomColor: "#2196F3",
+          },
+          headerTitleAlign: "center",
+          headerTitleStyle: {
+            fontWeight: "800",
+            fontSize: 18,
+          },
+          headerLeft: ({ navigation }) => {
+            return (
+              <Octicons
+                name="person"
+                style={{ marginLeft: 11 }}
+                size={28}
+                color="black"
+                onPress={() => navigate("Profile")}
+              />
+            );
+          },
+          headerRight: () => {
+            return (
+              <FontAwesome
+                name="bell-o"
+                style={{ marginRight: 11 }}
+                size={28}
+                color="black"
               />
             );
           },
