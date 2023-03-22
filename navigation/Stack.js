@@ -24,7 +24,22 @@ const Stack = () => (
       component={Tabs}
       options={{ headerShown: false }}
     />
-    <NativeStack.Screen name="Profile" component={Profile} />
+    <NativeStack.Screen
+      name="Profile"
+      component={Profile}
+      options={{
+        headerTitle: "내 정보",
+        headerStyle: {
+          backgroundColor: "#0fbcf9",
+          borderBottomColor: "#2196F3",
+        },
+        headerTitleAlign: "center",
+        headerTitleStyle: {
+          fontWeight: "800",
+          fontSize: 18,
+        },
+      }}
+    />
   </NativeStack.Navigator>
 );
 

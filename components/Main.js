@@ -1,25 +1,35 @@
 import React, { useState, useEffect } from "react";
 import MapView, { Marker } from "react-native-maps";
 import Geolocation from "react-native-geolocation-service";
-import { View, Dimensions, Image, Alert } from "react-native";
+import {
+  View,
+  Dimensions,
+  Image,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
 import * as Location from "expo-location";
 import styled from "styled-components/native";
-import { Ionicons } from "@expo/vector-icons";
-import { FontAwesome } from "@expo/vector-icons";
 import { PROVIDER_GOOGLE } from "react-native-maps";
 import { MapStyle } from "../MapStyle";
+import { useQuery } from "react-query";
+
+const Loader = styled.View`
+  justify-content: center;
+  align-items: center;
+`;
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const Main = ({ navigation: { navigate } }) => {
   const [location, setLocation] = useState();
   const [ok, setOk] = useState();
+  const [isLoading, setLoading] = useState(true);
 
   const aroundUser = [
     { id: 1, latitude: 35.1230467, longitude: 126.8935155 },
     { id: 2, latitude: 35.118835, longitude: 126.8936783 },
   ];
-
   const getLocation = async () => {
     const { granted } = await Location.requestForegroundPermissionsAsync();
     if (!granted) {
@@ -31,16 +41,22 @@ const Main = ({ navigation: { navigate } }) => {
     /*const setGoogle = Location.setGoogleApiKey(
       "AIzaSyCi-vziLZekzgQjSAJIw_xNPpqvAC25UNo"
     );*/
+
     setLocation({ latitude, longitude });
+    setLoading(false);
   };
 
   useEffect(() => {
     getLocation();
   }, []);
-  console.log(location);
+  //console.log(location);
   return (
     <View style={{ flex: 1 }}>
-      {location ? (
+      {isLoading ? (
+        <Loader>
+          <ActivityIndicator />
+        </Loader>
+      ) : (
         <MapView
           style={{ width: "100%", height: SCREEN_HEIGHT / 1.5 }}
           initialRegion={{
@@ -74,7 +90,7 @@ const Main = ({ navigation: { navigate } }) => {
             </Marker>
           ))}
         </MapView>
-      ) : null}
+      )}
     </View>
   );
 };

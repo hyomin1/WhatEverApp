@@ -38,15 +38,12 @@ const Tabs = ({ navigation: { navigate } }) => {
             );
           },
           headerTitle: "심부름 요청",
-          headerStyle: {
-            backgroundColor: "#0fbcf9",
-            borderBottomWidth: 3,
-            borderBottomColor: "#2196F3",
-          },
+
           headerTitleAlign: "center",
           headerTitleStyle: {
             fontWeight: "800",
             fontSize: 18,
+            color: "black",
           },
           headerLeft: ({ navigation }) => {
             return (

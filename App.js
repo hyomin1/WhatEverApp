@@ -1,22 +1,16 @@
 import { NavigationContainer } from "@react-navigation/native";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { QueryClient, QueryClientProvider } from "react-query";
+
 import Root from "./navigation/Root";
-import Stack from "./navigation/Stack";
 
 export default function App() {
+  const queryClient = new QueryClient();
   return (
-    <NavigationContainer>
-      <Root />
-    </NavigationContainer>
+    <QueryClientProvider client={queryClient}>
+      <NavigationContainer>
+        <Root />
+      </NavigationContainer>
+    </QueryClientProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
