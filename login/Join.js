@@ -78,12 +78,18 @@ const Join = ({ navigation: { navigate } }) => {
       </View>
       <JoinForm>
         <FormText>이름</FormText>
-        <Input placeholder="이름" value={name} onChangeText={onChangeName} />
+        <Input
+          placeholder="이름"
+          value={name}
+          onChangeText={onChangeName}
+          returnKeyType="next"
+        />
         <FormText>ID</FormText>
         <Input
           placeholder="영문 3자 이상"
           value={id}
           onChangeText={onChangeId}
+          returnKeyType="next"
         />
         <FormText>Password</FormText>
         <Input
@@ -91,6 +97,7 @@ const Join = ({ navigation: { navigate } }) => {
           secureTextEntry
           value={pw}
           onChangeText={onChangePw}
+          returnKeyType="next"
         />
         <FormText>Confirm Password</FormText>
         <Input
