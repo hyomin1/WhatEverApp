@@ -29,10 +29,7 @@ const Stack = () => (
       component={Profile}
       options={{
         headerTitle: "내 정보",
-        headerStyle: {
-          backgroundColor: "#0fbcf9",
-          borderBottomColor: "#2196F3",
-        },
+        headerStyle: {},
         headerTitleAlign: "center",
         headerTitleStyle: {
           fontWeight: "800",

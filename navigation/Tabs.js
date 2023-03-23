@@ -8,6 +8,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
+
 const Tab = createBottomTabNavigator();
 
 const Tabs = ({ navigation: { navigate } }) => {
@@ -50,7 +51,7 @@ const Tabs = ({ navigation: { navigate } }) => {
               <Octicons
                 name="person"
                 style={{ marginLeft: 11 }}
-                size={28}
+                size={24}
                 color="black"
                 onPress={() => navigate("Profile")}
               />
@@ -61,7 +62,7 @@ const Tabs = ({ navigation: { navigate } }) => {
               <FontAwesome
                 name="bell-o"
                 style={{ marginRight: 11 }}
-                size={28}
+                size={24}
                 color="black"
               />
             );
