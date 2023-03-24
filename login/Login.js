@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { View, Alert } from "react-native";
 import styled from "styled-components/native";
+import axios from "axios";
+import { accessData, grantData } from "../atom";
+import { useRecoilState } from "recoil";
 
 const Container = styled.View`
   background-color: #0fbcf9;
@@ -58,6 +61,8 @@ const JoinText = styled.Text`
 function Login({ navigation: { navigate } }) {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
+  const [access, setAccess] = useRecoilState(accessData);
+  const [grant, setGrant] = useRecoilState(grantData);
   const onChangeId = (payload) => {
     setId(payload);
   };
@@ -70,8 +75,22 @@ function Login({ navigation: { navigate } }) {
     } else if (password === "") {
       Alert.alert("비밀번호를 입력해주세요");
     } else {
-      Alert.alert("Login!");
-      navigate("Tabs");
+      axios
+        .post("http://10.0.2.2:8080/login", {
+          userId: id,
+          password: password,
+        })
+        .then(function (res) {
+          setAccess(res.data.accessToken);
+          setGrant(res.data.grantType);
+          axios
+            .defaults.headers.common[("Authorization", res.data.grantType + " " + res.data.accessToken)];
+          //console.log(response.data.accessToken, response.data.grantType);
+          navigate("Tabs", {});
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     }
   };
 

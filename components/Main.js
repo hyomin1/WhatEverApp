@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from "react";
 import MapView, { Marker } from "react-native-maps";
 import Geolocation from "react-native-geolocation-service";
-import {
-  View,
-  Dimensions,
-  Image,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
+import { View, Dimensions, Image, ActivityIndicator } from "react-native";
 import * as Location from "expo-location";
 import styled from "styled-components/native";
 import { PROVIDER_GOOGLE } from "react-native-maps";
 import { MapStyle } from "../MapStyle";
-import { useQuery } from "react-query";
+import axios from "axios";
+import { useRecoilState } from "recoil";
+import { accessData, grantData } from "../atom";
+axios.defaults.headers.common[("Authorization", grantData + " " + accessData)];
 
 const Loader = styled.View`
+  flex: 1;
   justify-content: center;
   align-items: center;
 `;
@@ -25,6 +23,9 @@ const Main = ({ navigation: { navigate } }) => {
   const [location, setLocation] = useState();
   const [ok, setOk] = useState();
   const [isLoading, setLoading] = useState(true);
+  const [access, setAccess] = useRecoilState(accessData);
+  const [grant, setGrant] = useRecoilState(grantData);
+  const auth = grant + " " + access;
 
   const aroundUser = [
     { id: 1, latitude: 35.1230467, longitude: 126.8935155 },
@@ -38,9 +39,6 @@ const Main = ({ navigation: { navigate } }) => {
     const {
       coords: { latitude, longitude },
     } = await Location.getCurrentPositionAsync({ accuracy: 5 });
-    /*const setGoogle = Location.setGoogleApiKey(
-      "AIzaSyCi-vziLZekzgQjSAJIw_xNPpqvAC25UNo"
-    );*/
 
     setLocation({ latitude, longitude });
     setLoading(false);
@@ -48,6 +46,13 @@ const Main = ({ navigation: { navigate } }) => {
 
   useEffect(() => {
     getLocation();
+    console.log(auth);
+    axios
+      .get("http://10.0.2.2:8080/test", { headers: { Authorization: auth } })
+      .then((res) => console.log(res.data))
+      .catch((error) => {
+        console.log(error.response.status);
+      });
   }, []);
   //console.log(location);
   return (

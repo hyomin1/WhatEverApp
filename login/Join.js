@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState } from "react";
 import { Alert, View } from "react-native";
 import styled from "styled-components/native";
@@ -67,7 +68,19 @@ const Join = ({ navigation: { navigate } }) => {
     } else if (pw !== pw2) {
       Alert.alert("비밀번호가 동일하지 않습니다");
     } else {
-      Alert.alert("회원가입 성공!");
+      Alert.alert("회원가입 성공!"); //status 200 일때만
+      axios
+        .post("http://10.0.2.2:8080/join", {
+          name: name,
+          userId: id,
+          password: pw,
+        })
+        .then(function (res) {
+          console.log(res);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
       navigate("Login");
     }
   };
@@ -103,7 +116,7 @@ const Join = ({ navigation: { navigate } }) => {
         <Input
           placeholder="8자 이상"
           secureTextEntry
-          value={pw}
+          value={pw2}
           onChangeText={onChangePw2}
         />
         <Button onPress={onPressJoin}>
