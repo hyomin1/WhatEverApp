@@ -75,6 +75,7 @@ function Login({ navigation: { navigate } }) {
     } else if (password === "") {
       Alert.alert("비밀번호를 입력해주세요");
     } else {
+      navigate("Tabs");
       axios
         .post("http://10.0.2.2:8080/login", {
           userId: id,
@@ -85,8 +86,8 @@ function Login({ navigation: { navigate } }) {
           setGrant(res.data.grantType);
           axios
             .defaults.headers.common[("Authorization", res.data.grantType + " " + res.data.accessToken)];
-          //console.log(response.data.accessToken, response.data.grantType);
-          navigate("Tabs", {});
+
+          //  navigate("Tabs");
         })
         .catch((error) => {
           console.log(error);

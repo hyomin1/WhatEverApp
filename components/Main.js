@@ -9,7 +9,8 @@ import { MapStyle } from "../MapStyle";
 import axios from "axios";
 import { useRecoilState } from "recoil";
 import { accessData, grantData } from "../atom";
-axios.defaults.headers.common[("Authorization", grantData + " " + accessData)];
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+//axios.defaults.headers.common[("Authorization", grantData + " " + accessData)];
 
 const Loader = styled.View`
   flex: 1;
@@ -46,7 +47,7 @@ const Main = ({ navigation: { navigate } }) => {
 
   useEffect(() => {
     getLocation();
-    console.log(auth);
+
     axios
       .get("http://10.0.2.2:8080/test", { headers: { Authorization: auth } })
       .then((res) => console.log(res.data))
