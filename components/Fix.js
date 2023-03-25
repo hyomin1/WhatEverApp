@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 
-const RenderContent = () => (
+const Fix = () => (
   <View
     style={{
       backgroundColor: "white",
@@ -11,4 +11,4 @@ const RenderContent = () => (
     <Text>hi</Text>
   </View>
 );
-export default RenderContent;
+export default Fix;

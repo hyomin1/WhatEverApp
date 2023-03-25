@@ -4,6 +4,7 @@ import styled from "styled-components/native";
 import axios from "axios";
 import { accessData, grantData } from "../atom";
 import { useRecoilState } from "recoil";
+import { useNavigation } from "@react-navigation/native";
 
 const Container = styled.View`
   background-color: #0fbcf9;
@@ -69,13 +70,17 @@ function Login({ navigation: { navigate } }) {
   const onChangePw = (payload) => {
     setPassword(payload);
   };
+  const navigation = useNavigation();
+  const goMain = () => {
+    navigation.navigate("Tabs", { screen: "Main" });
+  };
   const onPressLogin = () => {
     if (id === "") {
       Alert.alert("아이디를 입력해주세요");
     } else if (password === "") {
       Alert.alert("비밀번호를 입력해주세요");
     } else {
-      navigate("Tabs");
+      goMain();
       axios
         .post("http://10.0.2.2:8080/login", {
           userId: id,

@@ -3,7 +3,8 @@ import Profile from "../components/Profile";
 import Join from "../login/Join";
 import Login from "../login/Login";
 import Tabs from "./Tabs";
-import Main from "../components/Main";
+import Main from "../components/Fix";
+import Fix from "../components/Fix";
 
 const NativeStack = createNativeStackNavigator();
 
@@ -19,11 +20,7 @@ const Stack = () => (
       component={Join}
       options={{ headerShown: false }}
     />
-    <NativeStack.Screen
-      name="Tabs"
-      component={Tabs}
-      options={{ headerShown: false }}
-    />
+
     <NativeStack.Screen
       name="Profile"
       component={Profile}
@@ -35,6 +32,13 @@ const Stack = () => (
           fontWeight: "800",
           fontSize: 18,
         },
+      }}
+    />
+    <NativeStack.Screen
+      name="Fix"
+      component={Fix}
+      options={{
+        animation: "slide_from_bottom",
       }}
     />
   </NativeStack.Navigator>

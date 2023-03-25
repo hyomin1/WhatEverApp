@@ -47,13 +47,12 @@ const Main = ({ navigation: { navigate } }) => {
 
   useEffect(() => {
     getLocation();
-
-    axios
+    /*axios
       .get("http://10.0.2.2:8080/test", { headers: { Authorization: auth } })
       .then((res) => console.log(res.data))
       .catch((error) => {
         console.log(error.response.status);
-      });
+      });*/
   }, []);
   //console.log(location);
   return (

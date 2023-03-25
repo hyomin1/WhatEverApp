@@ -11,7 +11,7 @@ import { FontAwesome } from "@expo/vector-icons";
 
 const Tab = createBottomTabNavigator();
 
-const Tabs = ({ navigation: { navigate }, route }) => {
+const Tabs = ({ navigation: { navigate } }) => {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -39,14 +39,13 @@ const Tabs = ({ navigation: { navigate }, route }) => {
             );
           },
           headerTitle: "심부름 요청",
-
           headerTitleAlign: "center",
           headerTitleStyle: {
             fontWeight: "800",
             fontSize: 18,
             color: "black",
           },
-          headerLeft: ({ navigation }) => {
+          headerLeft: () => {
             return (
               <Octicons
                 name="person"
