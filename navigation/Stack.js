@@ -39,6 +39,8 @@ const Stack = () => (
       component={Fix}
       options={{
         animation: "slide_from_bottom",
+        presentation: "transparentModal",
+        orientation: "portrait_down",
       }}
     />
   </NativeStack.Navigator>
