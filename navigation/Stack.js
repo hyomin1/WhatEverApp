@@ -20,7 +20,11 @@ const Stack = () => (
       component={Join}
       options={{ headerShown: false }}
     />
-
+    <NativeStack.Screen
+      name="Tabs"
+      component={Tabs}
+      options={{ headerShown: false }}
+    />
     <NativeStack.Screen
       name="Profile"
       component={Profile}

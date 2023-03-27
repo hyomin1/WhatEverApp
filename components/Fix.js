@@ -131,12 +131,10 @@ const Fix = ({ modalVisible, setModalVisible }) => {
     });*/
   };
   const onChangeName = (payload) => {
-    if (ok) setName(payload);
-    else return;
+    setName(payload);
   };
   const onPressBtn = () => {
     setModalVisible(!modalVisible);
-    setOk(true);
   };
   return (
     <Modal
@@ -153,7 +151,9 @@ const Fix = ({ modalVisible, setModalVisible }) => {
           <TitleBar>
             <View style={{ flex: 1 }}>
               <MaterialIcons
-                onPress={() => setModalVisible(!modalVisible)}
+                onPress={() => {
+                  setModalVisible(!modalVisible);
+                }}
                 name="cancel"
                 size={24}
                 color="black"

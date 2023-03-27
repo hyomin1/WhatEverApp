@@ -95,7 +95,7 @@ function Login({ navigation: { navigate } }) {
           //  navigate("Tabs");
         })
         .catch((error) => {
-          console.log(error);
+          //console.log(error);
         });
     }
   };

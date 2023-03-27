@@ -17,3 +17,7 @@ export const nameData = atom({
   key: "name",
   default: null,
 });
+export const IntroduceData = atom({
+  key: "introduce",
+  default: null,
+});

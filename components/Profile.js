@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import Fix from "./Fix";
 import { useRecoilValue } from "recoil";
-import { imgData, nameData } from "../atom";
-
+import { imgData, IntroduceData, nameData } from "../atom";
+import { Entypo } from "@expo/vector-icons";
+import Introduce from "./Introduce";
 const Container = styled.View`
   flex: 1;
   background-color: white;
@@ -42,15 +43,48 @@ const ProfileText = styled.Text`
   font-weight: 600;
   font-size: 15px;
 `;
+const Line = styled.View`
+  border-bottom-color: gray;
+  border-bottom-width: 0.5px;
+  margin: 10px 0;
+`;
+const ContentBox = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 0 20px;
+  margin-bottom: 30px;
+`;
+const ContentText = styled.Text`
+  font-size: 18px;
+  font-weight: 600;
+`;
+const Count = styled.View`
+  padding: 0px 20px;
+  width: 100%;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+`;
+const CountText = styled.Text`
+  font-size: 16px;
+  font-weight: 600;
+`;
 
 const Profile = () => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [introduceVisible, setIntroduceVisible] = useState(false);
   const img = useRecoilValue(imgData);
   const navigation = useNavigation();
   const goFix = () => {
     setModalVisible(!modalVisible);
   };
+  const goIntroduce = () => {
+    setIntroduceVisible(!introduceVisible);
+  };
   const name = useRecoilValue(nameData);
+  const introduce = useRecoilValue(IntroduceData);
   return (
     <Container>
       <Box>
@@ -65,14 +99,35 @@ const Profile = () => {
         <ProfileBtn onPress={goFix}>
           <ProfileText>회원정보 수정</ProfileText>
         </ProfileBtn>
-
-        <TextInput />
+        <Line />
       </Box>
       <Box>
-        <Text>2</Text>
+        <ContentBox>
+          <ContentText>자기소개</ContentText>
+          <Entypo name="pencil" size={24} color="black" onPress={goIntroduce} />
+        </ContentBox>
+        <View style={{ paddingHorizontal: 20 }}>
+          <Text style={{ fontSize: 15, fontWeight: "400" }}>{introduce}</Text>
+        </View>
+        <Introduce
+          setIntroduceVisible={setIntroduceVisible}
+          introduceVisible={introduceVisible}
+        />
       </Box>
       <Box>
-        <Text>3</Text>
+        <ContentBox>
+          <ContentText>요청정보</ContentText>
+        </ContentBox>
+        <View style={{ paddingHorizontal: 20 }}>
+          <Count>
+            <CountText>총 심부름수</CountText>
+            <Text>1</Text>
+          </Count>
+          <Count>
+            <CountText>요청한 심부름 수</CountText>
+            <Text>1</Text>
+          </Count>
+        </View>
       </Box>
     </Container>
   );
