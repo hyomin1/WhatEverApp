@@ -9,7 +9,6 @@ import { MapStyle } from "../MapStyle";
 import axios from "axios";
 import { useRecoilState } from "recoil";
 import { accessData, grantData } from "../atom";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 //axios.defaults.headers.common[("Authorization", grantData + " " + accessData)];
 
 const Loader = styled.View`
