@@ -17,6 +17,7 @@ import axios from "axios";
 import { useRecoilValue } from "recoil";
 import { accessData, grantData } from "../atom";
 import { MaterialIcons } from "@expo/vector-icons";
+import HelperList from "./HelperList";
 axios.defaults.headers.common[("Authorization", grantData + " " + accessData)];
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
@@ -38,7 +39,7 @@ const Button = styled.Pressable`
   justify-content: center;
   background-color: black;
 `;
-const HelperView = styled.View`
+const HelperView = styled.Pressable`
   flex-direction: row;
   flex: 1;
   background-color: white;
@@ -55,6 +56,8 @@ const Main = ({ navigation: { navigate } }) => {
   const auth = grant + " " + access;
   const [content, setContent] = useState([]);
 
+  const [helperVisible, setHelperVisible] = useState(false);
+
   const aroundUser = [
     { id: 1, latitude: 35.1230467, longitude: 126.8935155 },
     { id: 2, latitude: 35.118835, longitude: 126.8936783 },
@@ -70,6 +73,7 @@ const Main = ({ navigation: { navigate } }) => {
     await axios
       .put(
         "http://10.0.2.2:8080/api/location/findHelper/distance",
+
         {
           latitude: latitude,
           longitude: longitude,
@@ -80,7 +84,7 @@ const Main = ({ navigation: { navigate } }) => {
         console.log("위도,경도 전송 성공");
         setContent(res.data.content);
       })
-      .catch((error) => console.log(error));
+      .catch((error) => console.log("에러"));
     setLocation({ latitude, longitude }); //내 위치 저장하기 위함
     setLoading(false);
   };
@@ -137,8 +141,11 @@ const Main = ({ navigation: { navigate } }) => {
           </BtnContainer>
         </View>
       )}
-
-      <HelperView>
+      <HelperList
+        setHelperVisible={setHelperVisible}
+        helperVisible={helperVisible}
+      />
+      <HelperView onPress={() => setHelperVisible(!helperVisible)}>
         <Text style={{ fontWeight: "600" }}>주변 헬퍼 보기</Text>
         <MaterialIcons name="keyboard-arrow-up" size={24} color="black" />
       </HelperView>

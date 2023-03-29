@@ -75,6 +75,7 @@ function Login({ navigation: { navigate } }) {
     navigation.navigate("Tabs", { screen: "Main" });
   };
   const onPressLogin = () => {
+    goMain();
     if (id === "") {
       Alert.alert("아이디를 입력해주세요");
     } else if (password === "") {
