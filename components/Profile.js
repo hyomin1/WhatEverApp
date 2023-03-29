@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import Fix from "./Fix";
 import { useRecoilValue } from "recoil";
-import { imgData, IntroduceData, nameData } from "../atom";
+import { imgData, IntroduceData, nameData, ratingData } from "../atom";
 import { Entypo } from "@expo/vector-icons";
 import Introduce from "./Introduce";
 const Container = styled.View`
@@ -75,8 +75,12 @@ const CountText = styled.Text`
 const Profile = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [introduceVisible, setIntroduceVisible] = useState(false);
+
   const img = useRecoilValue(imgData);
+  const rating = useRecoilValue(ratingData);
+
   const navigation = useNavigation();
+
   const goFix = () => {
     setModalVisible(!modalVisible);
   };
@@ -92,7 +96,7 @@ const Profile = () => {
           <ProfileImg source={{ uri: img }} />
           <View style={{ paddingVertical: 20 }}>
             <Name>{name}</Name>
-            <Text>⭐ 3.7/5</Text>
+            {rating ? <Text>⭐ {rating}/5</Text> : <Text>⭐</Text>}
           </View>
         </MyProfile>
         <Fix setModalVisible={setModalVisible} modalVisible={modalVisible} />
@@ -106,12 +110,8 @@ const Profile = () => {
           <ContentText>자기소개</ContentText>
         </ContentBox>
         <View style={{ paddingHorizontal: 20 }}>
-          <Text style={{ fontSize: 15, fontWeight: "400" }}>{introduce}</Text>
+          <Text style={{ fontSize: 16, fontWeight: "600" }}>{introduce}</Text>
         </View>
-        <Introduce
-          setIntroduceVisible={setIntroduceVisible}
-          introduceVisible={introduceVisible}
-        />
       </Box>
       <Box>
         <ContentBox>

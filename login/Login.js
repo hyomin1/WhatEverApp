@@ -80,7 +80,6 @@ function Login({ navigation: { navigate } }) {
     } else if (password === "") {
       Alert.alert("비밀번호를 입력해주세요");
     } else {
-      //goMain();
       axios
         .post(
           "http://10.0.2.2:8080/login",
@@ -91,6 +90,8 @@ function Login({ navigation: { navigate } }) {
           { headers: { Authorization: `${grant}` + " " + `${access}` } }
         )
         .then(function (res) {
+          Alert.alert("로그인 성공");
+          console.log("로그인 성공");
           setAccess(res.data.accessToken);
           setGrant(res.data.grantType);
           axios

@@ -9,20 +9,35 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import axios from "axios";
-import { useRecoilState } from "recoil";
-import { accessData, contentData, grantData } from "../atom";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import {
+  accessData,
+  distanceData,
+  grantData,
+  IntroduceData,
+  nameData,
+  ratingData,
+  responseData,
+  uniqueIdData,
+} from "../atom";
+import { useSyncExternalStore } from "react";
 
 const Tab = createBottomTabNavigator();
 
 const Tabs = ({ navigation: { navigate } }) => {
-  const [access, setAccess] = useRecoilState(accessData);
-  const [grant, setGrant] = useRecoilState(grantData);
-  const [content, setContent] = useRecoilState(contentData);
+  const access = useRecoilValue(accessData);
+  const grant = useRecoilValue(grantData);
+
+  const setResponse = useSetRecoilState(responseData);
+  const setDistance = useSetRecoilState(distanceData);
+  const setIntroduce = useSetRecoilState(IntroduceData);
+  const setName = useSetRecoilState(nameData);
+  const setRating = useSetRecoilState(ratingData);
+  const setUniqueId = useSetRecoilState(uniqueIdData);
+
   return (
     <Tab.Navigator
       screenOptions={{
-        // headerShown: false,
-
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: "600",
@@ -63,10 +78,18 @@ const Tabs = ({ navigation: { navigate } }) => {
                   axios
                     .get("http://10.0.2.2:8080/api/userInfo", {
                       headers: {
-                        Authorization: `${grant}` + " " + `${access}`,
+                        Authorization: `${grant}` + " " + `${access}`, //헤더에 토큰 실어 보내기
                       },
                     })
-                    .then((res) => setContent(res.data));
+                    .then((res) => {
+                      console.log("유저 데이터 받아오기 성공", res.data);
+                      setDistance(res.data.distance);
+                      setResponse(res.data.avgReactTime);
+                      setIntroduce(res.data.introduce);
+                      setName(res.data.name);
+                      setRating(res.data.rating);
+                      setUniqueId(res.data.id);
+                    });
                 }}
               />
             );
@@ -87,7 +110,7 @@ const Tabs = ({ navigation: { navigate } }) => {
         name="이용내역"
         component={History}
         options={{
-          tabBarIcon: ({ focused, color, size }) => {
+          tabBarIcon: ({ color, size }) => {
             return (
               <MaterialCommunityIcons
                 name="history"

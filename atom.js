@@ -17,12 +17,31 @@ export const nameData = atom({
   key: "name",
   default: null,
 });
+export const idData = atom({
+  key: "userId",
+  default: null,
+});
+export const pwData = atom({
+  key: "password",
+  default: null,
+});
 export const IntroduceData = atom({
   key: "introduce",
   default: null,
 });
-
-export const contentData = atom({
-  key: "content",
-  default: {},
+export const responseData = atom({
+  key: "response",
+  default: null,
+});
+export const distanceData = atom({
+  key: "distance",
+  default: null,
+});
+export const ratingData = atom({
+  key: "rating",
+  default: null,
+});
+export const uniqueIdData = atom({
+  key: "uniqueId",
+  default: null,
 });

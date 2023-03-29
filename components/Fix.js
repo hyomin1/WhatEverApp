@@ -1,4 +1,12 @@
-import { Text, View, Dimensions, Modal, Pressable } from "react-native";
+import {
+  Text,
+  View,
+  Dimensions,
+  Modal,
+  Pressable,
+  ScrollView,
+  Alert,
+} from "react-native";
 import styled from "styled-components/native";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
@@ -9,16 +17,20 @@ import {
   imgData,
   nameData,
   IntroduceData,
-  contentData,
+  responseData,
+  distanceData,
+  ratingData,
+  uniqueIdData,
+  pwData,
 } from "../atom";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { Entypo } from "@expo/vector-icons";
 import axios from "axios";
 const Center = styled.View`
   flex: 1;
 `;
 const Container = styled.View`
-  flex: 13;
+  flex: 1;
   background-color: white;
   width: 100%;
   padding: 0px 10px;
@@ -32,6 +44,7 @@ const TitleBar = styled.View`
 const Title = styled.Text`
   font-weight: 600;
   font-size: 18px;
+  margin-bottom: 10px;
 `;
 
 const MainBar = styled.View`
@@ -41,6 +54,7 @@ const ImgView = styled.View`
   flex: 0.8;
   justify-content: center;
   align-items: center;
+  margin-bottom: 10px;
 `;
 const ProfileImg = styled.Image`
   width: 100px;
@@ -73,13 +87,21 @@ const InputView = styled.View`
 const Inform = styled.Text`
   font-size: 18px;
   font-weight: 800;
+  margin: 0 20px;
 `;
 const Input = styled.TextInput`
   height: 40px;
   border-width: 1px;
   padding: 10px;
-  margin: 10px 0;
+  margin: 10px 20px;
   border-radius: 10px;
+`;
+const IntroduceInput = styled.TextInput`
+  height: 160px;
+  border-width: 1px;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 10px 20px;
 `;
 const Button = styled.Pressable`
   padding: 0 15px;
@@ -90,17 +112,37 @@ const Button = styled.Pressable`
   justify-content: center;
   background-color: black;
 `;
+const CheckBtn = styled.Pressable`
+  padding: 0 15px;
+  height: 40px;
+  width: 60px;
+  border-radius: 10px;
+  align-items: center;
+  justify-content: center;
+  background-color: black;
+`;
 
 const Fix = ({ modalVisible, setModalVisible }) => {
   const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions(); //권한 요청을 위한 hooks
   const [img, setImg] = useRecoilState(imgData);
-  const [access, setAccess] = useRecoilState(accessData);
-  const [grant, setGrant] = useRecoilState(grantData);
+
+  const access = useRecoilValue(accessData);
+  const grant = useRecoilValue(grantData);
+  const auth = grant + " " + access;
+
   const [name, setName] = useRecoilState(nameData);
   const [introduce, setIntroduce] = useRecoilState(IntroduceData);
-  const [content, setContent] = useRecoilState(contentData);
+  const [pw, setPw] = useRecoilState(pwData);
+  const response = useRecoilValue(responseData);
+  const distance = useRecoilValue(distanceData);
+  const rating = useRecoilValue(ratingData);
+  const uniqueId = useRecoilValue(uniqueIdData);
+
+  const [changePw, setChangePw] = useState();
+  const [changePw2, setChangePw2] = useState();
+
   const [ok, setOk] = useState(false);
-  const auth = grant + " " + access;
+
   const pickImage = async () => {
     if (!status.granted) {
       const permission = await requestPermission();
@@ -123,7 +165,7 @@ const Fix = ({ modalVisible, setModalVisible }) => {
     const match = /\.(\w+)$/.exec(fileName ?? "");
     const type = match ? `image/${match[1]}` : `image`;
     const formData = new FormData();
-    /* 
+
     formData.append("image", {
       uri: localUri,
       name: fileName,
@@ -138,27 +180,42 @@ const Fix = ({ modalVisible, setModalVisible }) => {
         Authorization: auth,
       },
       data: formData,
-    });*/
+    });
   };
   const onChangeName = (payload) => {
     setName(payload);
   };
+  const onChangePw1 = (payload) => {
+    setChangePw(payload);
+  };
+  const onChangePw2 = (payload) => {
+    setChangePw2(payload);
+  };
+  const changePassword = () => {
+    if (changePw === changePw2) {
+      Alert.alert("비밀번호 변경 완료");
+      setPw(changePw);
+    } else {
+      Alert.alert("비밀번호가 일치하지 않습니다.");
+    }
+  };
   const onPressBtn = () => {
     setModalVisible(!modalVisible);
-    axios.put(
-      "http://10.0.2.2:8080/api/userInfo",
-      {
-        id: contentData.id,
-        name: contentData.name,
-        latitude: contentData.latitude,
-        longitude: contentData.longitude,
-        introduce: contentData.introduce,
-        distance: contentData.distance,
-        rating: contentData.rating,
-        avgReactTime: contentData.avgReactTime,
-      },
-      { headers: { Authorization: `${grant}` + " " + `${access}` } }
-    );
+    axios
+      .put(
+        "http://10.0.2.2:8080/api/userInfo",
+        {
+          avgReactTime: response,
+          distance: distance,
+          id: uniqueId,
+          introduce: introduce,
+          name: name,
+          rating: rating,
+          //password : pw
+        },
+        { headers: { Authorization: `${grant}` + " " + `${access}` } }
+      )
+      .then((res) => console.log("유저 정보 데이터 전송 성공"));
   };
   const onChangeIntroduce = (payload) => {
     setIntroduce(payload);
@@ -173,65 +230,89 @@ const Fix = ({ modalVisible, setModalVisible }) => {
       }}
     >
       <Center>
-        <View style={{ flex: 1, opacity: 0.8, backgroundColor: "gray" }}></View>
-        <Container>
-          <TitleBar>
-            <View style={{ flex: 1 }}>
-              <MaterialIcons
-                onPress={() => {
-                  setModalVisible(!modalVisible);
-                }}
-                name="cancel"
-                size={24}
-                color="black"
-              />
-            </View>
-            <Title>프로필 수정</Title>
-            <View style={{ flex: 1, backgroundColor: "white" }}></View>
-          </TitleBar>
-          <MainBar>
-            <ImgView>
-              <ProfileImg source={{ uri: img }} />
-              <View style={{ position: "relative" }}>
-                <AddPhoto onPress={pickImage}>
-                  <Entypo name="camera" size={15} color="white" />
-                </AddPhoto>
-              </View>
-            </ImgView>
-            <Line />
-            <FixView>
-              <InputView>
-                <Inform>이름</Inform>
-                <Input
-                  value={name}
-                  placeholder="이름을 입력해주세요..."
-                  onChangeText={onChangeName}
+        <View
+          style={{ flex: 0.07, opacity: 0.8, backgroundColor: "gray" }}
+        ></View>
+        <ScrollView style={{ flex: 13 }}>
+          <Container>
+            <TitleBar>
+              <View style={{ flex: 1 }}>
+                <MaterialIcons
+                  onPress={() => {
+                    setModalVisible(!modalVisible);
+                  }}
+                  name="cancel"
+                  size={24}
+                  color="black"
                 />
-              </InputView>
-              <InputView>
-                <Inform
-                  value={introduce}
-                  placeholder="자기소개..."
-                  onChangeText={onChangeIntroduce}
-                >
-                  자기소개
-                </Inform>
-                <Input />
-              </InputView>
-              <InputView>
-                <Inform>출생연도</Inform>
-                <Input />
-              </InputView>
-              <Button onPress={onPressBtn}>
-                <Text
-                  style={{ color: "white", fontWeight: "600", fontSize: 15 }}
-                >
-                  완료
-                </Text>
-              </Button>
-            </FixView>
-          </MainBar>
-        </Container>
+              </View>
+              <Title>프로필 수정</Title>
+              <View style={{ flex: 1, backgroundColor: "white" }}></View>
+            </TitleBar>
+            <MainBar>
+              <ImgView>
+                <ProfileImg source={{ uri: img }} />
+                <View style={{ position: "relative" }}>
+                  <AddPhoto onPress={pickImage}>
+                    <Entypo name="camera" size={15} color="white" />
+                  </AddPhoto>
+                </View>
+              </ImgView>
+              <Line />
+              <FixView>
+                <InputView>
+                  <Inform>이름</Inform>
+                  <Input
+                    value={name}
+                    placeholder="이름을 입력해주세요..."
+                    onChangeText={onChangeName}
+                  />
+                </InputView>
+                <InputView>
+                  <Inform>자기소개</Inform>
+                  <IntroduceInput
+                    value={introduce}
+                    placeholder="자기소개..."
+                    onChangeText={onChangeIntroduce}
+                  />
+                </InputView>
+                <InputView>
+                  <Inform style={{ marginBottom: 10 }}>비밀번호 변경</Inform>
+                  <Text style={{ marginHorizontal: 20 }}>비밀번호 입력</Text>
+                  <Input onChangeText={onChangePw1} secureTextEntry />
+                  <Text style={{ marginHorizontal: 20 }}>한번 더 입력</Text>
+                  <Input onChangeText={onChangePw2} secureTextEntry />
+                  <View
+                    style={{
+                      alignItems: "flex-end",
+                      marginHorizontal: 20,
+                      marginBottom: 30,
+                    }}
+                  >
+                    <CheckBtn onPress={changePassword}>
+                      <Text
+                        style={{
+                          color: "white",
+                          fontWeight: "600",
+                          fontSize: 15,
+                        }}
+                      >
+                        확인
+                      </Text>
+                    </CheckBtn>
+                  </View>
+                </InputView>
+                <Button onPress={onPressBtn}>
+                  <Text
+                    style={{ color: "white", fontWeight: "600", fontSize: 15 }}
+                  >
+                    완료
+                  </Text>
+                </Button>
+              </FixView>
+            </MainBar>
+          </Container>
+        </ScrollView>
       </Center>
     </Modal>
   );

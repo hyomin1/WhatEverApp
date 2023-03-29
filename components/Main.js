@@ -14,7 +14,7 @@ import styled from "styled-components/native";
 import { PROVIDER_GOOGLE } from "react-native-maps";
 import { MapStyle } from "../MapStyle";
 import axios from "axios";
-import { useRecoilState } from "recoil";
+import { useRecoilValue } from "recoil";
 import { accessData, grantData } from "../atom";
 import { MaterialIcons } from "@expo/vector-icons";
 axios.defaults.headers.common[("Authorization", grantData + " " + accessData)];
@@ -50,8 +50,8 @@ const Main = ({ navigation: { navigate } }) => {
   const [location, setLocation] = useState();
   const [ok, setOk] = useState();
   const [isLoading, setLoading] = useState(true);
-  const [access, setAccess] = useRecoilState(accessData);
-  const [grant, setGrant] = useRecoilState(grantData);
+  const access = useRecoilValue(accessData);
+  const grant = useRecoilValue(grantData);
   const auth = grant + " " + access;
   const [content, setContent] = useState([]);
 
@@ -77,16 +77,16 @@ const Main = ({ navigation: { navigate } }) => {
         { headers: { Authorization: `${grant}` + " " + `${access}` } }
       )
       .then((res) => {
+        console.log("위도,경도 전송 성공");
         setContent(res.data.content);
       })
       .catch((error) => console.log(error));
-    setLocation({ latitude, longitude });
+    setLocation({ latitude, longitude }); //내 위치 저장하기 위함
     setLoading(false);
   };
   useEffect(() => {
     getLocation();
   }, []);
-  //console.log(location);
   return (
     <View style={{ flex: 1 }}>
       {isLoading ? (

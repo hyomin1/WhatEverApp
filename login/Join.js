@@ -1,7 +1,9 @@
 import axios from "axios";
 import { useState } from "react";
 import { Alert, View } from "react-native";
+import { useRecoilState } from "recoil";
 import styled from "styled-components/native";
+import { idData, nameData, pwData } from "../atom";
 
 const Container = styled.View`
   flex: 1;
@@ -44,18 +46,19 @@ const ButtonText = styled.Text`
 `;
 
 const Join = ({ navigation: { navigate } }) => {
-  const [name, setName] = useState(null);
-  const [id, setId] = useState(null);
-  const [pw, setPw] = useState(null);
+  const [name, setName] = useRecoilState(nameData);
+  const [id, setId] = useRecoilState(idData);
+  const [pw1, setPw1] = useState(null);
   const [pw2, setPw2] = useState(null);
+  const [pw, setPw] = useRecoilState(pwData);
   const onChangeName = (payload) => {
-    setName(name);
+    setName(payload);
   };
   const onChangeId = (payload) => {
     setId(payload);
   };
   const onChangePw = (payload) => {
-    setPw(payload);
+    setPw1(payload);
   };
   const onChangePw2 = (payload) => {
     setPw2(payload);
@@ -63,25 +66,26 @@ const Join = ({ navigation: { navigate } }) => {
   const onPressJoin = () => {
     if (id === null) {
       Alert.alert("아이디를 입력해주세요");
-    } else if (pw === null || pw2 === null) {
+    } else if (pw1 === null || pw2 === null) {
       Alert.alert("비밀번호를 입력해주세요");
-    } else if (pw !== pw2) {
+    } else if (pw1 !== pw2) {
       Alert.alert("비밀번호가 동일하지 않습니다");
     } else {
       Alert.alert("회원가입 성공!"); //status 200 일때만
+      setPw(pw1); //회원가입에 사용한 pw를 recoil에 저장
       axios
         .post("http://10.0.2.2:8080/join", {
           name: name,
           userId: id,
-          password: pw,
+          password: pw1,
         })
         .then(function (res) {
-          console.log(res);
+          console.log("회원가입 성공");
+          navigate("Login");
         })
         .catch((error) => {
           console.log(error);
         });
-      navigate("Login");
     }
   };
   return (
@@ -93,14 +97,12 @@ const Join = ({ navigation: { navigate } }) => {
         <FormText>이름</FormText>
         <Input
           placeholder="이름"
-          value={name}
           onChangeText={onChangeName}
           returnKeyType="next"
         />
         <FormText>ID</FormText>
         <Input
           placeholder="영문 3자 이상"
-          value={id}
           onChangeText={onChangeId}
           returnKeyType="next"
         />
@@ -108,7 +110,6 @@ const Join = ({ navigation: { navigate } }) => {
         <Input
           placeholder="8자 이상"
           secureTextEntry
-          value={pw}
           onChangeText={onChangePw}
           returnKeyType="next"
         />
@@ -116,7 +117,6 @@ const Join = ({ navigation: { navigate } }) => {
         <Input
           placeholder="8자 이상"
           secureTextEntry
-          value={pw2}
           onChangeText={onChangePw2}
         />
         <Button onPress={onPressJoin}>
