@@ -80,22 +80,25 @@ function Login({ navigation: { navigate } }) {
     } else if (password === "") {
       Alert.alert("비밀번호를 입력해주세요");
     } else {
-      goMain();
+      //goMain();
       axios
-        .post("http://10.0.2.2:8080/login", {
-          userId: id,
-          password: password,
-        })
+        .post(
+          "http://10.0.2.2:8080/login",
+          {
+            userId: id,
+            password: password,
+          },
+          { headers: { Authorization: `${grant}` + " " + `${access}` } }
+        )
         .then(function (res) {
           setAccess(res.data.accessToken);
           setGrant(res.data.grantType);
           axios
             .defaults.headers.common[("Authorization", res.data.grantType + " " + res.data.accessToken)];
-
-          //  navigate("Tabs");
+          goMain();
         })
         .catch((error) => {
-          //console.log(error);
+          console.log(error);
         });
     }
   };

@@ -8,10 +8,16 @@ import { AntDesign } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
+import axios from "axios";
+import { useRecoilState } from "recoil";
+import { accessData, contentData, grantData } from "../atom";
 
 const Tab = createBottomTabNavigator();
 
 const Tabs = ({ navigation: { navigate } }) => {
+  const [access, setAccess] = useRecoilState(accessData);
+  const [grant, setGrant] = useRecoilState(grantData);
+  const [content, setContent] = useRecoilState(contentData);
   return (
     <Tab.Navigator
       screenOptions={{
@@ -52,7 +58,16 @@ const Tabs = ({ navigation: { navigate } }) => {
                 style={{ marginLeft: 11 }}
                 size={24}
                 color="black"
-                onPress={() => navigate("Profile")}
+                onPress={() => {
+                  navigate("Profile");
+                  axios
+                    .get("http://10.0.2.2:8080/api/userInfo", {
+                      headers: {
+                        Authorization: `${grant}` + " " + `${access}`,
+                      },
+                    })
+                    .then((res) => setContent(res.data));
+                }}
               />
             );
           },

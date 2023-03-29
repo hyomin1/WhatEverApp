@@ -21,3 +21,8 @@ export const IntroduceData = atom({
   key: "introduce",
   default: null,
 });
+
+export const contentData = atom({
+  key: "content",
+  default: {},
+});

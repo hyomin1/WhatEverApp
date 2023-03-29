@@ -104,7 +104,6 @@ const Profile = () => {
       <Box>
         <ContentBox>
           <ContentText>자기소개</ContentText>
-          <Entypo name="pencil" size={24} color="black" onPress={goIntroduce} />
         </ContentBox>
         <View style={{ paddingHorizontal: 20 }}>
           <Text style={{ fontSize: 15, fontWeight: "400" }}>{introduce}</Text>

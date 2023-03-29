@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from "react";
 import MapView, { Marker } from "react-native-maps";
 import Geolocation from "react-native-geolocation-service";
-import { View, Dimensions, Image, ActivityIndicator } from "react-native";
+import {
+  View,
+  Dimensions,
+  Image,
+  ActivityIndicator,
+  Text,
+  StyleSheet,
+} from "react-native";
 import * as Location from "expo-location";
 import styled from "styled-components/native";
 import { PROVIDER_GOOGLE } from "react-native-maps";
@@ -9,15 +16,35 @@ import { MapStyle } from "../MapStyle";
 import axios from "axios";
 import { useRecoilState } from "recoil";
 import { accessData, grantData } from "../atom";
-//axios.defaults.headers.common[("Authorization", grantData + " " + accessData)];
-
+import { MaterialIcons } from "@expo/vector-icons";
+axios.defaults.headers.common[("Authorization", grantData + " " + accessData)];
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
   flex: 1;
   justify-content: center;
   align-items: center;
 `;
-
-const { height: SCREEN_HEIGHT } = Dimensions.get("window");
+const BtnContainer = styled.View`
+  position: absolute;
+  width: 50%;
+  bottom: 4%;
+  left: 50%;
+`;
+const Button = styled.Pressable`
+  padding: 0 15px;
+  height: 45px;
+  border-radius: 20px;
+  align-items: center;
+  justify-content: center;
+  background-color: black;
+`;
+const HelperView = styled.View`
+  flex-direction: row;
+  flex: 1;
+  background-color: white;
+  justify-content: center;
+  align-items: center;
+`;
 
 const Main = ({ navigation: { navigate } }) => {
   const [location, setLocation] = useState();
@@ -26,6 +53,7 @@ const Main = ({ navigation: { navigate } }) => {
   const [access, setAccess] = useRecoilState(accessData);
   const [grant, setGrant] = useRecoilState(grantData);
   const auth = grant + " " + access;
+  const [content, setContent] = useState([]);
 
   const aroundUser = [
     { id: 1, latitude: 35.1230467, longitude: 126.8935155 },
@@ -39,19 +67,24 @@ const Main = ({ navigation: { navigate } }) => {
     const {
       coords: { latitude, longitude },
     } = await Location.getCurrentPositionAsync({ accuracy: 5 });
-
+    await axios
+      .put(
+        "http://10.0.2.2:8080/api/location/findHelper/distance",
+        {
+          latitude: latitude,
+          longitude: longitude,
+        },
+        { headers: { Authorization: `${grant}` + " " + `${access}` } }
+      )
+      .then((res) => {
+        setContent(res.data.content);
+      })
+      .catch((error) => console.log(error));
     setLocation({ latitude, longitude });
     setLoading(false);
   };
-
   useEffect(() => {
     getLocation();
-    /*axios
-      .get("http://10.0.2.2:8080/test", { headers: { Authorization: auth } })
-      .then((res) => console.log(res.data))
-      .catch((error) => {
-        console.log(error.response.status);
-      });*/
   }, []);
   //console.log(location);
   return (
@@ -61,40 +94,54 @@ const Main = ({ navigation: { navigate } }) => {
           <ActivityIndicator />
         </Loader>
       ) : (
-        <MapView
-          style={{ width: "100%", height: SCREEN_HEIGHT / 1.5 }}
-          initialRegion={{
-            latitude: location.latitude,
-            longitude: location.longitude,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          }}
-          showsUserLocation={true}
-          provider={PROVIDER_GOOGLE}
-          customMapStyle={MapStyle}
-        >
-          <Marker
-            coordinate={{
+        <View style={{ flex: 16, position: "relative", width: SCREEN_WIDTH }}>
+          <MapView
+            style={{ width: "100%", flex: 1 }}
+            initialRegion={{
               latitude: location.latitude,
               longitude: location.longitude,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
             }}
-          />
-          {aroundUser.map((location) => (
+            showsUserLocation={true}
+            provider={PROVIDER_GOOGLE}
+            customMapStyle={MapStyle}
+          >
             <Marker
-              key={location.id}
               coordinate={{
                 latitude: location.latitude,
                 longitude: location.longitude,
               }}
-            >
-              <Image
-                source={require("../images/help.png")}
-                style={{ height: 35, width: 35, borderRadius: 20 }}
-              />
-            </Marker>
-          ))}
-        </MapView>
+            />
+            {content.map((location) => (
+              <Marker
+                key={location.id}
+                coordinate={{
+                  latitude: location.latitude,
+                  longitude: location.longitude,
+                }}
+              >
+                <Image
+                  source={require("../images/help.png")}
+                  style={{ height: 35, width: 35, borderRadius: 20 }}
+                />
+              </Marker>
+            ))}
+          </MapView>
+          <BtnContainer style={{ marginLeft: -SCREEN_WIDTH / 4 }}>
+            <Button>
+              <Text style={{ color: "white", fontWeight: "600", fontSize: 17 }}>
+                심부름 요청하기
+              </Text>
+            </Button>
+          </BtnContainer>
+        </View>
       )}
+
+      <HelperView>
+        <Text style={{ fontWeight: "600" }}>주변 헬퍼 보기</Text>
+        <MaterialIcons name="keyboard-arrow-up" size={24} color="black" />
+      </HelperView>
     </View>
   );
 };

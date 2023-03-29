@@ -3,9 +3,17 @@ import styled from "styled-components/native";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
-import { accessData, grantData, imgData, nameData } from "../atom";
+import {
+  accessData,
+  grantData,
+  imgData,
+  nameData,
+  IntroduceData,
+  contentData,
+} from "../atom";
 import { useRecoilState } from "recoil";
 import { Entypo } from "@expo/vector-icons";
+import axios from "axios";
 const Center = styled.View`
   flex: 1;
 `;
@@ -89,6 +97,8 @@ const Fix = ({ modalVisible, setModalVisible }) => {
   const [access, setAccess] = useRecoilState(accessData);
   const [grant, setGrant] = useRecoilState(grantData);
   const [name, setName] = useRecoilState(nameData);
+  const [introduce, setIntroduce] = useRecoilState(IntroduceData);
+  const [content, setContent] = useRecoilState(contentData);
   const [ok, setOk] = useState(false);
   const auth = grant + " " + access;
   const pickImage = async () => {
@@ -135,6 +145,23 @@ const Fix = ({ modalVisible, setModalVisible }) => {
   };
   const onPressBtn = () => {
     setModalVisible(!modalVisible);
+    axios.put(
+      "http://10.0.2.2:8080/api/userInfo",
+      {
+        id: contentData.id,
+        name: contentData.name,
+        latitude: contentData.latitude,
+        longitude: contentData.longitude,
+        introduce: contentData.introduce,
+        distance: contentData.distance,
+        rating: contentData.rating,
+        avgReactTime: contentData.avgReactTime,
+      },
+      { headers: { Authorization: `${grant}` + " " + `${access}` } }
+    );
+  };
+  const onChangeIntroduce = (payload) => {
+    setIntroduce(payload);
   };
   return (
     <Modal
@@ -182,7 +209,13 @@ const Fix = ({ modalVisible, setModalVisible }) => {
                 />
               </InputView>
               <InputView>
-                <Inform>성별</Inform>
+                <Inform
+                  value={introduce}
+                  placeholder="자기소개..."
+                  onChangeText={onChangeIntroduce}
+                >
+                  자기소개
+                </Inform>
                 <Input />
               </InputView>
               <InputView>

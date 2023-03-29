@@ -45,10 +45,6 @@ const Button = styled.Pressable`
 `;
 
 const Introduce = ({ introduceVisible, setIntroduceVisible }) => {
-  const [introduce, setIntroduce] = useRecoilState(IntroduceData);
-  const onChangeIntroduce = (payload) => {
-    setIntroduce(payload);
-  };
   return (
     <Modal
       animationType="slide"
@@ -84,11 +80,7 @@ const Introduce = ({ introduceVisible, setIntroduceVisible }) => {
               >
                 자기소개
               </Text>
-              <Input
-                value={introduce}
-                placeholder="입력해주세요..."
-                onChangeText={onChangeIntroduce}
-              />
+              <Input />
               <Button onPress={() => setIntroduceVisible(!introduceVisible)}>
                 <Text
                   style={{ color: "white", fontWeight: "600", fontSize: 15 }}
