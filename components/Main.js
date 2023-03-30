@@ -85,6 +85,7 @@ const Main = ({ navigation: { navigate } }) => {
       )
       .then((res) => {
         console.log("위도,경도 전송 성공");
+        console.log(res.data.content);
         setContent(res.data.content);
       })
       .catch((error) => console.log(error));

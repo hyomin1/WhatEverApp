@@ -89,7 +89,8 @@ const Tabs = ({ navigation: { navigate } }) => {
                       setName(res.data.name);
                       setRating(res.data.rating);
                       setUniqueId(res.data.id);
-                    });
+                    })
+                    .catch((error) => console.log("에러"));
                 }}
               />
             );
