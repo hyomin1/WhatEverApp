@@ -1,21 +1,14 @@
 import React, { useState, useEffect } from "react";
 import MapView, { Marker } from "react-native-maps";
-import Geolocation from "react-native-geolocation-service";
-import {
-  View,
-  Dimensions,
-  Image,
-  ActivityIndicator,
-  Text,
-  StyleSheet,
-} from "react-native";
+
+import { View, Dimensions, Image, ActivityIndicator, Text } from "react-native";
 import * as Location from "expo-location";
 import styled from "styled-components/native";
 import { PROVIDER_GOOGLE } from "react-native-maps";
-import { MapStyle } from "../MapStyle";
+
 import axios from "axios";
-import { useRecoilValue } from "recoil";
-import { accessData, grantData, pwData } from "../atom";
+import { useRecoilValue, useRecoilState } from "recoil";
+import { accessData, grantData, pwData, contentData } from "../atom";
 import { MaterialIcons } from "@expo/vector-icons";
 import HelperList from "./HelperList";
 import Order from "./Order";
@@ -55,7 +48,7 @@ const Main = ({ navigation: { navigate } }) => {
   const access = useRecoilValue(accessData);
   const grant = useRecoilValue(grantData);
   const auth = grant + " " + access;
-  const [content, setContent] = useState([]);
+  const [content, setContent] = useRecoilState(contentData);
   const pw = useRecoilValue(pwData);
 
   const [helperVisible, setHelperVisible] = useState(false);
@@ -85,10 +78,11 @@ const Main = ({ navigation: { navigate } }) => {
       )
       .then((res) => {
         console.log("위도,경도 전송 성공");
-        console.log(res.data.content);
+
         setContent(res.data.content);
       })
       .catch((error) => console.log(error));
+
     setLocation({ latitude, longitude }); //내 위치 저장하기 위함
     setLoading(false);
   };
@@ -135,6 +129,10 @@ const Main = ({ navigation: { navigate } }) => {
               </Marker>
             ))}
           </MapView>
+          <Order
+            setOrderVisible={setOrderVisible}
+            orderVisible={orderVisible}
+          />
           <BtnContainer style={{ marginLeft: -SCREEN_WIDTH / 4 }}>
             <Button onPress={() => setOrderVisible(!orderVisible)}>
               <Text style={{ color: "white", fontWeight: "600", fontSize: 17 }}>
@@ -142,10 +140,6 @@ const Main = ({ navigation: { navigate } }) => {
               </Text>
             </Button>
           </BtnContainer>
-          <Order
-            setOrderVisible={setOrderVisible}
-            orderVisible={orderVisible}
-          />
         </View>
       )}
       <HelperList

@@ -1,7 +1,8 @@
 import styled from "styled-components/native";
-import { Modal, View, ScrollView, TextInput } from "react-native";
+import { Modal, View, ScrollView, Text } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import Main from "./Main";
+import Postcode from "@actbase/react-daum-postcode";
+import { useState } from "react";
 const Container = styled.View`
   flex: 1;
 `;
@@ -39,6 +40,7 @@ const TitleInput = styled.TextInput`
 `;
 
 const Order = ({ orderVisible, setOrderVisible }) => {
+  const [isModal, setModal] = useState(false);
   return (
     <Modal
       animationType="slide"
@@ -78,6 +80,12 @@ const Order = ({ orderVisible, setOrderVisible }) => {
               <View>
                 <MainText>제목</MainText>
                 <TitleInput placeholder="제목을 입력해주세요..." />
+                <Text>목적지 주소</Text>
+                <Postcode
+                  style={{ width: 320, height: 320 }}
+                  jsOptions={{ animation: true }}
+                  onSelected={(data) => alert(JSON.stringify(data))}
+                />
               </View>
             </MainBar>
           </Container>

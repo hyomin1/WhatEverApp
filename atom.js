@@ -45,3 +45,7 @@ export const uniqueIdData = atom({
   key: "uniqueId",
   default: null,
 });
+export const contentData = atom({
+  key: "content",
+  default: null,
+});
