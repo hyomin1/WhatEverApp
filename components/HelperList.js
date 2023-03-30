@@ -17,6 +17,8 @@ const Title = styled.Text`
   font-weight: 700;
   font-size: 14px;
   margin-bottom: 10px;
+  justify-content: center;
+  align-items: center;
 `;
 const Line = styled.View`
   border-bottom-color: gray;
@@ -54,7 +56,10 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
                   color="black"
                 />
               </View>
-              <Title>주변 헬퍼 보기</Title>
+              <View style={{ flex: 1 }}>
+                <Title>주변 헬퍼 보기</Title>
+              </View>
+
               <View style={{ flex: 1 }}></View>
             </TitleBar>
             <Line />

@@ -15,9 +15,10 @@ import { PROVIDER_GOOGLE } from "react-native-maps";
 import { MapStyle } from "../MapStyle";
 import axios from "axios";
 import { useRecoilValue } from "recoil";
-import { accessData, grantData } from "../atom";
+import { accessData, grantData, pwData } from "../atom";
 import { MaterialIcons } from "@expo/vector-icons";
 import HelperList from "./HelperList";
+import Order from "./Order";
 axios.defaults.headers.common[("Authorization", grantData + " " + accessData)];
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
@@ -55,8 +56,10 @@ const Main = ({ navigation: { navigate } }) => {
   const grant = useRecoilValue(grantData);
   const auth = grant + " " + access;
   const [content, setContent] = useState([]);
+  const pw = useRecoilValue(pwData);
 
   const [helperVisible, setHelperVisible] = useState(false);
+  const [orderVisible, setOrderVisible] = useState(false);
 
   const aroundUser = [
     { id: 1, latitude: 35.1230467, longitude: 126.8935155 },
@@ -84,7 +87,7 @@ const Main = ({ navigation: { navigate } }) => {
         console.log("위도,경도 전송 성공");
         setContent(res.data.content);
       })
-      .catch((error) => console.log("에러"));
+      .catch((error) => console.log(error));
     setLocation({ latitude, longitude }); //내 위치 저장하기 위함
     setLoading(false);
   };
@@ -109,7 +112,6 @@ const Main = ({ navigation: { navigate } }) => {
             }}
             showsUserLocation={true}
             provider={PROVIDER_GOOGLE}
-            customMapStyle={MapStyle}
           >
             <Marker
               coordinate={{
@@ -133,12 +135,16 @@ const Main = ({ navigation: { navigate } }) => {
             ))}
           </MapView>
           <BtnContainer style={{ marginLeft: -SCREEN_WIDTH / 4 }}>
-            <Button>
+            <Button onPress={() => setOrderVisible(!orderVisible)}>
               <Text style={{ color: "white", fontWeight: "600", fontSize: 17 }}>
                 심부름 요청하기
               </Text>
             </Button>
           </BtnContainer>
+          <Order
+            setOrderVisible={setOrderVisible}
+            orderVisible={orderVisible}
+          />
         </View>
       )}
       <HelperList
