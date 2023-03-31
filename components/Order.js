@@ -3,6 +3,9 @@ import { Modal, View, ScrollView, Text } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import Postcode from "@actbase/react-daum-postcode";
 import { useState } from "react";
+import { imgData } from "../atom";
+import * as Location from "expo-location";
+import SelectDropdown from "react-native-select-dropdown";
 const Container = styled.View`
   flex: 1;
 `;
@@ -24,23 +27,43 @@ const Line = styled.View`
   margin-top: 3px;
 `;
 const MainBar = styled.View`
-  padding: 0px 15px;
+  padding: 0px 20px;
   margin-top: 20px;
 `;
 const MainText = styled.Text`
   font-weight: 600;
-  font-size: 16px;
+  font-size: 18px;
   margin-bottom: 10px;
 `;
 const TitleInput = styled.TextInput`
-  height: 40px;
+  height: 50px;
   border-width: 0.9px;
   padding: 10px;
   border-radius: 5px;
+  margin-bottom: 40px;
+`;
+const Button = styled.Pressable`
+  padding: 0 15px;
+  height: 40px;
+  border-radius: 10px;
+  margin: 5px 0;
+  align-items: center;
+  justify-content: center;
+  background-color: #2196f3;
 `;
 
 const Order = ({ orderVisible, setOrderVisible }) => {
+  const hours = ["1시간", "2시간", "3시간", "4시간"];
+
   const [isModal, setModal] = useState(false);
+  const [longitude, setLongitude] = useState();
+  const [latitude, setLatitude] = useState();
+  const [time, setTime] = useState();
+  const [reward, setReward] = useState();
+
+  const onChangeReward = (payload) => {
+    setReward(payload);
+  };
   return (
     <Modal
       animationType="slide"
@@ -49,9 +72,7 @@ const Order = ({ orderVisible, setOrderVisible }) => {
       onRequestClose={() => setOrderVisible(!orderVisible)}
     >
       <View style={{ flex: 1 }}>
-        <View
-          style={{ flex: 0.07, opacity: 0.8, backgroundColor: "gray" }}
-        ></View>
+        <View style={{ flex: 1, opacity: 0.8, backgroundColor: "gray" }}></View>
         <ScrollView style={{ backgroundColor: "white" }}>
           <Container>
             <TitleBar>
@@ -80,13 +101,44 @@ const Order = ({ orderVisible, setOrderVisible }) => {
               <View>
                 <MainText>제목</MainText>
                 <TitleInput placeholder="제목을 입력해주세요..." />
-                <Text>목적지 주소</Text>
+                <MainText>내용</MainText>
+                <TitleInput placeholder="내용을 입력해주세요..." />
+                <MainText>심부름 장소</MainText>
                 <Postcode
-                  style={{ width: 320, height: 320 }}
+                  style={{ flex: 1, height: 250, marginBottom: 40 }}
                   jsOptions={{ animation: true }}
-                  onSelected={(data) => alert(JSON.stringify(data))}
+                  onSelected={async (data) => {
+                    const location = await Location.geocodeAsync(data.query);
+                    setLatitude(location.latitude);
+                    setLongitude(location.longitude);
+                  }}
+                />
+                <MainText>예상 소요 시간</MainText>
+                <SelectDropdown
+                  buttonStyle={{
+                    backgroundColor: "#2196f3",
+                  }}
+                  buttonTextStyle={{
+                    color: "white",
+                    fontWeight: "600",
+                  }}
+                  data={hours}
+                  onSelect={(hour) => setTime(hour)}
+                  defaultButtonText="시간"
+                />
+                <MainText style={{ marginTop: 20 }}>심부름 비</MainText>
+                <TitleInput
+                  onChangeText={onChangeReward}
+                  placeholder="금액을 입력하세요..."
                 />
               </View>
+              <Button>
+                <Text
+                  style={{ color: "white", fontWeight: "600", fontSize: 15 }}
+                >
+                  요청
+                </Text>
+              </Button>
             </MainBar>
           </Container>
         </ScrollView>
