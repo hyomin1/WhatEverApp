@@ -46,6 +46,15 @@ export const uniqueIdData = atom({
   default: null,
 });
 export const contentData = atom({
+  //거리순 default
   key: "content",
+  default: null,
+});
+export const winRatData = atom({
+  key: "winRatData",
+  default: null,
+});
+export const winResData = atom({
+  key: "winResData",
   default: null,
 });

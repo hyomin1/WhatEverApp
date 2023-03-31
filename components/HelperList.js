@@ -1,9 +1,10 @@
-import { Modal, ScrollView, Text, View } from "react-native";
+import { Modal, Pressable, ScrollView, Text, View } from "react-native";
 import styled from "styled-components/native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRecoilValue } from "recoil";
-import { contentData } from "../atom";
+import { contentData, winRatData, winResData } from "../atom";
 import { AntDesign } from "@expo/vector-icons";
+import { useState } from "react";
 
 const Container = styled.View`
   flex: 1;
@@ -13,6 +14,8 @@ const TitleBar = styled.View`
   justify-content: space-between;
   margin-top: 10px;
   background-color: white;
+  border-bottom-color: black;
+  border-bottom-width: 0.5px;
 `;
 const Title = styled.Text`
   font-weight: 700;
@@ -47,9 +50,19 @@ const Distance = styled.Text`
 const Rating = styled.Text`
   margin-bottom: 20px;
 `;
+const ChooseText = styled.Text`
+  font-size: 12px;
+  margin-right: 5px;
+`;
 
 const HelperList = ({ helperVisible, setHelperVisible }) => {
-  const content = useRecoilValue(contentData);
+  const distanceData = useRecoilValue(contentData);
+  const ratingData = useRecoilValue(winRatData);
+  const responseData = useRecoilValue(winResData);
+
+  const [isDistance, setIsDistance] = useState(true);
+  const [isRating, setIsRating] = useState(false);
+  const [isResponse, setIsResponse] = useState(false);
 
   return (
     <Modal
@@ -77,17 +90,124 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
                   color="black"
                 />
               </View>
-              <View style={{ flex: 1, justifyContent: "center" }}>
+              <View
+                style={{
+                  flex: 1,
+                }}
+              >
                 <Title>주변 헬퍼 보기</Title>
               </View>
 
-              <View style={{ flex: 1 }}></View>
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: "row",
+                }}
+              >
+                <Pressable
+                  onPress={() => {
+                    setIsDistance(true);
+                    setIsRating(false);
+                    setIsResponse(false);
+                  }}
+                >
+                  <ChooseText>거리</ChooseText>
+                </Pressable>
+                <Pressable
+                  onPress={() => {
+                    setIsDistance(false);
+                    setIsRating(true);
+                    setIsResponse(false);
+                  }}
+                >
+                  <ChooseText>평점</ChooseText>
+                </Pressable>
+                <Pressable
+                  onPress={() => {
+                    setIsDistance(false);
+                    setIsRating(false);
+                    setIsResponse(true);
+                  }}
+                >
+                  <ChooseText>응답시간</ChooseText>
+                </Pressable>
+              </View>
             </TitleBar>
-            <Line />
+
             <MainBar>
               <View style={{ flex: 2 }}>
-                {content
-                  ? content.map((data) => (
+                {distanceData && isDistance
+                  ? distanceData.map((data) => (
+                      <HelperInform key={data.id}>
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Text>사진</Text>
+                        </View>
+                        <View style={{ flex: 2 }}>
+                          <Name>{data.name}</Name>
+                          <Distance>{data.distance.toFixed(2)}m</Distance>
+                          <Rating>
+                            {data.rating ? (
+                              <View style={{ flexDirection: "row" }}>
+                                <AntDesign
+                                  name="star"
+                                  size={15}
+                                  color="yellow"
+                                />
+                                <AntDesign
+                                  name="star"
+                                  size={15}
+                                  color="yellow"
+                                />
+                              </View>
+                            ) : null}
+                          </Rating>
+                        </View>
+                      </HelperInform>
+                    ))
+                  : null}
+                {ratingData && isRating
+                  ? ratingData.map((data) => (
+                      <HelperInform key={data.id}>
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Text>사진</Text>
+                        </View>
+                        <View style={{ flex: 2 }}>
+                          <Name>{data.name}</Name>
+                          <Distance>{data.distance.toFixed(2)}m</Distance>
+                          <Rating>
+                            {data.rating ? (
+                              <View style={{ flexDirection: "row" }}>
+                                <AntDesign
+                                  name="star"
+                                  size={15}
+                                  color="yellow"
+                                />
+                                <AntDesign
+                                  name="star"
+                                  size={15}
+                                  color="yellow"
+                                />
+                              </View>
+                            ) : null}
+                          </Rating>
+                        </View>
+                      </HelperInform>
+                    ))
+                  : null}
+                {responseData && isResponse
+                  ? responseData.map((data) => (
                       <HelperInform key={data.id}>
                         <View
                           style={{

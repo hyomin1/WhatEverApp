@@ -8,7 +8,14 @@ import { PROVIDER_GOOGLE } from "react-native-maps";
 
 import axios from "axios";
 import { useRecoilValue, useRecoilState } from "recoil";
-import { accessData, grantData, pwData, contentData } from "../atom";
+import {
+  accessData,
+  grantData,
+  pwData,
+  contentData,
+  winRatData,
+  winResData,
+} from "../atom";
 import { MaterialIcons } from "@expo/vector-icons";
 import HelperList from "./HelperList";
 import Order from "./Order";
@@ -48,16 +55,16 @@ const Main = ({ navigation: { navigate } }) => {
   const access = useRecoilValue(accessData);
   const grant = useRecoilValue(grantData);
   const auth = grant + " " + access;
-  const [content, setContent] = useRecoilState(contentData);
+
+  const [content, setContent] = useRecoilState(contentData); //거리순 default
+  const [rating, setRating] = useRecoilState(winRatData); //평점순
+  const [response, setResponse] = useRecoilState(winResData); //응답시간순
+
   const pw = useRecoilValue(pwData);
 
   const [helperVisible, setHelperVisible] = useState(false);
   const [orderVisible, setOrderVisible] = useState(false);
 
-  const aroundUser = [
-    { id: 1, latitude: 35.1230467, longitude: 126.8935155 },
-    { id: 2, latitude: 35.118835, longitude: 126.8936783 },
-  ];
   const getLocation = async () => {
     const { granted } = await Location.requestForegroundPermissionsAsync();
     if (!granted) {
@@ -77,9 +84,38 @@ const Main = ({ navigation: { navigate } }) => {
         { headers: { Authorization: `${grant}` + " " + `${access}` } }
       )
       .then((res) => {
-        console.log("위도,경도 전송 성공");
-
+        console.log("위도,경도 전송 성공(거리순)");
         setContent(res.data.content);
+      })
+      .catch((error) => console.log(error));
+    await axios
+      .put(
+        "http://10.0.2.2:8080/api/location/findHelper/rating",
+
+        {
+          latitude: latitude,
+          longitude: longitude,
+        },
+        { headers: { Authorization: `${grant}` + " " + `${access}` } }
+      )
+      .then((res) => {
+        console.log("평점순");
+        setRating(res.data.content);
+      })
+      .catch((error) => console.log(error));
+    await axios
+      .put(
+        "http://10.0.2.2:8080/api/location/findHelper/avgReactTime",
+
+        {
+          latitude: latitude,
+          longitude: longitude,
+        },
+        { headers: { Authorization: `${grant}` + " " + `${access}` } }
+      )
+      .then((res) => {
+        console.log("응답시간순");
+        setResponse(res.data.content);
       })
       .catch((error) => console.log(error));
 
