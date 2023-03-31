@@ -5,6 +5,7 @@ import { useRecoilValue } from "recoil";
 import { contentData, winRatData, winResData } from "../atom";
 import { AntDesign } from "@expo/vector-icons";
 import { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 
 const Container = styled.View`
   flex: 1;
@@ -32,7 +33,7 @@ const Line = styled.View`
 const MainBar = styled.View`
   flex: 1;
 `;
-const HelperInform = styled.View`
+const HelperInform = styled.Pressable`
   margin-top: 15px;
   flex-direction: row;
   flex: 1;
@@ -63,6 +64,12 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
   const [isDistance, setIsDistance] = useState(true);
   const [isRating, setIsRating] = useState(false);
   const [isResponse, setIsResponse] = useState(false);
+
+  const navigation = useNavigation();
+
+  const goHelperProfile = () => {
+    navigation.navigate("HelperProfile");
+  };
 
   return (
     <Modal
@@ -138,7 +145,7 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
               <View style={{ flex: 2 }}>
                 {distanceData && isDistance
                   ? distanceData.map((data) => (
-                      <HelperInform key={data.id}>
+                      <HelperInform key={data.id} onPress={goHelperProfile}>
                         <View
                           style={{
                             flex: 1,

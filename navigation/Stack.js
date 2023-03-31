@@ -5,6 +5,7 @@ import Login from "../login/Login";
 import Tabs from "./Tabs";
 import Main from "../components/Fix";
 import Fix from "../components/Fix";
+import HelperProfile from "../components/HelperProfile";
 
 const NativeStack = createNativeStackNavigator();
 
@@ -47,6 +48,7 @@ const Stack = () => (
         orientation: "portrait_down",
       }}
     />
+    <NativeStack.Screen name="HelperProfile" component={HelperProfile} />
   </NativeStack.Navigator>
 );
 
