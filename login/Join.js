@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { Alert, View } from "react-native";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import styled from "styled-components/native";
 import { idData, nameData, pwData } from "../atom";
 
@@ -48,9 +48,11 @@ const ButtonText = styled.Text`
 const Join = ({ navigation: { navigate } }) => {
   const [name, setName] = useRecoilState(nameData);
   const [id, setId] = useRecoilState(idData);
-  const [pw1, setPw1] = useState(null);
-  const [pw2, setPw2] = useState(null);
-  const [pw, setPw] = useRecoilState(pwData);
+  const setPw = useSetRecoilState(pwData); //비밀번호 두개 일치 할경우 recoil pw에 저장
+
+  const [pw1, setPw1] = useState(null); //비밀번호
+  const [pw2, setPw2] = useState(null); //비밀번호 확인
+
   const onChangeName = (payload) => {
     setName(payload);
   };

@@ -50,7 +50,7 @@ const Tabs = ({ navigation: { navigate } }) => {
         name="헬퍼보기"
         component={Main}
         options={{
-          tabBarIcon: ({ focused, color, size }) => {
+          tabBarIcon: ({ focused, color }) => {
             return (
               <AntDesign
                 name={focused ? "smile-circle" : "smileo"}
@@ -90,7 +90,7 @@ const Tabs = ({ navigation: { navigate } }) => {
                       setRating(res.data.rating);
                       setUniqueId(res.data.id);
                     })
-                    .catch((error) => console.log("에러"));
+                    .catch((error) => console.log("에러", error));
                 }}
               />
             );

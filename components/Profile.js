@@ -6,7 +6,7 @@ import Fix from "./Fix";
 import { useRecoilValue } from "recoil";
 import { imgData, IntroduceData, nameData, ratingData } from "../atom";
 import { Entypo } from "@expo/vector-icons";
-import Introduce from "./Introduce";
+
 const Container = styled.View`
   flex: 1;
   background-color: white;
@@ -79,14 +79,10 @@ const Profile = () => {
   const img = useRecoilValue(imgData);
   const rating = useRecoilValue(ratingData);
 
-  const navigation = useNavigation();
-
   const goFix = () => {
     setModalVisible(!modalVisible);
   };
-  const goIntroduce = () => {
-    setIntroduceVisible(!introduceVisible);
-  };
+
   const name = useRecoilValue(nameData);
   const introduce = useRecoilValue(IntroduceData);
   return (
