@@ -6,6 +6,7 @@ import Tabs from "./Tabs";
 import Main from "../components/Fix";
 import Fix from "../components/Fix";
 import HelperProfile from "../components/HelperProfile";
+import HelperList from "../components/HelperList";
 
 const NativeStack = createNativeStackNavigator();
 
@@ -48,7 +49,19 @@ const Stack = () => (
         orientation: "portrait_down",
       }}
     />
-    <NativeStack.Screen name="HelperProfile" component={HelperProfile} />
+
+    <NativeStack.Screen
+      name="HelperProfile"
+      component={HelperProfile}
+      options={{
+        headerTitle: "헬퍼 정보",
+        headerTitleAlign: "center",
+        headerTitleStyle: {
+          fontWeight: "800",
+          fontSize: 18,
+        },
+      }}
+    />
   </NativeStack.Navigator>
 );
 

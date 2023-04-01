@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Alert, View } from "react-native";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import styled from "styled-components/native";
+import { api } from "../api";
 import { idData, nameData, pwData } from "../atom";
 
 const Container = styled.View`
@@ -65,6 +66,20 @@ const Join = ({ navigation: { navigate } }) => {
   const onChangePw2 = (payload) => {
     setPw2(payload);
   };
+  const sendJoin = async () => {
+    try {
+      const res = await api.post("join", {
+        name: name,
+        userId: id,
+        password: pw1,
+      });
+      Alert.alert("회원가입 성공");
+      console.log("회원가입 성공");
+      navigate("Login");
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const onPressJoin = () => {
     if (id === null) {
       Alert.alert("아이디를 입력해주세요");
@@ -73,7 +88,9 @@ const Join = ({ navigation: { navigate } }) => {
     } else if (pw1 !== pw2) {
       Alert.alert("비밀번호가 동일하지 않습니다");
     } else {
-      Alert.alert("회원가입 성공!"); //status 200 일때만
+      setPw(pw1);
+      sendJoin();
+      /*Alert.alert("회원가입 성공!"); //status 200 일때만
       setPw(pw1); //회원가입에 사용한 pw를 recoil에 저장
       axios
         .post("http://10.0.2.2:8080/join", {
@@ -87,7 +104,7 @@ const Join = ({ navigation: { navigate } }) => {
         })
         .catch((error) => {
           console.log(error);
-        });
+        });*/
     }
   };
   return (

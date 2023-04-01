@@ -195,6 +195,10 @@ const Fix = ({ modalVisible, setModalVisible }) => {
     if (changePw === changePw2) {
       Alert.alert("비밀번호 변경 완료");
       setPw(changePw);
+      setChangePw("");
+      setChangePw2("");
+    } else if (changePw === "" || changePw2 === "") {
+      Alert.alert("비밀번호를 입력해주세요");
     } else {
       Alert.alert("비밀번호가 일치하지 않습니다.");
     }
@@ -211,11 +215,11 @@ const Fix = ({ modalVisible, setModalVisible }) => {
           introduce: introduce,
           name: name,
           rating: rating,
-          //password : pw
+          password: pw,
         },
         { headers: { Authorization: `${grant}` + " " + `${access}` } }
       )
-      .then((res) => console.log("유저 정보 데이터 전송 성공"));
+      .then((res) => console.log("유저 정보 데이터 전송 성공", pw, res.data));
   };
   const onChangeIntroduce = (payload) => {
     setIntroduce(payload);
@@ -279,9 +283,17 @@ const Fix = ({ modalVisible, setModalVisible }) => {
                 <InputView>
                   <Inform style={{ marginBottom: 10 }}>비밀번호 변경</Inform>
                   <Text style={{ marginHorizontal: 20 }}>비밀번호 입력</Text>
-                  <Input onChangeText={onChangePw1} secureTextEntry />
+                  <Input
+                    value={changePw}
+                    onChangeText={onChangePw1}
+                    secureTextEntry
+                  />
                   <Text style={{ marginHorizontal: 20 }}>한번 더 입력</Text>
-                  <Input onChangeText={onChangePw2} secureTextEntry />
+                  <Input
+                    value={changePw2}
+                    onChangeText={onChangePw2}
+                    secureTextEntry
+                  />
                   <View
                     style={{
                       alignItems: "flex-end",

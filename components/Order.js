@@ -8,6 +8,7 @@ import * as Location from "expo-location";
 import SelectDropdown from "react-native-select-dropdown";
 import axios from "axios";
 import { useRecoilValue } from "recoil";
+import { api } from "../api";
 
 const Container = styled.View`
   flex: 1;
@@ -60,14 +61,13 @@ const Order = ({ orderVisible, setOrderVisible }) => {
 
   const access = useRecoilValue(accessData);
   const grant = useRecoilValue(grantData);
-  const auth = grant + " " + access;
 
   const [title, setTitle] = useState();
   const [context, setContext] = useState();
   const [isModal, setModal] = useState(false);
   const [longitude, setLongitude] = useState();
   const [latitude, setLatitude] = useState();
-  const [time, setTime] = useState();
+  const [deadLineTime, setTime] = useState();
   const [reward, setReward] = useState();
 
   const onChangeTitle = (payload) => {
@@ -79,21 +79,39 @@ const Order = ({ orderVisible, setOrderVisible }) => {
   const onChangeReward = (payload) => {
     setReward(payload);
   };
-  const onPressBtn = () => {
-    axios
+  const onPressBtn = async () => {
+    try {
+      const res = await api.post(
+        "/api/wokr",
+        {
+          latitude,
+          longitude,
+          reward,
+          deadLineTime,
+          title,
+          context,
+        },
+        { headers: { Authorization: `${grant}` + " " + `${access}` } }
+      );
+      console.log(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+
+    /*axios
       .post(
         "http://10.0.2.2:8080/api/work",
         {
-          latitude: latitude,
-          longitude: longitude,
-          reward: reward,
-          deadLineTime: time,
-          title: title,
-          context: context,
+          latitude,
+          longitude,
+          reward,
+          deadLineTime,
+          title,
+          context,
         },
-        { headers: { Authorization: `${grant}` + " " + `${access}` } }
+        
       )
-      .then((res) => console.log(res.data));
+      .then((res) => console.log(res.data));*/
   };
   return (
     <Modal

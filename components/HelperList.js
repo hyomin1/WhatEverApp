@@ -3,7 +3,7 @@ import styled from "styled-components/native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRecoilValue } from "recoil";
 import { contentData, winRatData, winResData } from "../atom";
-import { AntDesign } from "@expo/vector-icons";
+
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 
@@ -51,6 +51,9 @@ const Distance = styled.Text`
 const Rating = styled.Text`
   margin-bottom: 20px;
 `;
+const Response = styled.Text`
+  margin-bottom: 20px;
+`;
 const ChooseText = styled.Text`
   font-size: 12px;
   margin-right: 5px;
@@ -67,9 +70,7 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
 
   const navigation = useNavigation();
 
-  const goHelperProfile = () => {
-    navigation.navigate("HelperProfile");
-  };
+
 
   return (
     <Modal
@@ -145,7 +146,16 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
               <View style={{ flex: 2 }}>
                 {distanceData && isDistance
                   ? distanceData.map((data) => (
-                      <HelperInform key={data.id} onPress={goHelperProfile}>
+                      <HelperInform
+                        key={data.id}
+                        onPress={() =>
+                          navigation.navigate("HelperProfile", {
+                            name: data.name,
+                            introduce: data.introduce,
+                            rating: data.rating,
+                          })
+                        }
+                      >
                         <View
                           style={{
                             flex: 1,
@@ -159,21 +169,9 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
                           <Name>{data.name}</Name>
                           <Distance>{data.distance.toFixed(2)}m</Distance>
                           <Rating>
-                            {data.rating ? (
-                              <View style={{ flexDirection: "row" }}>
-                                <AntDesign
-                                  name="star"
-                                  size={15}
-                                  color="yellow"
-                                />
-                                <AntDesign
-                                  name="star"
-                                  size={15}
-                                  color="yellow"
-                                />
-                              </View>
-                            ) : null}
+                            ⭐ {data.rating ? data.rating.toFixed(1) : 0}/5
                           </Rating>
+                          <Response>응답시간 {data.avgReactTime}초</Response>
                         </View>
                       </HelperInform>
                     ))
@@ -194,21 +192,9 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
                           <Name>{data.name}</Name>
                           <Distance>{data.distance.toFixed(2)}m</Distance>
                           <Rating>
-                            {data.rating ? (
-                              <View style={{ flexDirection: "row" }}>
-                                <AntDesign
-                                  name="star"
-                                  size={15}
-                                  color="yellow"
-                                />
-                                <AntDesign
-                                  name="star"
-                                  size={15}
-                                  color="yellow"
-                                />
-                              </View>
-                            ) : null}
+                            ⭐ {data.rating ? data.rating.toFixed(1) : 0}/5
                           </Rating>
+                          <Response>응답시간 {data.avgReactTime}초</Response>
                         </View>
                       </HelperInform>
                     ))
@@ -229,21 +215,9 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
                           <Name>{data.name}</Name>
                           <Distance>{data.distance.toFixed(2)}m</Distance>
                           <Rating>
-                            {data.rating ? (
-                              <View style={{ flexDirection: "row" }}>
-                                <AntDesign
-                                  name="star"
-                                  size={15}
-                                  color="yellow"
-                                />
-                                <AntDesign
-                                  name="star"
-                                  size={15}
-                                  color="yellow"
-                                />
-                              </View>
-                            ) : null}
+                            ⭐ {data.rating ? data.rating.toFixed(1) : 0}/5
                           </Rating>
+                          <Response>응답시간 {data.avgReactTime}초</Response>
                         </View>
                       </HelperInform>
                     ))

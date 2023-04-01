@@ -92,7 +92,7 @@ const Profile = () => {
           <ProfileImg source={{ uri: img }} />
           <View style={{ paddingVertical: 20 }}>
             <Name>{name}</Name>
-            {rating ? <Text>⭐ {rating}/5</Text> : <Text>⭐</Text>}
+            {rating ? <Text>⭐ {rating.toFixed(1)}/5</Text> : <Text>⭐</Text>}
           </View>
         </MyProfile>
         <Fix setModalVisible={setModalVisible} modalVisible={modalVisible} />
@@ -116,11 +116,11 @@ const Profile = () => {
         <View style={{ paddingHorizontal: 20 }}>
           <Count>
             <CountText>총 심부름수</CountText>
-            <Text>1</Text>
+            <Text>0</Text>
           </Count>
           <Count>
             <CountText>요청한 심부름 수</CountText>
-            <Text>1</Text>
+            <Text>0</Text>
           </Count>
         </View>
       </Box>

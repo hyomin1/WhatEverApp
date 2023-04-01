@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, createContext } from "react";
 import MapView, { Marker } from "react-native-maps";
 
 import { View, Dimensions, Image, ActivityIndicator, Text } from "react-native";
@@ -19,6 +19,7 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import HelperList from "./HelperList";
 import Order from "./Order";
+import { api } from "../api";
 axios.defaults.headers.common[("Authorization", grantData + " " + accessData)];
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
@@ -54,8 +55,6 @@ const Main = ({ navigation: { navigate } }) => {
   const [isLoading, setLoading] = useState(true);
   const access = useRecoilValue(accessData);
   const grant = useRecoilValue(grantData);
-  const auth = grant + " " + access;
-
   const [content, setContent] = useRecoilState(contentData); //거리순 default
   const [rating, setRating] = useRecoilState(winRatData); //평점순
   const [response, setResponse] = useRecoilState(winResData); //응답시간순
@@ -73,52 +72,35 @@ const Main = ({ navigation: { navigate } }) => {
     const {
       coords: { latitude, longitude },
     } = await Location.getCurrentPositionAsync({ accuracy: 5 });
-    await axios
-      .put(
-        "http://10.0.2.2:8080/api/location/findHelper/distance",
-
+    try {
+      const res1 = await api.put(
+        "/api/location/findHelper/distance",
+        { latitude, longitude },
+        { headers: { Authorization: `${grant}` + " " + `${access}` } }
+      );
+      const res2 = await api.put(
+        "/api/location/findHelper/rating",
         {
-          latitude: latitude,
-          longitude: longitude,
+          latitude,
+          longitude,
         },
         { headers: { Authorization: `${grant}` + " " + `${access}` } }
-      )
-      .then((res) => {
-        console.log("위도,경도 전송 성공(거리순)");
-        setContent(res.data.content);
-      })
-      .catch((error) => console.log(error));
-    await axios
-      .put(
-        "http://10.0.2.2:8080/api/location/findHelper/rating",
-
+      );
+      const res3 = await api.put(
+        "api/location/findHelper/avgReactTime",
         {
-          latitude: latitude,
-          longitude: longitude,
+          latitude,
+          longitude,
         },
         { headers: { Authorization: `${grant}` + " " + `${access}` } }
-      )
-      .then((res) => {
-        console.log("평점순");
-        setRating(res.data.content);
-      })
-      .catch((error) => console.log(error));
-    await axios
-      .put(
-        "http://10.0.2.2:8080/api/location/findHelper/avgReactTime",
-
-        {
-          latitude: latitude,
-          longitude: longitude,
-        },
-        { headers: { Authorization: `${grant}` + " " + `${access}` } }
-      )
-      .then((res) => {
-        console.log("응답시간순");
-        setResponse(res.data.content);
-      })
-      .catch((error) => console.log(error));
-
+      );
+      console.log("거리순,평점순,응답시간순");
+      setContent(res1.data.content);
+      setRating(res2.data.content);
+      setResponse(res3.data.content);
+    } catch (error) {
+      console.log(error);
+    }
     setLocation({ latitude, longitude }); //내 위치 저장하기 위함
     setLoading(false);
   };

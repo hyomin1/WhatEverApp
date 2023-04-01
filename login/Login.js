@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { View, Alert } from "react-native";
 import styled from "styled-components/native";
-import axios from "axios";
+
 import { accessData, grantData } from "../atom";
 import { useRecoilState } from "recoil";
 import { useNavigation } from "@react-navigation/native";
+import Api, { api } from "../api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Container = styled.View`
   background-color: #0fbcf9;
@@ -74,34 +76,30 @@ function Login({ navigation: { navigate } }) {
   const goMain = () => {
     navigation.navigate("Tabs", { screen: "Main" });
   };
+
+  const sendLogin = async () => {
+    try {
+      const res = await api.post("/login", {
+        userId: id,
+        password: password,
+      });
+
+      setAccess(res.data.accessToken);
+      setGrant(res.data.grantType);
+      Alert.alert("로그인 완료");
+      console.log("로그인 성공");
+      goMain();
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const onPressLogin = () => {
-    //goMain();
     if (id === "") {
       Alert.alert("아이디를 입력해주세요");
     } else if (password === "") {
       Alert.alert("비밀번호를 입력해주세요");
     } else {
-      axios
-        .post(
-          "http://10.0.2.2:8080/login",
-          {
-            userId: id,
-            password: password,
-          },
-          { headers: { Authorization: `${grant}` + " " + `${access}` } }
-        )
-        .then(function (res) {
-          Alert.alert("로그인 성공");
-          console.log("로그인 성공");
-          setAccess(res.data.accessToken);
-          setGrant(res.data.grantType);
-          axios
-            .defaults.headers.common[("Authorization", res.data.grantType + " " + res.data.accessToken)];
-          goMain();
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      sendLogin();
     }
   };
 

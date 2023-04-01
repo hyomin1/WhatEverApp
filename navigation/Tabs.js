@@ -16,6 +16,7 @@ import {
   grantData,
   IntroduceData,
   nameData,
+  pwData,
   ratingData,
   responseData,
   uniqueIdData,
@@ -28,6 +29,7 @@ const Tabs = ({ navigation: { navigate } }) => {
   const access = useRecoilValue(accessData);
   const grant = useRecoilValue(grantData);
 
+  const setPw = useSetRecoilState(pwData);
   const setResponse = useSetRecoilState(responseData);
   const setDistance = useSetRecoilState(distanceData);
   const setIntroduce = useSetRecoilState(IntroduceData);
@@ -83,6 +85,7 @@ const Tabs = ({ navigation: { navigate } }) => {
                     })
                     .then((res) => {
                       console.log("유저 데이터 받아오기 성공", res.data);
+                      setPw(res.data.password);
                       setDistance(res.data.distance);
                       setResponse(res.data.avgReactTime);
                       setIntroduce(res.data.introduce);
