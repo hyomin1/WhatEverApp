@@ -1,7 +1,14 @@
-import React, { useState, useEffect, createContext } from "react";
+import React, { useState, useEffect, createContext, useRef } from "react";
 import MapView, { Marker } from "react-native-maps";
 
-import { View, Dimensions, Image, ActivityIndicator, Text } from "react-native";
+import {
+  View,
+  Dimensions,
+  Image,
+  ActivityIndicator,
+  Text,
+  Alert,
+} from "react-native";
 import * as Location from "expo-location";
 import styled from "styled-components/native";
 import { PROVIDER_GOOGLE } from "react-native-maps";
@@ -21,7 +28,6 @@ import HelperList from "./HelperList";
 import Order from "./Order";
 import { apiClient } from "../api";
 import StompJs from "@stomp/stompjs";
-import { Client, Message } from "@stomp/stompjs";
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
@@ -107,29 +113,37 @@ const Main = ({ navigation: { navigate } }) => {
     setLocation({ latitude, longitude }); //내 위치 저장하기 위함
     setLoading(false);
   };
-  const client = new StompJs.Client({
-    brokerURL: "ws://10.0.2.2:8080/ws",
-    connectHeaders: {
-      login: "user",
-      passcode: "password",
-    },
-    debug: function (str) {
-      console.log(str);
-    },
-    reconnectDelay: 5000,
-    heartbeatIncoming: 4000,
-    heartbeatOutgoing: 4000,
-  });
-  client.onConnect = function (frame) {
-    console.log(frame, "연결 완료");
-  };
-  client.onStompError = function (frame) {
-    console.log("Broker reported error: " + frame.headers["message"]);
-    console.log("Additional details: " + frame.body);
-  };
 
   useEffect(() => {
     getLocation();
+    const client = new StompJs.Client({
+      brokerURL: "ws://10.0.2.2:8080/ws",
+
+      debug: function (str) {
+        console.log(str);
+      },
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+    });
+    client.onConnect = function (frame) {
+      const subscription = client.subscribe(
+        "/topic/greeting",
+        function (message) {
+          const quote = JSON.parse(message.body);
+          Alert.alert(quote.symbol);
+        }
+      );
+
+      client.onStompError = function (frame) {
+        console.log("Broker reported error: " + frame.headers["message"]);
+        console.log("Additional details: " + frame.body);
+      };
+      const publish = client.publish({
+        destination: "/pub/hello",
+        bdoy: "hello",
+      });
+    };
     client.activate();
   }, []);
   return (
@@ -185,11 +199,8 @@ const Main = ({ navigation: { navigate } }) => {
           </BtnContainer>
         </View>
       )}
-      <HelperList
-        setHelperVisible={setHelperVisible}
-        helperVisible={helperVisible}
-      />
-      <HelperView onPress={() => setHelperVisible(!helperVisible)}>
+
+      <HelperView onPress={() => navigate("HelperList")}>
         <Text style={{ fontWeight: "600" }}>주변 헬퍼 보기</Text>
         <MaterialIcons name="keyboard-arrow-up" size={24} color="black" />
       </HelperView>

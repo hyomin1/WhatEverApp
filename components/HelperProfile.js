@@ -1,7 +1,8 @@
 import { View, Text, Pressable } from "react-native";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components/native";
-import { contentData, imgData } from "../atom";
+import { accessData, contentData, grantData, imgData } from "../atom";
+import axios from "axios";
 const Container = styled.View`
   flex: 1;
   background-color: white;
@@ -51,8 +52,27 @@ const CountText = styled.Text`
   font-size: 16px;
   font-weight: 600;
 `;
+const Button = styled.Pressable`
+  padding: 0 15px;
+  height: 40px;
+  border-radius: 10px;
+  margin: 5px 0;
+  align-items: center;
+  justify-content: center;
+  background-color: #2196f3;
+`;
 const HelperProfile = ({ navigation, route }) => {
   const img = useRecoilValue(imgData);
+  const access = useRecoilValue(accessData);
+  const grant = useRecoilValue(grantData);
+  const onPressBtn = () => {
+    axios
+      .post(`http://10.0.2.2:8080/api/conversation/1`, {
+        headers: { Authorization: `${grant}` + " " + `${access}` },
+      })
+      .then((res) => console.log(res.data))
+      .catch((error) => console.log(error));
+  };
   return (
     <Container>
       <Box>
@@ -88,9 +108,9 @@ const HelperProfile = ({ navigation, route }) => {
             <Text>0</Text>
           </Count>
         </View>
-        <Pressable onPress={() => navigation.pop()}>
-          <Text>뒤로가기</Text>
-        </Pressable>
+        <Button onPress={onPressBtn}>
+          <Text>신청</Text>
+        </Button>
       </Box>
     </Container>
   );

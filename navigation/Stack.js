@@ -49,7 +49,18 @@ const Stack = () => (
         orientation: "portrait_down",
       }}
     />
-
+    <NativeStack.Screen
+      name="HelperList"
+      component={HelperList}
+      options={{
+        headerTitle: "주변 헬퍼 보기",
+        headerTitleAlign: "center",
+        headerTitleStyle: {
+          fontWeight: "800",
+          fontSize: 18,
+        },
+      }}
+    />
     <NativeStack.Screen
       name="HelperProfile"
       component={HelperProfile}

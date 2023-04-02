@@ -15,21 +15,8 @@ const TitleBar = styled.View`
   justify-content: space-between;
   margin-top: 10px;
   background-color: white;
-  border-bottom-color: black;
-  border-bottom-width: 0.5px;
 `;
-const Title = styled.Text`
-  font-weight: 700;
-  font-size: 14px;
-  margin-bottom: 10px;
-  justify-content: center;
-  align-items: center;
-`;
-const Line = styled.View`
-  border-bottom-color: black;
-  border-bottom-width: 0.5px;
-  margin-top: 3px;
-`;
+
 const MainBar = styled.View`
   flex: 1;
 `;
@@ -57,6 +44,7 @@ const Response = styled.Text`
 const ChooseText = styled.Text`
   font-size: 12px;
   margin-right: 5px;
+  font-weight: 500;
 `;
 
 const HelperList = ({ helperVisible, setHelperVisible }) => {
@@ -71,167 +59,144 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
   const navigation = useNavigation();
 
   return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={helperVisible}
-      onRequestClose={() => {
-        setHelperVisible(!helperVisible);
-      }}
-    >
-      <View style={{ flex: 1 }}>
-        <View
-          style={{ flex: 0.3, opacity: 0.8, backgroundColor: "gray" }}
-        ></View>
-        <ScrollView style={{ backgroundColor: "white" }}>
-          <Container>
-            <TitleBar>
-              <View style={{ flex: 1, paddingHorizontal: 10 }}>
-                <MaterialIcons
-                  onPress={() => {
-                    setHelperVisible(!helperVisible);
-                  }}
-                  name="cancel"
-                  size={24}
-                  color="black"
-                />
-              </View>
-              <View
-                style={{
-                  flex: 1,
+    <View style={{ flex: 1 }}>
+      <ScrollView style={{ backgroundColor: "white" }}>
+        <Container>
+          <TitleBar>
+            <View style={{ flex: 1, paddingHorizontal: 10 }}></View>
+            <View
+              style={{
+                flex: 1,
+              }}
+            ></View>
+
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "row",
+              }}
+            >
+              <Pressable
+                onPress={() => {
+                  setIsDistance(true);
+                  setIsRating(false);
+                  setIsResponse(false);
                 }}
               >
-                <Title>주변 헬퍼 보기</Title>
-              </View>
-
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: "row",
+                <ChooseText style={{ color: isDistance ? "black" : "gray" }}>
+                  거리
+                </ChooseText>
+              </Pressable>
+              <Pressable
+                onPress={() => {
+                  setIsDistance(false);
+                  setIsRating(true);
+                  setIsResponse(false);
                 }}
               >
-                <Pressable
-                  onPress={() => {
-                    setIsDistance(true);
-                    setIsRating(false);
-                    setIsResponse(false);
-                  }}
-                >
-                  <ChooseText style={{ color: isDistance ? "black" : "gray" }}>
-                    거리
-                  </ChooseText>
-                </Pressable>
-                <Pressable
-                  onPress={() => {
-                    setIsDistance(false);
-                    setIsRating(true);
-                    setIsResponse(false);
-                  }}
-                >
-                  <ChooseText style={{ color: isRating ? "black" : "gray" }}>
-                    평점
-                  </ChooseText>
-                </Pressable>
-                <Pressable
-                  onPress={() => {
-                    setIsDistance(false);
-                    setIsRating(false);
-                    setIsResponse(true);
-                  }}
-                >
-                  <ChooseText style={{ color: isResponse ? "black" : "gray" }}>
-                    응답시간
-                  </ChooseText>
-                </Pressable>
-              </View>
-            </TitleBar>
+                <ChooseText style={{ color: isRating ? "black" : "gray" }}>
+                  평점
+                </ChooseText>
+              </Pressable>
+              <Pressable
+                onPress={() => {
+                  setIsDistance(false);
+                  setIsRating(false);
+                  setIsResponse(true);
+                }}
+              >
+                <ChooseText style={{ color: isResponse ? "black" : "gray" }}>
+                  응답시간
+                </ChooseText>
+              </Pressable>
+            </View>
+          </TitleBar>
 
-            <MainBar>
-              <View style={{ flex: 2 }}>
-                {distanceData && isDistance
-                  ? distanceData.map((data) => (
-                      <HelperInform
-                        key={data.id}
-                        onPress={() =>
-                          navigation.navigate("HelperProfile", {
-                            name: data.name,
-                            introduce: data.introduce,
-                            rating: data.rating,
-                          })
-                        }
+          <MainBar>
+            <View style={{ flex: 2 }}>
+              {distanceData && isDistance
+                ? distanceData.map((data) => (
+                    <HelperInform
+                      key={data.id}
+                      onPress={() =>
+                        navigation.navigate("HelperProfile", {
+                          name: data.name,
+                          introduce: data.introduce,
+                          rating: data.rating,
+                        })
+                      }
+                    >
+                      <View
+                        style={{
+                          flex: 1,
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
                       >
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Text>사진</Text>
-                        </View>
-                        <View style={{ flex: 2 }}>
-                          <Name>{data.name}</Name>
-                          <Distance>{data.distance.toFixed(2)}m</Distance>
-                          <Rating>
-                            ⭐ {data.rating ? data.rating.toFixed(1) : 0}/5
-                          </Rating>
-                          <Response>응답시간 {data.avgReactTime}초</Response>
-                        </View>
-                      </HelperInform>
-                    ))
-                  : null}
-                {ratingData && isRating
-                  ? ratingData.map((data) => (
-                      <HelperInform key={data.id}>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Text>사진</Text>
-                        </View>
-                        <View style={{ flex: 2 }}>
-                          <Name>{data.name}</Name>
-                          <Distance>{data.distance.toFixed(2)}m</Distance>
-                          <Rating>
-                            ⭐ {data.rating ? data.rating.toFixed(1) : 0}/5
-                          </Rating>
-                          <Response>응답시간 {data.avgReactTime}초</Response>
-                        </View>
-                      </HelperInform>
-                    ))
-                  : null}
-                {responseData && isResponse
-                  ? responseData.map((data) => (
-                      <HelperInform key={data.id}>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Text>사진</Text>
-                        </View>
-                        <View style={{ flex: 2 }}>
-                          <Name>{data.name}</Name>
-                          <Distance>{data.distance.toFixed(2)}m</Distance>
-                          <Rating>
-                            ⭐ {data.rating ? data.rating.toFixed(1) : 0}/5
-                          </Rating>
-                          <Response>응답시간 {data.avgReactTime}초</Response>
-                        </View>
-                      </HelperInform>
-                    ))
-                  : null}
-              </View>
-            </MainBar>
-          </Container>
-        </ScrollView>
-      </View>
-    </Modal>
+                        <Text>사진</Text>
+                      </View>
+                      <View style={{ flex: 2 }}>
+                        <Name>{data.name}</Name>
+                        <Distance>{data.distance.toFixed(2)}m</Distance>
+                        <Rating>
+                          ⭐ {data.rating ? data.rating.toFixed(1) : 0}/5
+                        </Rating>
+                        <Response>응답시간 {data.avgReactTime}초</Response>
+                      </View>
+                    </HelperInform>
+                  ))
+                : null}
+              {ratingData && isRating
+                ? ratingData.map((data) => (
+                    <HelperInform key={data.id}>
+                      <View
+                        style={{
+                          flex: 1,
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Text>사진</Text>
+                      </View>
+                      <View style={{ flex: 2 }}>
+                        <Name>{data.name}</Name>
+                        <Distance>{data.distance.toFixed(2)}m</Distance>
+                        <Rating>
+                          ⭐ {data.rating ? data.rating.toFixed(1) : 0}/5
+                        </Rating>
+                        <Response>응답시간 {data.avgReactTime}초</Response>
+                      </View>
+                    </HelperInform>
+                  ))
+                : null}
+              {responseData && isResponse
+                ? responseData.map((data) => (
+                    <HelperInform key={data.id}>
+                      <View
+                        style={{
+                          flex: 1,
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Text>사진</Text>
+                      </View>
+                      <View style={{ flex: 2 }}>
+                        <Name>{data.name}</Name>
+                        <Distance>{data.distance.toFixed(2)}m</Distance>
+                        <Rating>
+                          ⭐ {data.rating ? data.rating.toFixed(1) : 0}/5
+                        </Rating>
+                        <Response>응답시간 {data.avgReactTime}초</Response>
+                      </View>
+                    </HelperInform>
+                  ))
+                : null}
+            </View>
+          </MainBar>
+        </Container>
+      </ScrollView>
+    </View>
   );
 };
 

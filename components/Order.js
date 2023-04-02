@@ -119,16 +119,6 @@ const Order = ({ orderVisible, setOrderVisible }) => {
         Alert.alert("심부름 요청이 등록되었습니다.");
         setAddress("");
         setAddress2("");
-        axios
-          .post(
-            `http://10.0.2.2:8080/api/conversation/${res.data.customerId}`,
-            {},
-            {
-              headers: { Authorization: `${grant}` + " " + `${access}` },
-            }
-          )
-          .then((res) => console.log(res.data))
-          .catch((error) => console.log(error));
 
         setOrderVisible(!orderVisible);
       })
