@@ -210,11 +210,11 @@ const Fix = ({ modalVisible, setModalVisible }) => {
         "http://10.0.2.2:8080/api/userInfo",
         {
           avgReactTime: response,
-          distance: distance,
+          distance,
           id: uniqueId,
-          introduce: introduce,
-          name: name,
-          rating: rating,
+          introduce,
+          name,
+          rating,
           password: pw,
         },
         { headers: { Authorization: `${grant}` + " " + `${access}` } }

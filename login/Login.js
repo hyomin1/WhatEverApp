@@ -6,8 +6,7 @@ import { accessData, grantData } from "../atom";
 import { useRecoilState } from "recoil";
 import { useNavigation } from "@react-navigation/native";
 import { apiClient } from "../api";
-import StompJs from "@stomp/stompjs";
-import { Client, Message } from "@stomp/stompjs";
+
 
 const Container = styled.View`
   background-color: #0fbcf9;
@@ -78,7 +77,7 @@ function Login({ navigation: { navigate } }) {
     navigation.navigate("Tabs", { screen: "Main" });
   };
 
-  const client = new StompJs.Client();
+  
 
   const sendLogin = async () => {
     try {

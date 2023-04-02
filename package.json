@@ -35,7 +35,8 @@
     "react-query": "^3.39.3",
     "recoil": "^0.7.7",
     "socketjs-client": "^1.0.2",
-    "styled-components": "^5.3.9"
+    "styled-components": "^5.3.9",
+    "text-encoding": "^0.7.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

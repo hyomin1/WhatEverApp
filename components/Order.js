@@ -2,14 +2,14 @@ import styled from "styled-components/native";
 import { Modal, View, ScrollView, Text, Pressable, Alert } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
-import { accessData, grantData, imgData } from "../atom";
+import { accessData, contentData, grantData, imgData } from "../atom";
 import SelectDropdown from "react-native-select-dropdown";
 
 import { useRecoilValue } from "recoil";
 import { apiClient } from "../api";
 import Postcode from "@actbase/react-daum-postcode";
 import * as Location from "expo-location";
-import { isSearchBarAvailableForCurrentPlatform } from "react-native-screens";
+import axios from "axios";
 
 const Container = styled.View`
   flex: 1;
@@ -89,6 +89,8 @@ const Order = ({ orderVisible, setOrderVisible }) => {
   const [orderAddress, setOrderAddress] = useState(false);
   const [receiveAddress, setReceiveAddress] = useState(false);
 
+  const content = useRecoilValue(contentData);
+
   const onChangeTitle = (payload) => {
     setTitle(payload);
   };
@@ -99,9 +101,9 @@ const Order = ({ orderVisible, setOrderVisible }) => {
     setReward(payload);
   };
   const onPressBtn = async () => {
-    try {
-      const res = await apiClient.post(
-        "/api/work",
+    await axios
+      .post(
+        "http://10.0.2.2:8080/api/work",
         {
           latitude,
           longitude,
@@ -111,16 +113,28 @@ const Order = ({ orderVisible, setOrderVisible }) => {
           context,
         },
         { headers: { Authorization: `${grant}` + " " + `${access}` } }
-      );
-      console.log("심부름 요청 성공", res.data);
-      Alert.alert("심부름 요청이 등록되었습니다.");
-      setAddress("");
-      setAddress2("");
-      setOrderVisible(!orderVisible);
-    } catch (error) {
-      console.log(error);
-    }
+      )
+      .then((res) => {
+        console.log("심부름 요청 성공", res.data.customerId);
+        Alert.alert("심부름 요청이 등록되었습니다.");
+        setAddress("");
+        setAddress2("");
+        axios
+          .post(
+            `http://10.0.2.2:8080/api/conversation/${res.data.customerId}`,
+            {},
+            {
+              headers: { Authorization: `${grant}` + " " + `${access}` },
+            }
+          )
+          .then((res) => console.log(res.data))
+          .catch((error) => console.log(error));
+
+        setOrderVisible(!orderVisible);
+      })
+      .catch((error) => console.log(error));
   };
+
   return (
     <Modal
       animationType="slide"

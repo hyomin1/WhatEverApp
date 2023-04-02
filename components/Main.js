@@ -19,8 +19,10 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import HelperList from "./HelperList";
 import Order from "./Order";
-import { api, apiClient } from "../api";
-axios.defaults.headers.common[("Authorization", grantData + " " + accessData)];
+import { apiClient } from "../api";
+import StompJs from "@stomp/stompjs";
+import { Client, Message } from "@stomp/stompjs";
+
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
   flex: 1;
@@ -64,7 +66,7 @@ const Main = ({ navigation: { navigate } }) => {
 
   const [helperVisible, setHelperVisible] = useState(false);
   const [orderVisible, setOrderVisible] = useState(false);
-  axios.defaults.headers.common["Authorization"] = auth;
+
   const getLocation = async () => {
     const { granted } = await Location.requestForegroundPermissionsAsync();
     if (!granted) {
@@ -105,8 +107,30 @@ const Main = ({ navigation: { navigate } }) => {
     setLocation({ latitude, longitude }); //내 위치 저장하기 위함
     setLoading(false);
   };
+  const client = new StompJs.Client({
+    brokerURL: "ws://10.0.2.2:8080/ws",
+    connectHeaders: {
+      login: "user",
+      passcode: "password",
+    },
+    debug: function (str) {
+      console.log(str);
+    },
+    reconnectDelay: 5000,
+    heartbeatIncoming: 4000,
+    heartbeatOutgoing: 4000,
+  });
+  client.onConnect = function (frame) {
+    console.log(frame, "연결 완료");
+  };
+  client.onStompError = function (frame) {
+    console.log("Broker reported error: " + frame.headers["message"]);
+    console.log("Additional details: " + frame.body);
+  };
+
   useEffect(() => {
     getLocation();
+    client.activate();
   }, []);
   return (
     <View style={{ flex: 1 }}>
