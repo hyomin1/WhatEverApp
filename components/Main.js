@@ -1,4 +1,4 @@
-import React, { useState, useEffect, createContext, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import MapView, { Marker } from "react-native-maps";
 
 import {
@@ -24,10 +24,10 @@ import {
   winResData,
 } from "../atom";
 import { MaterialIcons } from "@expo/vector-icons";
-import HelperList from "./HelperList";
+import StompJs from "@stomp/stompjs";
+import SockJS from "sockjs-client";
 import Order from "./Order";
 import { apiClient } from "../api";
-import StompJs from "@stomp/stompjs";
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
@@ -116,9 +116,9 @@ const Main = ({ navigation: { navigate } }) => {
 
   useEffect(() => {
     getLocation();
+
     const client = new StompJs.Client({
       brokerURL: "ws://10.0.2.2:8080/ws",
-
       debug: function (str) {
         console.log(str);
       },
@@ -127,15 +127,23 @@ const Main = ({ navigation: { navigate } }) => {
       heartbeatOutgoing: 4000,
     });
     client.onConnect = function (frame) {
-      const subscription = client.subscribe("/queue/2", function (message) {
-        const quote = JSON.parse(message.body);
-        Alert.alert(quote.symbol);
+      console.log("연결");
+      const subscription = client.subscribe(
+        "/topic/greeting",
+        function (message) {
+          const quote = JSON.parse(message.body);
+          Alert.alert(quote.symbol);
+        }
+      );
+      client.publish({
+        destination: "/pub/hello",
+        body: "hello",
+        headers: { priority: 9 },
       });
-
-      client.onStompError = function (frame) {
-        console.log("Broker reported error: " + frame.headers["message"]);
-        console.log("Additional details: " + frame.body);
-      };
+    };
+    client.onStompError = function (frame) {
+      console.log("Broker reported error: " + frame.headers["message"]);
+      console.log("Additional details: " + frame.body);
     };
     client.activate();
   }, []);

@@ -67,9 +67,13 @@ const HelperProfile = ({ navigation, route }) => {
   const grant = useRecoilValue(grantData);
   const onPressBtn = () => {
     axios
-      .post("http://10.0.2.2:8080/api/conversation/1", {
-        headers: { Authorization: `${grant}` + " " + `${access}` },
-      })
+      .post(
+        "http://10.0.2.2:8080/api/conversation/1",
+        {},
+        {
+          headers: { Authorization: `${grant}` + " " + `${access}` },
+        }
+      )
       .then((res) => console.log(res.data))
       .catch((error) => console.log(error));
   };
