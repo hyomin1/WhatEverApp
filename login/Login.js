@@ -5,7 +5,7 @@ import styled from "styled-components/native";
 import { accessData, grantData } from "../atom";
 import { useRecoilState } from "recoil";
 import { useNavigation } from "@react-navigation/native";
-import Api, { api } from "../api";
+import { apiClient } from "../api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Container = styled.View`
@@ -79,7 +79,7 @@ function Login({ navigation: { navigate } }) {
 
   const sendLogin = async () => {
     try {
-      const res = await api.post("/login", {
+      const res = await apiClient.post("/login", {
         userId: id,
         password: password,
       });
@@ -90,7 +90,7 @@ function Login({ navigation: { navigate } }) {
       console.log("로그인 성공");
       goMain();
     } catch (error) {
-      console.log(error);
+      console.log(error); //code 403 -> 아이디,비번 오류
     }
   };
   const onPressLogin = () => {

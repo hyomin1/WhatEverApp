@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Alert, View } from "react-native";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import styled from "styled-components/native";
-import { api } from "../api";
+import { api, apiClient } from "../api";
 import { idData, nameData, pwData } from "../atom";
 
 const Container = styled.View`
@@ -68,7 +68,7 @@ const Join = ({ navigation: { navigate } }) => {
   };
   const sendJoin = async () => {
     try {
-      const res = await api.post("join", {
+      const res = await axios.post("http://10.0.2.2:8080/join", {
         name: name,
         userId: id,
         password: pw1,
@@ -90,21 +90,6 @@ const Join = ({ navigation: { navigate } }) => {
     } else {
       setPw(pw1);
       sendJoin();
-      /*Alert.alert("회원가입 성공!"); //status 200 일때만
-      setPw(pw1); //회원가입에 사용한 pw를 recoil에 저장
-      axios
-        .post("http://10.0.2.2:8080/join", {
-          name: name,
-          userId: id,
-          password: pw1,
-        })
-        .then(function (res) {
-          console.log("회원가입 성공");
-          navigate("Login");
-        })
-        .catch((error) => {
-          console.log(error);
-        });*/
     }
   };
   return (

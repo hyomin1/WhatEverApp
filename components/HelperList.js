@@ -70,8 +70,6 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
 
   const navigation = useNavigation();
 
-
-
   return (
     <Modal
       animationType="slide"
@@ -119,7 +117,9 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
                     setIsResponse(false);
                   }}
                 >
-                  <ChooseText>거리</ChooseText>
+                  <ChooseText style={{ color: isDistance ? "black" : "gray" }}>
+                    거리
+                  </ChooseText>
                 </Pressable>
                 <Pressable
                   onPress={() => {
@@ -128,7 +128,9 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
                     setIsResponse(false);
                   }}
                 >
-                  <ChooseText>평점</ChooseText>
+                  <ChooseText style={{ color: isRating ? "black" : "gray" }}>
+                    평점
+                  </ChooseText>
                 </Pressable>
                 <Pressable
                   onPress={() => {
@@ -137,7 +139,9 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
                     setIsResponse(true);
                   }}
                 >
-                  <ChooseText>응답시간</ChooseText>
+                  <ChooseText style={{ color: isResponse ? "black" : "gray" }}>
+                    응답시간
+                  </ChooseText>
                 </Pressable>
               </View>
             </TitleBar>

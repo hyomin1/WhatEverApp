@@ -19,7 +19,7 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import HelperList from "./HelperList";
 import Order from "./Order";
-import { api } from "../api";
+import { api, apiClient } from "../api";
 axios.defaults.headers.common[("Authorization", grantData + " " + accessData)];
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
@@ -55,6 +55,7 @@ const Main = ({ navigation: { navigate } }) => {
   const [isLoading, setLoading] = useState(true);
   const access = useRecoilValue(accessData);
   const grant = useRecoilValue(grantData);
+  const auth = grant + " " + access;
   const [content, setContent] = useRecoilState(contentData); //거리순 default
   const [rating, setRating] = useRecoilState(winRatData); //평점순
   const [response, setResponse] = useRecoilState(winResData); //응답시간순
@@ -63,7 +64,7 @@ const Main = ({ navigation: { navigate } }) => {
 
   const [helperVisible, setHelperVisible] = useState(false);
   const [orderVisible, setOrderVisible] = useState(false);
-
+  axios.defaults.headers.common["Authorization"] = auth;
   const getLocation = async () => {
     const { granted } = await Location.requestForegroundPermissionsAsync();
     if (!granted) {
@@ -73,12 +74,12 @@ const Main = ({ navigation: { navigate } }) => {
       coords: { latitude, longitude },
     } = await Location.getCurrentPositionAsync({ accuracy: 5 });
     try {
-      const res1 = await api.put(
+      const res1 = await apiClient.put(
         "/api/location/findHelper/distance",
         { latitude, longitude },
         { headers: { Authorization: `${grant}` + " " + `${access}` } }
       );
-      const res2 = await api.put(
+      const res2 = await apiClient.put(
         "/api/location/findHelper/rating",
         {
           latitude,
@@ -86,7 +87,7 @@ const Main = ({ navigation: { navigate } }) => {
         },
         { headers: { Authorization: `${grant}` + " " + `${access}` } }
       );
-      const res3 = await api.put(
+      const res3 = await apiClient.put(
         "api/location/findHelper/avgReactTime",
         {
           latitude,

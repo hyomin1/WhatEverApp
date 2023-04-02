@@ -1,14 +1,15 @@
 import styled from "styled-components/native";
-import { Modal, View, ScrollView, Text } from "react-native";
+import { Modal, View, ScrollView, Text, Pressable, Alert } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import Postcode from "@actbase/react-daum-postcode";
 import { useState } from "react";
 import { accessData, grantData, imgData } from "../atom";
-import * as Location from "expo-location";
 import SelectDropdown from "react-native-select-dropdown";
-import axios from "axios";
+
 import { useRecoilValue } from "recoil";
-import { api } from "../api";
+import { apiClient } from "../api";
+import Postcode from "@actbase/react-daum-postcode";
+import * as Location from "expo-location";
+import { isSearchBarAvailableForCurrentPlatform } from "react-native-screens";
 
 const Container = styled.View`
   flex: 1;
@@ -55,6 +56,19 @@ const Button = styled.Pressable`
   justify-content: center;
   background-color: #2196f3;
 `;
+const ErrandPlace = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+`;
+const AddressInputText = styled.Text`
+  color: blue;
+`;
+const Address = styled.View`
+  margin-bottom: 20px;
+`;
+const AddressText = styled.Text`
+  font-size: 16px;
+`;
 
 const Order = ({ orderVisible, setOrderVisible }) => {
   const hours = [1, 2, 3, 4];
@@ -64,11 +78,16 @@ const Order = ({ orderVisible, setOrderVisible }) => {
 
   const [title, setTitle] = useState();
   const [context, setContext] = useState();
-  const [isModal, setModal] = useState(false);
   const [longitude, setLongitude] = useState();
   const [latitude, setLatitude] = useState();
   const [deadLineTime, setTime] = useState();
   const [reward, setReward] = useState();
+
+  const [address, setAddress] = useState();
+  const [address2, setAddress2] = useState();
+
+  const [orderAddress, setOrderAddress] = useState(false);
+  const [receiveAddress, setReceiveAddress] = useState(false);
 
   const onChangeTitle = (payload) => {
     setTitle(payload);
@@ -81,8 +100,8 @@ const Order = ({ orderVisible, setOrderVisible }) => {
   };
   const onPressBtn = async () => {
     try {
-      const res = await api.post(
-        "/api/wokr",
+      const res = await apiClient.post(
+        "/api/work",
         {
           latitude,
           longitude,
@@ -93,25 +112,14 @@ const Order = ({ orderVisible, setOrderVisible }) => {
         },
         { headers: { Authorization: `${grant}` + " " + `${access}` } }
       );
-      console.log(res.data);
+      console.log("심부름 요청 성공", res.data);
+      Alert.alert("심부름 요청이 등록되었습니다.");
+      setAddress("");
+      setAddress2("");
+      setOrderVisible(!orderVisible);
     } catch (error) {
       console.log(error);
     }
-
-    /*axios
-      .post(
-        "http://10.0.2.2:8080/api/work",
-        {
-          latitude,
-          longitude,
-          reward,
-          deadLineTime,
-          title,
-          context,
-        },
-        
-      )
-      .then((res) => console.log(res.data));*/
   };
   return (
     <Modal
@@ -158,16 +166,62 @@ const Order = ({ orderVisible, setOrderVisible }) => {
                   onChangeText={onChangeTitle}
                   placeholder="내용을 입력해주세요..."
                 />
-                <MainText>심부름 장소</MainText>
-                <Postcode
-                  style={{ flex: 1, height: 250, marginBottom: 40 }}
-                  jsOptions={{ animation: true }}
-                  onSelected={async (data) => {
-                    const location = await Location.geocodeAsync(data.query);
-                    setLatitude(location[0].latitude);
-                    setLongitude(location[0].longitude);
+                <ErrandPlace
+                  style={{
+                    flexDirection: "row",
                   }}
-                />
+                >
+                  <MainText>심부름 시킬장소</MainText>
+                  <Pressable onPress={() => setOrderAddress(!orderAddress)}>
+                    <AddressInputText>주소 입력</AddressInputText>
+                  </Pressable>
+                  <Modal animationType="slide" visible={orderAddress}>
+                    <Postcode
+                      style={{ flex: 1, height: 250, marginBottom: 40 }}
+                      jsOptions={{ animation: true }}
+                      onSelected={async (data) => {
+                        const location = await Location.geocodeAsync(
+                          data.query
+                        );
+                        setAddress(data.address);
+                        setLatitude(location[0].latitude);
+                        setLongitude(location[0].longitude);
+                        setOrderAddress(!orderAddress);
+                      }}
+                    />
+                  </Modal>
+                </ErrandPlace>
+                <Address>
+                  <AddressText>{address}</AddressText>
+                </Address>
+                <ErrandPlace
+                  style={{
+                    flexDirection: "row",
+                  }}
+                >
+                  <MainText>심부름 받을장소</MainText>
+                  <Pressable onPress={() => setReceiveAddress(!receiveAddress)}>
+                    <AddressInputText>주소 입력</AddressInputText>
+                  </Pressable>
+                  <Modal animationType="slide" visible={receiveAddress}>
+                    <Postcode
+                      style={{ flex: 1, height: 250, marginBottom: 40 }}
+                      jsOptions={{ animation: true }}
+                      onSelected={async (data) => {
+                        const location = await Location.geocodeAsync(
+                          data.query
+                        );
+
+                        setAddress2(data.address);
+                        setReceiveAddress(!receiveAddress);
+                      }}
+                    />
+                  </Modal>
+                </ErrandPlace>
+                <Address>
+                  <AddressText>{address2}</AddressText>
+                </Address>
+
                 <MainText>예상 소요 시간</MainText>
                 <SelectDropdown
                   buttonStyle={{
