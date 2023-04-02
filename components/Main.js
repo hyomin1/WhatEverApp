@@ -127,22 +127,15 @@ const Main = ({ navigation: { navigate } }) => {
       heartbeatOutgoing: 4000,
     });
     client.onConnect = function (frame) {
-      const subscription = client.subscribe(
-        "/topic/greeting",
-        function (message) {
-          const quote = JSON.parse(message.body);
-          Alert.alert(quote.symbol);
-        }
-      );
+      const subscription = client.subscribe("/queue/2", function (message) {
+        const quote = JSON.parse(message.body);
+        Alert.alert(quote.symbol);
+      });
 
       client.onStompError = function (frame) {
         console.log("Broker reported error: " + frame.headers["message"]);
         console.log("Additional details: " + frame.body);
       };
-      const publish = client.publish({
-        destination: "/pub/hello",
-        bdoy: "hello",
-      });
     };
     client.activate();
   }, []);
