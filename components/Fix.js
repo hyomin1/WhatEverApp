@@ -173,8 +173,8 @@ const Fix = ({ modalVisible, setModalVisible }) => {
     });
 
     await axios({
-      method: "post",
-      url: "http://10.0.2.2:8080/update/profile",
+      method: "put",
+      url: "http://10.0.2.2:8080/api/userInfo/image",
       headers: {
         "Content-Type": "multipart/form-data",
         Authorization: auth,

@@ -28,6 +28,7 @@ import StompJs from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import Order from "./Order";
 import { apiClient } from "../api";
+import { RootTagContext } from "react-native/Libraries/ReactNative/RootTag";
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
@@ -68,6 +69,8 @@ const Main = ({ navigation: { navigate } }) => {
   const [rating, setRating] = useRecoilState(winRatData); //평점순
   const [response, setResponse] = useRecoilState(winResData); //응답시간순
 
+  //const [idList, setIdList] = useState([]);
+
   const pw = useRecoilValue(pwData);
 
   const [helperVisible, setHelperVisible] = useState(false);
@@ -81,12 +84,31 @@ const Main = ({ navigation: { navigate } }) => {
     const {
       coords: { latitude, longitude },
     } = await Location.getCurrentPositionAsync({ accuracy: 5 });
-    try {
-      const res1 = await apiClient.put(
-        "/api/location/findHelper/distance",
+    axios
+      .put(
+        "http://10.0.2.2:8080/api/location/findHelper/distance",
         { latitude, longitude },
-        { headers: { Authorization: `${grant}` + " " + `${access}` } }
-      );
+        {
+          headers: { Authorization: `${grant}` + " " + `${access}` },
+        }
+      )
+      .then((res) => {
+        setContent(res.data.content);
+        const idList = res.data.content.map((item) => {
+          //idList 배열
+          return item.id;
+        });
+
+        axios.put(
+          "http://10.0.2.2:8080/api/findHelper/images",
+          {
+            headers: { Authorization: `${grant}` + " " + `${access}` },
+          },
+          {}
+        );
+      });
+
+    try {
       const res2 = await apiClient.put(
         "/api/location/findHelper/rating",
         {
@@ -95,6 +117,7 @@ const Main = ({ navigation: { navigate } }) => {
         },
         { headers: { Authorization: `${grant}` + " " + `${access}` } }
       );
+
       const res3 = await apiClient.put(
         "api/location/findHelper/avgReactTime",
         {
@@ -104,7 +127,7 @@ const Main = ({ navigation: { navigate } }) => {
         { headers: { Authorization: `${grant}` + " " + `${access}` } }
       );
       console.log("거리순,평점순,응답시간순");
-      setContent(res1.data.content);
+
       setRating(res2.data.content);
       setResponse(res3.data.content);
     } catch (error) {
@@ -117,7 +140,7 @@ const Main = ({ navigation: { navigate } }) => {
   useEffect(() => {
     getLocation();
 
-    const client = new StompJs.Client({
+    /* const client = new StompJs.Client({
       brokerURL: "ws://10.0.2.2:8080/ws",
       debug: function (str) {
         console.log(str);
@@ -145,7 +168,7 @@ const Main = ({ navigation: { navigate } }) => {
       console.log("Broker reported error: " + frame.headers["message"]);
       console.log("Additional details: " + frame.body);
     };
-    client.activate();
+    client.activate();*/
   }, []);
   return (
     <View style={{ flex: 1 }}>
