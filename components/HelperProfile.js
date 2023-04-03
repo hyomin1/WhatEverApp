@@ -3,6 +3,8 @@ import { useRecoilValue } from "recoil";
 import styled from "styled-components/native";
 import { accessData, contentData, grantData, imgData } from "../atom";
 import axios from "axios";
+import { useEffect } from "react";
+import { apiClient } from "../api";
 const Container = styled.View`
   flex: 1;
   background-color: white;
@@ -12,10 +14,9 @@ const Box = styled.View`
 `;
 const MyProfile = styled.View`
   flex-direction: row;
-  margin: 0 10px;
   border-bottom-color: black;
   border-bottom-width: 0.5px;
-  padding: 10px 0;
+  padding: 20px 20px;
 `;
 const ProfileImg = styled.Image`
   width: 100px;
@@ -28,16 +29,24 @@ const Name = styled.Text`
   font-size: 20px;
   font-weight: 800;
 `;
-
+const ContentWrapper = styled.View`
+  margin-bottom: 20px;
+`;
 const ContentBox = styled.View`
   flex-direction: row;
   justify-content: space-between;
   margin: 20px 20px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 `;
 const ContentText = styled.Text`
   font-size: 18px;
   font-weight: 600;
+`;
+const CountWrapper = styled.View`
+  padding: 0px 20px;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
 `;
 const Count = styled.View`
   padding: 0px 20px;
@@ -46,7 +55,11 @@ const Count = styled.View`
   justify-content: space-between;
   align-items: center;
   height: 50px;
-  border: 1px solid rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(0, 0, 0, 0.7);
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 `;
 const CountText = styled.Text`
   font-size: 16px;
@@ -56,26 +69,31 @@ const Button = styled.Pressable`
   padding: 0 15px;
   height: 40px;
   border-radius: 10px;
-  margin: 5px 0;
+  margin-top: 150px;
   align-items: center;
   justify-content: center;
   background-color: #2196f3;
+  width: 60%;
 `;
 const HelperProfile = ({ navigation, route }) => {
   const img = useRecoilValue(imgData);
   const access = useRecoilValue(accessData);
   const grant = useRecoilValue(grantData);
-  const onPressBtn = () => {
-    axios
-      .post(
-        "http://10.0.2.2:8080/api/conversation/1",
+
+  useEffect(() => {}, []);
+  const onPressBtn = async () => {
+    try {
+      const res = await apiClient.post(
+        "/api/conversation/1",
         {},
         {
           headers: { Authorization: `${grant}` + " " + `${access}` },
         }
-      )
-      .then((res) => console.log(res.data))
-      .catch((error) => console.log(error));
+      );
+      console.log(res.data);
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <Container>
@@ -91,18 +109,22 @@ const HelperProfile = ({ navigation, route }) => {
             )}
           </View>
         </MyProfile>
-        <ContentBox>
-          <ContentText>헬퍼소개</ContentText>
-        </ContentBox>
-        <View style={{ paddingHorizontal: 20 }}>
-          <Text style={{ fontSize: 16, fontWeight: "600" }}>
-            {route.params.introduce}
-          </Text>
-        </View>
+        <ContentWrapper>
+          <ContentBox>
+            <ContentText>헬퍼소개</ContentText>
+          </ContentBox>
+          <View style={{ paddingHorizontal: 20 }}>
+            <Text style={{ fontSize: 16, fontWeight: "600" }}>
+              {route.params.introduce}
+            </Text>
+          </View>
+        </ContentWrapper>
+
         <ContentBox>
           <ContentText>요청정보</ContentText>
         </ContentBox>
-        <View style={{ paddingHorizontal: 20 }}>
+
+        <CountWrapper>
           <Count>
             <CountText>총 심부름수</CountText>
             <Text>0</Text>
@@ -111,10 +133,14 @@ const HelperProfile = ({ navigation, route }) => {
             <CountText>요청한 심부름 수</CountText>
             <Text>0</Text>
           </Count>
+        </CountWrapper>
+        <View style={{ justifyContent: "center", alignItems: "center" }}>
+          <Button onPress={onPressBtn}>
+            <Text style={{ color: "white", fontWeight: "600", fontSize: 15 }}>
+              신청하기
+            </Text>
+          </Button>
         </View>
-        <Button onPress={onPressBtn}>
-          <Text>신청</Text>
-        </Button>
       </Box>
     </Container>
   );

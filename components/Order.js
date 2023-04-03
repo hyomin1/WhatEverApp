@@ -115,7 +115,7 @@ const Order = ({ orderVisible, setOrderVisible }) => {
         { headers: { Authorization: `${grant}` + " " + `${access}` } }
       )
       .then((res) => {
-        console.log("심부름 요청 성공", res.data.customerId);
+        console.log("심부름 요청 성공", res.data);
         Alert.alert("심부름 요청이 등록되었습니다.");
         setAddress("");
         setAddress2("");

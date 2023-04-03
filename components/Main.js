@@ -99,13 +99,13 @@ const Main = ({ navigation: { navigate } }) => {
           return item.id;
         });
 
-        axios.put(
+        /*axios.put(
           "http://10.0.2.2:8080/api/findHelper/images",
           {
             headers: { Authorization: `${grant}` + " " + `${access}` },
           },
           {}
-        );
+        );*/
       });
 
     try {
@@ -136,39 +136,40 @@ const Main = ({ navigation: { navigate } }) => {
     setLocation({ latitude, longitude }); //내 위치 저장하기 위함
     setLoading(false);
   };
+  const client = new StompJs.Client({
+    brokerURL: "ws://10.0.2.2:8080/ws",
+    forceBinaryWSFrames: true,
+    appendMissingNULLonIncoming: true,
+    debug: function (str) {
+      console.log(str);
+    },
+    reconnectDelay: 5000,
+    heartbeatIncoming: 4000,
+    heartbeatOutgoing: 4000,
+  });
+  client.onConnect = function (frame) {
+    console.log("연결됨");
+    const subscription = client.subscribe("queue/1");
+    /*const subscription = client.subscribe(
+      "/topic/greeting",
+      function (message) {
+        console.log(message.body);
+      }
+    );
+    client.publish({
+      destination: "/pub/hello",
+      body: "hello",
+      headers: { priority: 9 },
+    });*/
+  };
+  client.onStompError = function (frame) {
+    console.log("Broker reported error: " + frame.headers["message"]);
+    console.log("Additional details: " + frame.body);
+  };
 
   useEffect(() => {
+    client.activate();
     getLocation();
-
-    /* const client = new StompJs.Client({
-      brokerURL: "ws://10.0.2.2:8080/ws",
-      debug: function (str) {
-        console.log(str);
-      },
-      reconnectDelay: 5000,
-      heartbeatIncoming: 4000,
-      heartbeatOutgoing: 4000,
-    });
-    client.onConnect = function (frame) {
-      console.log("연결");
-      const subscription = client.subscribe(
-        "/topic/greeting",
-        function (message) {
-          const quote = JSON.parse(message.body);
-          Alert.alert(quote.symbol);
-        }
-      );
-      client.publish({
-        destination: "/pub/hello",
-        body: "hello",
-        headers: { priority: 9 },
-      });
-    };
-    client.onStompError = function (frame) {
-      console.log("Broker reported error: " + frame.headers["message"]);
-      console.log("Additional details: " + frame.body);
-    };
-    client.activate();*/
   }, []);
   return (
     <View style={{ flex: 1 }}>
