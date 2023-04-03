@@ -7,7 +7,6 @@ import { useRecoilState } from "recoil";
 import { useNavigation } from "@react-navigation/native";
 import { apiClient } from "../api";
 
-
 const Container = styled.View`
   background-color: #0fbcf9;
   flex: 1;
@@ -77,8 +76,6 @@ function Login({ navigation: { navigate } }) {
     navigation.navigate("Tabs", { screen: "Main" });
   };
 
-  
-
   const sendLogin = async () => {
     try {
       const res = await apiClient.post("/login", {
@@ -92,6 +89,9 @@ function Login({ navigation: { navigate } }) {
       console.log("로그인 성공");
       goMain();
     } catch (error) {
+      if (error.response.status === 403) {
+        Alert.alert("아이디 비밀번호를 확인해주세요");
+      }
       console.log(error); //code 403 -> 아이디,비번 오류
     }
   };
