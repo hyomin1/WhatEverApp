@@ -5,6 +5,8 @@ import { useState } from "react";
 
 const ChatView = styled.View`
   flex: 9;
+  padding-top: 20px;
+  align-items: flex-end;
 `;
 const ChatInputView = styled.View`
   flex: 1;
@@ -24,7 +26,32 @@ const ChatInput = styled.TextInput`
   font-size: 15px;
   font-weight: 600;
 `;
-
+const MyChat = styled.View`
+  flex-direction: row;
+  justify-content: flex-end;
+  padding-right: 20px;
+  margin-bottom: 10px;
+  width: 80%;
+`;
+const MyChatWrapper = styled.View`
+  background-color: #0fbcf9;
+  border-radius: 20px;
+  justify-content: center;
+  align-items: center;
+  width: auto;
+  height: auto;
+  padding: 10px 15px;
+`;
+const Time = styled.Text`
+  font-size: 10px;
+  color: #d0d3d7;
+  font-weight: 600;
+`;
+const MyChatText = styled.Text`
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
+`;
 const Chatting = () => {
   const [myMsg, setMyMsg] = useState([]);
   const [textInput, setTextInput] = useState();
@@ -39,8 +66,16 @@ const Chatting = () => {
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
       <ChatView>
-        <Text>안녕</Text>
-        {myMsg.map((msg) => console.log(Date.now()))}
+        {myMsg.map((msg, index) => (
+          <MyChat key={index}>
+            <View style={{ justifyContent: "flex-end" }}>
+              <Time>{new Date().toLocaleTimeString()}</Time>
+            </View>
+            <MyChatWrapper>
+              <MyChatText>{msg}</MyChatText>
+            </MyChatWrapper>
+          </MyChat>
+        ))}
       </ChatView>
       <ChatInputView>
         <ChatInput
