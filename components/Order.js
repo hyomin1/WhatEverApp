@@ -2,11 +2,9 @@ import styled from "styled-components/native";
 import { Modal, View, ScrollView, Text, Pressable, Alert } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
-import { accessData, contentData, grantData, imgData } from "../atom";
+import { accessData, contentData, grantData, imgData, workData } from "../atom";
 import SelectDropdown from "react-native-select-dropdown";
-
-import { useRecoilValue } from "recoil";
-import { apiClient } from "../api";
+import { useRecoilState, useRecoilValue } from "recoil";
 import Postcode from "@actbase/react-daum-postcode";
 import * as Location from "expo-location";
 import axios from "axios";
@@ -80,16 +78,16 @@ const Order = ({ orderVisible, setOrderVisible }) => {
   const [context, setContext] = useState();
   const [longitude, setLongitude] = useState();
   const [latitude, setLatitude] = useState();
-  const [deadLineTime, setTime] = useState();
+  const [deadLineTime, setDeadLineTime] = useState();
   const [reward, setReward] = useState();
+
+  const [work, setWork] = useRecoilState(workData);
 
   const [address, setAddress] = useState();
   const [address2, setAddress2] = useState();
 
   const [orderAddress, setOrderAddress] = useState(false);
   const [receiveAddress, setReceiveAddress] = useState(false);
-
-  const content = useRecoilValue(contentData);
 
   const onChangeTitle = (payload) => {
     setTitle(payload);
@@ -119,6 +117,7 @@ const Order = ({ orderVisible, setOrderVisible }) => {
         Alert.alert("심부름 요청이 등록되었습니다.");
         setAddress("");
         setAddress2("");
+        setWork(res.data);
 
         setOrderVisible(!orderVisible);
       })
@@ -162,12 +161,12 @@ const Order = ({ orderVisible, setOrderVisible }) => {
               <View>
                 <MainText>제목</MainText>
                 <TitleInput
-                  onChangeText={onChangeContext}
+                  onChangeText={onChangeTitle}
                   placeholder="제목을 입력해주세요..."
                 />
                 <MainText>내용</MainText>
                 <TitleInput
-                  onChangeText={onChangeTitle}
+                  onChangeText={onChangeContext}
                   placeholder="내용을 입력해주세요..."
                 />
                 <ErrandPlace
@@ -236,7 +235,7 @@ const Order = ({ orderVisible, setOrderVisible }) => {
                     fontWeight: "600",
                   }}
                   data={hours}
-                  onSelect={(hour) => setTime(hour)}
+                  onSelect={(hour) => setDeadLineTime(hour)}
                   defaultButtonText="시간"
                 />
                 <MainText style={{ marginTop: 20 }}>심부름 비</MainText>

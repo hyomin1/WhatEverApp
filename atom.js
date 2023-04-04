@@ -3,11 +3,11 @@ import { atom } from "recoil";
 export const accessData = atom({
   key: "access",
   default: null,
-});
+}); //토큰 데이터
 export const grantData = atom({
   key: "grant",
   default: null,
-});
+}); //토큰 데이터
 export const imgData = atom({
   key: "profileImg",
   default:
@@ -16,45 +16,56 @@ export const imgData = atom({
 export const nameData = atom({
   key: "name",
   default: null,
-});
+}); //회원가입시 이름
 export const idData = atom({
   key: "userId",
   default: null,
-});
+}); //회원가입시 유저아이디
 export const pwData = atom({
   key: "password",
   default: null,
-});
+}); //회원가입시 비밀번호, 프로필에서 받아오는 비밀번호 데이터
+
 export const IntroduceData = atom({
   key: "introduce",
   default: null,
-});
+}); //프로필에서 받아오는 자기소개 데이터 ,프로필 수정시 자기소개
 export const responseData = atom({
   key: "response",
   default: null,
-});
+}); //프로필에서 받아오는 응답시간데이터
 export const distanceData = atom({
   key: "distance",
   default: null,
-});
+}); //프로필에서 받아오는 거리데이터
 export const ratingData = atom({
   key: "rating",
   default: null,
-});
+}); //프로필에서 받아오는 평점데이터
 export const uniqueIdData = atom({
   key: "uniqueId",
   default: null,
-});
+}); //프로필에서 받아오는 본인 id 값(number)
+
 export const contentData = atom({
   //거리순 default
   key: "content",
   default: null,
 });
-export const winRatData = atom({
-  key: "winRatData",
+export const ratingHelperData = atom({
+  key: "ratingHelper",
   default: null,
 });
-export const winResData = atom({
-  key: "winResData",
+export const responseHelperData = atom({
+  key: "responseHelper",
+  default: null,
+});
+
+export const myIdData = atom({
+  key: "myId",
+  default: null,
+}); //로그인시 구독을 위한 내 id값
+export const workData = atom({
+  key: "work",
   default: null,
 });

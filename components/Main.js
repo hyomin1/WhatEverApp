@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import MapView, { Marker } from "react-native-maps";
-
 import {
   View,
   Dimensions,
@@ -12,7 +11,6 @@ import {
 import * as Location from "expo-location";
 import styled from "styled-components/native";
 import { PROVIDER_GOOGLE } from "react-native-maps";
-
 import axios from "axios";
 import { useRecoilValue, useRecoilState } from "recoil";
 import {
@@ -22,13 +20,14 @@ import {
   contentData,
   winRatData,
   winResData,
+  myIdData,
+  ratingHelperData,
+  responseHelperData,
 } from "../atom";
 import { MaterialIcons } from "@expo/vector-icons";
-import StompJs from "@stomp/stompjs";
-import SockJS from "sockjs-client";
 import Order from "./Order";
 import { apiClient } from "../api";
-import { RootTagContext } from "react-native/Libraries/ReactNative/RootTag";
+import { client } from "../client";
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
@@ -62,18 +61,17 @@ const Main = ({ navigation: { navigate } }) => {
   const [location, setLocation] = useState();
   const [ok, setOk] = useState();
   const [isLoading, setLoading] = useState(true);
+
   const access = useRecoilValue(accessData);
   const grant = useRecoilValue(grantData);
-  const auth = grant + " " + access;
-  const [content, setContent] = useRecoilState(contentData); //거리순 default
-  const [rating, setRating] = useRecoilState(winRatData); //평점순
-  const [response, setResponse] = useRecoilState(winResData); //응답시간순
 
-  //const [idList, setIdList] = useState([]);
+  const myId = useRecoilValue(myIdData); //웹소켓 연결시 구독을 위한 본인 고유 id 데이터
 
-  const pw = useRecoilValue(pwData);
+  const [distanceHelper, setDistanceHelper] = useRecoilState(contentData); //거리순으로 헬퍼데이터  (default)
+  const [ratingHelper, setRatingHelper] = useRecoilState(ratingHelperData); //평점순으로 헬퍼데이터
+  const [responseHelper, setResponseHelper] =
+    useRecoilState(responseHelperData); //응답시간순으로 헬퍼데이터
 
-  const [helperVisible, setHelperVisible] = useState(false);
   const [orderVisible, setOrderVisible] = useState(false);
 
   const getLocation = async () => {
@@ -93,11 +91,7 @@ const Main = ({ navigation: { navigate } }) => {
         }
       )
       .then((res) => {
-        setContent(res.data.content);
-        const idList = res.data.content.map((item) => {
-          //idList 배열
-          return item.id;
-        });
+        setDistanceHelper(res.data.content);
 
         /*axios.put(
           "http://10.0.2.2:8080/api/findHelper/images",
@@ -128,39 +122,19 @@ const Main = ({ navigation: { navigate } }) => {
       );
       console.log("거리순,평점순,응답시간순");
 
-      setRating(res2.data.content);
-      setResponse(res3.data.content);
+      setRatingHelper(res2.data.content);
+      setResponseHelper(res3.data.content);
     } catch (error) {
       console.log(error);
     }
     setLocation({ latitude, longitude }); //내 위치 저장하기 위함
     setLoading(false);
   };
-  const client = new StompJs.Client({
-    brokerURL: "ws://10.0.2.2:8080/ws",
-    forceBinaryWSFrames: true,
-    appendMissingNULLonIncoming: true,
-    debug: function (str) {
-      console.log(str);
-    },
-    reconnectDelay: 5000,
-    heartbeatIncoming: 4000,
-    heartbeatOutgoing: 4000,
-  });
   client.onConnect = function (frame) {
     console.log("연결됨");
-    const subscription = client.subscribe("queue/1");
-    /*const subscription = client.subscribe(
-      "/topic/greeting",
-      function (message) {
-        console.log(message.body);
-      }
-    );
-    client.publish({
-      destination: "/pub/hello",
-      body: "hello",
-      headers: { priority: 9 },
-    });*/
+    const subscription = client.subscribe(`/queue/${myId}`, function (message) {
+      console.log("로그인 웹소켓", message.body);
+    });
   };
   client.onStompError = function (frame) {
     console.log("Broker reported error: " + frame.headers["message"]);
@@ -196,7 +170,7 @@ const Main = ({ navigation: { navigate } }) => {
                 longitude: location.longitude,
               }}
             />
-            {content.map((location) => (
+            {distanceHelper.map((location) => (
               <Marker
                 key={location.id}
                 coordinate={{

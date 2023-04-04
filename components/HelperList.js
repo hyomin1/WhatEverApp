@@ -2,7 +2,13 @@ import { Modal, Pressable, ScrollView, Text, View } from "react-native";
 import styled from "styled-components/native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRecoilValue } from "recoil";
-import { contentData, winRatData, winResData } from "../atom";
+import {
+  contentData,
+  ratingHelperData,
+  responseHelperData,
+  winRatData,
+  winResData,
+} from "../atom";
 
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
@@ -49,8 +55,8 @@ const ChooseText = styled.Text`
 
 const HelperList = ({ helperVisible, setHelperVisible }) => {
   const distanceData = useRecoilValue(contentData);
-  const ratingData = useRecoilValue(winRatData);
-  const responseData = useRecoilValue(winResData);
+  const ratingData = useRecoilValue(ratingHelperData);
+  const responseData = useRecoilValue(responseHelperData);
 
   const [isDistance, setIsDistance] = useState(true);
   const [isRating, setIsRating] = useState(false);
@@ -123,6 +129,7 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
                           name: data.name,
                           introduce: data.introduce,
                           rating: data.rating,
+                          id: data.id,
                         })
                       }
                     >

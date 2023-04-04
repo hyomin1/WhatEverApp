@@ -130,16 +130,17 @@ const Fix = ({ modalVisible, setModalVisible }) => {
   const grant = useRecoilValue(grantData);
   const auth = grant + " " + access;
 
-  const [name, setName] = useRecoilState(nameData);
-  const [introduce, setIntroduce] = useRecoilState(IntroduceData);
-  const [pw, setPw] = useRecoilState(pwData);
+  const [name, setName] = useRecoilState(nameData); //닉네임 수정용
+  const [introduce, setIntroduce] = useRecoilState(IntroduceData); //자기소개 수정용
+  const [pw, setPw] = useRecoilState(pwData); //비밀번호 수정용
+
   const response = useRecoilValue(responseData);
   const distance = useRecoilValue(distanceData);
   const rating = useRecoilValue(ratingData);
   const uniqueId = useRecoilValue(uniqueIdData);
 
-  const [changePw, setChangePw] = useState();
-  const [changePw2, setChangePw2] = useState();
+  const [changePw, setChangePw] = useState(); //비밀번호 수정용1
+  const [changePw2, setChangePw2] = useState(); //비밀번호 수정용2
 
   const [ok, setOk] = useState(false);
 

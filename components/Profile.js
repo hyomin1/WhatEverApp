@@ -74,7 +74,6 @@ const CountText = styled.Text`
 
 const Profile = () => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [introduceVisible, setIntroduceVisible] = useState(false);
 
   const img = useRecoilValue(imgData);
   const rating = useRecoilValue(ratingData);

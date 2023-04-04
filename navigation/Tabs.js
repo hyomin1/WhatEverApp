@@ -29,12 +29,12 @@ const Tabs = ({ navigation: { navigate } }) => {
   const access = useRecoilValue(accessData);
   const grant = useRecoilValue(grantData);
 
-  const setPw = useSetRecoilState(pwData);
-  const setResponse = useSetRecoilState(responseData);
+  const setPw = useSetRecoilState(pwData); //내 프로필 비밀번호 데이터
+  const setResponse = useSetRecoilState(responseData); //내 프로필 응답시간 데이터
   const setDistance = useSetRecoilState(distanceData);
-  const setIntroduce = useSetRecoilState(IntroduceData);
-  const setName = useSetRecoilState(nameData);
-  const setRating = useSetRecoilState(ratingData);
+  const setIntroduce = useSetRecoilState(IntroduceData); //내 프로필 자기소개 데이터
+  const setName = useSetRecoilState(nameData); //내 프로필 닉네임 데이터
+  const setRating = useSetRecoilState(ratingData); //내 프로필 평점 데이터
   const setUniqueId = useSetRecoilState(uniqueIdData);
 
   return (
@@ -84,7 +84,7 @@ const Tabs = ({ navigation: { navigate } }) => {
                       },
                     })
                     .then((res) => {
-                      console.log("유저 데이터 받아오기 성공", res.data);
+                      console.log("유저 데이터 받아오기 성공", res.data.id);
                       setPw(res.data.password);
                       setDistance(res.data.distance);
                       setResponse(res.data.avgReactTime);

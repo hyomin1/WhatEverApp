@@ -2,8 +2,8 @@ import { useState } from "react";
 import { View, Alert } from "react-native";
 import styled from "styled-components/native";
 
-import { accessData, grantData } from "../atom";
-import { useRecoilState } from "recoil";
+import { accessData, grantData, myIdData } from "../atom";
+import { useSetRecoilState } from "recoil";
 import { useNavigation } from "@react-navigation/native";
 import { apiClient } from "../api";
 
@@ -63,8 +63,12 @@ const JoinText = styled.Text`
 function Login({ navigation: { navigate } }) {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
-  const [access, setAccess] = useRecoilState(accessData);
-  const [grant, setGrant] = useRecoilState(grantData);
+
+  const setAccess = useSetRecoilState(accessData);
+  const setGrant = useSetRecoilState(grantData);
+
+  const setMyId = useSetRecoilState(myIdData);
+
   const onChangeId = (payload) => {
     setId(payload);
   };
@@ -85,6 +89,7 @@ function Login({ navigation: { navigate } }) {
 
       setAccess(res.data.accessToken);
       setGrant(res.data.grantType);
+      setMyId(res.data.id);
       Alert.alert("로그인 완료");
       console.log("로그인 성공");
       goMain();

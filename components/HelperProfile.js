@@ -1,10 +1,11 @@
 import { View, Text, Pressable } from "react-native";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components/native";
-import { accessData, contentData, grantData, imgData } from "../atom";
+import { accessData, contentData, grantData, imgData, workData } from "../atom";
 import axios from "axios";
 import { useEffect } from "react";
 import { apiClient } from "../api";
+import { client } from "../client";
 const Container = styled.View`
   flex: 1;
   background-color: white;
@@ -80,20 +81,35 @@ const HelperProfile = ({ navigation, route }) => {
   const access = useRecoilValue(accessData);
   const grant = useRecoilValue(grantData);
 
+  const work = useRecoilValue(workData);
+
   useEffect(() => {}, []);
   const onPressBtn = async () => {
-    try {
-      const res = await apiClient.post(
-        "/api/conversation/1",
-        {},
+    console.log(work);
+    axios
+      .post(
+        `http://10.0.2.2:8080/api/conversation/${route.params.id}`,
+        {
+          id: work.id,
+        },
         {
           headers: { Authorization: `${grant}` + " " + `${access}` },
         }
-      );
-      console.log(res.data);
-    } catch (error) {
-      console.log(error);
-    }
+      )
+      .then((res) => {
+        const sub = client.subscribe(
+          `/topic/chat/${res.data._id}`,
+          function (message) {
+            console.log("심부름 요청후 웹소켓", message.body);
+          }
+        );
+
+        client.publish({
+          destination: `/pub/work/${res.data._id}`,
+          body: JSON.stringify(work),
+        });
+      })
+      .catch((error) => console.log(error));
   };
   return (
     <Container>
