@@ -6,6 +6,7 @@ import axios from "axios";
 import { useEffect } from "react";
 import { apiClient } from "../api";
 import { client } from "../client";
+import { useNavigation } from "@react-navigation/native";
 const Container = styled.View`
   flex: 1;
   background-color: white;
@@ -76,13 +77,17 @@ const Button = styled.Pressable`
   background-color: #2196f3;
   width: 60%;
 `;
-const HelperProfile = ({ navigation, route }) => {
+const HelperProfile = ({ route }) => {
   const img = useRecoilValue(imgData);
   const access = useRecoilValue(accessData);
   const grant = useRecoilValue(grantData);
 
   const work = useRecoilValue(workData);
 
+  const navigation = useNavigation();
+  const goMain = () => {
+    navigation.navigate("Tabs", { screen: "Main" });
+  };
   useEffect(() => {}, []);
   const onPressBtn = async () => {
     console.log(work);
@@ -100,7 +105,7 @@ const HelperProfile = ({ navigation, route }) => {
         const sub = client.subscribe(
           `/topic/chat/${res.data._id}`,
           function (message) {
-            console.log("심부름 요청후 웹소켓", message.body);
+            console.log("심부름 요청후 웹소켓", message);
           }
         );
 
@@ -108,6 +113,7 @@ const HelperProfile = ({ navigation, route }) => {
           destination: `/pub/work/${res.data._id}`,
           body: JSON.stringify(work),
         });
+        goMain();
       })
       .catch((error) => console.log(error));
   };
