@@ -69,3 +69,8 @@ export const workData = atom({
   key: "work",
   default: null,
 });
+
+export const helperImgData = atom({
+  key: "helperImg",
+  default: null,
+});

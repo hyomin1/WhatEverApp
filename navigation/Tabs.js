@@ -14,6 +14,7 @@ import {
   accessData,
   distanceData,
   grantData,
+  helperImgData,
   IntroduceData,
   nameData,
   pwData,
@@ -21,7 +22,6 @@ import {
   responseData,
   uniqueIdData,
 } from "../atom";
-import { useSyncExternalStore } from "react";
 
 const Tab = createBottomTabNavigator();
 
@@ -36,6 +36,7 @@ const Tabs = ({ navigation: { navigate } }) => {
   const setName = useSetRecoilState(nameData); //내 프로필 닉네임 데이터
   const setRating = useSetRecoilState(ratingData); //내 프로필 평점 데이터
   const setUniqueId = useSetRecoilState(uniqueIdData);
+  const setHelperImg = useSetRecoilState(helperImgData);
 
   return (
     <Tab.Navigator
@@ -92,6 +93,7 @@ const Tabs = ({ navigation: { navigate } }) => {
                       setName(res.data.name);
                       setRating(res.data.rating);
                       setUniqueId(res.data.id);
+                      setHelperImg(res.data.image);
                     })
                     .catch((error) => console.log("에러", error));
                 }}

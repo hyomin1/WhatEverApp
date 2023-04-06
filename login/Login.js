@@ -6,6 +6,8 @@ import { accessData, grantData, myIdData } from "../atom";
 import { useSetRecoilState } from "recoil";
 import { useNavigation } from "@react-navigation/native";
 import { apiClient } from "../api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 const Container = styled.View`
   background-color: #0fbcf9;
@@ -81,7 +83,21 @@ function Login({ navigation: { navigate } }) {
   };
 
   const sendLogin = async () => {
-    try {
+    axios
+      .post("http://10.0.2.2:8080/login", {
+        userId: id,
+        password: password,
+      })
+      .then((res) => {
+        const { accessToken } = res.data;
+        setAccess(res.data.accessToken);
+        setGrant(res.data.grantType);
+
+        Alert.alert("로그인 완료");
+        console.log("로그인 성공");
+        goMain();
+      });
+    /*try {
       const res = await apiClient.post("/login", {
         userId: id,
         password: password,
@@ -89,8 +105,11 @@ function Login({ navigation: { navigate } }) {
 
       setAccess(res.data.accessToken);
       setGrant(res.data.grantType);
+      //await AsyncStorage.setItem("accessToken", res.data.accessToken);
       setMyId(res.data.id);
-      Alert.alert("로그인 완료");
+      console.log(res.data.grantType);
+      axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+      Alert.alert("로그인 완료");r
       console.log("로그인 성공");
       goMain();
     } catch (error) {
@@ -98,7 +117,7 @@ function Login({ navigation: { navigate } }) {
         Alert.alert("아이디 비밀번호를 확인해주세요");
       }
       console.log(error); //code 403 -> 아이디,비번 오류
-    }
+    }*/
   };
   const onPressLogin = () => {
     if (id === "") {

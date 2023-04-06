@@ -9,11 +9,9 @@ export default function App() {
   const queryClient = new QueryClient();
   return (
     <RecoilRoot>
-      <QueryClientProvider client={queryClient}>
-        <NavigationContainer>
-          <Root />
-        </NavigationContainer>
-      </QueryClientProvider>
+      <NavigationContainer>
+        <Root />
+      </NavigationContainer>
     </RecoilRoot>
   );
 }

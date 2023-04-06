@@ -4,7 +4,14 @@ import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import Fix from "./Fix";
 import { useRecoilValue } from "recoil";
-import { imgData, IntroduceData, nameData, ratingData } from "../atom";
+import {
+  imgData,
+  IntroduceData,
+  nameData,
+  ratingData,
+  helperImage,
+  helperImgData,
+} from "../atom";
 import { Entypo } from "@expo/vector-icons";
 
 const Container = styled.View`
@@ -77,6 +84,7 @@ const Profile = () => {
 
   const img = useRecoilValue(imgData);
   const rating = useRecoilValue(ratingData);
+  const helperImg = useRecoilValue(helperImgData);
 
   const goFix = () => {
     setModalVisible(!modalVisible);
@@ -88,7 +96,7 @@ const Profile = () => {
     <Container>
       <Box>
         <MyProfile>
-          <ProfileImg source={{ uri: img }} />
+          <ProfileImg source={{ uri: `data:image/png;base64,${helperImg}` }} />
           <View style={{ paddingVertical: 20 }}>
             <Name>{name}</Name>
             {rating ? <Text>⭐ {rating.toFixed(1)}/5</Text> : <Text>⭐</Text>}

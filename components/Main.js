@@ -23,11 +23,14 @@ import {
   myIdData,
   ratingHelperData,
   responseHelperData,
+  helperImage,
+  helperImgData,
 } from "../atom";
 import { MaterialIcons } from "@expo/vector-icons";
 import Order from "./Order";
 import { apiClient } from "../api";
 import { client } from "../client";
+import { accessToken } from "../token";
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
@@ -66,6 +69,7 @@ const Main = ({ navigation: { navigate } }) => {
   const grant = useRecoilValue(grantData);
 
   const myId = useRecoilValue(myIdData); //웹소켓 연결시 구독을 위한 본인 고유 id 데이터
+  const [HelperImg, setHelperImg] = useRecoilState(helperImgData);
 
   const [distanceHelper, setDistanceHelper] = useRecoilState(contentData); //거리순으로 헬퍼데이터  (default)
   const [ratingHelper, setRatingHelper] = useRecoilState(ratingHelperData); //평점순으로 헬퍼데이터
@@ -92,14 +96,7 @@ const Main = ({ navigation: { navigate } }) => {
       )
       .then((res) => {
         setDistanceHelper(res.data.content);
-
-        /*axios.put(
-          "http://10.0.2.2:8080/api/findHelper/images",
-          {
-            headers: { Authorization: `${grant}` + " " + `${access}` },
-          },
-          {}
-        );*/
+        console.log(res.data.content);
       });
 
     try {
@@ -130,12 +127,19 @@ const Main = ({ navigation: { navigate } }) => {
     setLocation({ latitude, longitude }); //내 위치 저장하기 위함
     setLoading(false);
   };
-  client.onConnect = function (frame) {
+  const headers = { Authorization: "Bearer " + `${accessToken}` };
+  client.onConnect(headers, (frame) => {
     console.log("연결됨");
     const subscription = client.subscribe(`/queue/${myId}`, function (message) {
       console.log("로그인 웹소켓", message.body);
     });
-  };
+  });
+  /*client.onConnect = function (frame) {
+    console.log("연결됨");
+    const subscription = client.subscribe(`/queue/${myId}`, function (message) {
+      console.log("로그인 웹소켓", message.body);
+    });
+  };*/
   client.onStompError = function (frame) {
     console.log("Broker reported error: " + frame.headers["message"]);
     console.log("Additional details: " + frame.body);
@@ -179,7 +183,7 @@ const Main = ({ navigation: { navigate } }) => {
                 }}
               >
                 <Image
-                  source={require("../images/help.png")}
+                  source={{ uri: `data:image/png;base64,${helperImage}` }}
                   style={{ height: 35, width: 35, borderRadius: 20 }}
                 />
               </Marker>
