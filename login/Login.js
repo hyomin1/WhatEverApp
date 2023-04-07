@@ -6,7 +6,6 @@ import { accessData, grantData, myIdData } from "../atom";
 import { useSetRecoilState } from "recoil";
 import { useNavigation } from "@react-navigation/native";
 import { apiClient } from "../api";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 const Container = styled.View`
@@ -89,9 +88,16 @@ function Login({ navigation: { navigate } }) {
         password: password,
       })
       .then((res) => {
-        const { accessToken } = res.data;
         setAccess(res.data.accessToken);
         setGrant(res.data.grantType);
+        if (res.status === 200) {
+          axios.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${res.data.accessToken}`;
+          apiClient.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${res.data.accessToken}`;
+        }
 
         Alert.alert("로그인 완료");
         console.log("로그인 성공");

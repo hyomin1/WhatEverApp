@@ -1,18 +1,9 @@
 import { View, Text, TextInput } from "react-native";
 import styled from "styled-components/native";
 import { useState } from "react";
-import { useNavigation } from "@react-navigation/native";
 import Fix from "./Fix";
 import { useRecoilValue } from "recoil";
-import {
-  imgData,
-  IntroduceData,
-  nameData,
-  ratingData,
-  helperImage,
-  helperImgData,
-} from "../atom";
-import { Entypo } from "@expo/vector-icons";
+import { IntroduceData, myImgData, nameData, ratingData } from "../atom";
 
 const Container = styled.View`
   flex: 1;
@@ -82,9 +73,8 @@ const CountText = styled.Text`
 const Profile = () => {
   const [modalVisible, setModalVisible] = useState(false);
 
-  const img = useRecoilValue(imgData);
+  const myImg = useRecoilValue(myImgData);
   const rating = useRecoilValue(ratingData);
-  const helperImg = useRecoilValue(helperImgData);
 
   const goFix = () => {
     setModalVisible(!modalVisible);
@@ -96,7 +86,7 @@ const Profile = () => {
     <Container>
       <Box>
         <MyProfile>
-          <ProfileImg source={{ uri: `data:image/png;base64,${helperImg}` }} />
+          <ProfileImg source={{ uri: `data:image/png;base64,${myImg}` }} />
           <View style={{ paddingVertical: 20 }}>
             <Name>{name}</Name>
             {rating ? <Text>⭐ {rating.toFixed(1)}/5</Text> : <Text>⭐</Text>}

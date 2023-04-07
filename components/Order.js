@@ -2,7 +2,7 @@ import styled from "styled-components/native";
 import { Modal, View, ScrollView, Text, Pressable, Alert } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
-import { accessData, contentData, grantData, imgData, workData } from "../atom";
+import { workData } from "../atom";
 import SelectDropdown from "react-native-select-dropdown";
 import { useRecoilState, useRecoilValue } from "recoil";
 import Postcode from "@actbase/react-daum-postcode";
@@ -71,9 +71,6 @@ const AddressText = styled.Text`
 const Order = ({ orderVisible, setOrderVisible }) => {
   const hours = [1, 2, 3, 4];
 
-  const access = useRecoilValue(accessData);
-  const grant = useRecoilValue(grantData);
-
   const [title, setTitle] = useState();
   const [context, setContext] = useState();
   const [longitude, setLongitude] = useState();
@@ -100,25 +97,20 @@ const Order = ({ orderVisible, setOrderVisible }) => {
   };
   const onPressBtn = async () => {
     await axios
-      .post(
-        "http://10.0.2.2:8080/api/work",
-        {
-          latitude,
-          longitude,
-          reward,
-          deadLineTime,
-          title,
-          context,
-        },
-        { headers: { Authorization: `${grant}` + " " + `${access}` } }
-      )
+      .post("http://10.0.2.2:8080/api/work", {
+        latitude,
+        longitude,
+        reward,
+        deadLineTime,
+        title,
+        context,
+      })
       .then((res) => {
         console.log("심부름 요청 성공", res.data);
         Alert.alert("심부름 요청이 등록되었습니다.");
         setAddress("");
         setAddress2("");
         setWork(res.data);
-
         setOrderVisible(!orderVisible);
       })
       .catch((error) => console.log(error));

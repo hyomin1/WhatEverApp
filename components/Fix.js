@@ -12,8 +12,6 @@ import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
 import {
-  accessData,
-  grantData,
   imgData,
   nameData,
   IntroduceData,
@@ -22,10 +20,12 @@ import {
   ratingData,
   uniqueIdData,
   pwData,
+  myImgData,
 } from "../atom";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { Entypo } from "@expo/vector-icons";
 import axios from "axios";
+
 const Center = styled.View`
   flex: 1;
 `;
@@ -126,10 +126,6 @@ const Fix = ({ modalVisible, setModalVisible }) => {
   const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions(); //권한 요청을 위한 hooks
   const [img, setImg] = useRecoilState(imgData);
 
-  const access = useRecoilValue(accessData);
-  const grant = useRecoilValue(grantData);
-  const auth = grant + " " + access;
-
   const [name, setName] = useRecoilState(nameData); //닉네임 수정용
   const [introduce, setIntroduce] = useRecoilState(IntroduceData); //자기소개 수정용
   const [pw, setPw] = useRecoilState(pwData); //비밀번호 수정용
@@ -141,7 +137,7 @@ const Fix = ({ modalVisible, setModalVisible }) => {
 
   const [changePw, setChangePw] = useState(); //비밀번호 수정용1
   const [changePw2, setChangePw2] = useState(); //비밀번호 수정용2
-
+  const setMyImg = useSetRecoilState(myImgData);
   const [ok, setOk] = useState(false);
 
   const pickImage = async () => {
@@ -178,7 +174,6 @@ const Fix = ({ modalVisible, setModalVisible }) => {
       url: "http://10.0.2.2:8080/api/userInfo/image",
       headers: {
         "Content-Type": "multipart/form-data",
-        Authorization: auth,
       },
       data: formData,
     });
@@ -206,21 +201,20 @@ const Fix = ({ modalVisible, setModalVisible }) => {
   };
   const onPressBtn = () => {
     setModalVisible(!modalVisible);
+    axios.get("http://10.0.2.2:8080/api/userInfo").then((res) => {
+      setMyImg(res.data.image);
+    });
     axios
-      .put(
-        "http://10.0.2.2:8080/api/userInfo",
-        {
-          avgReactTime: response,
-          distance,
-          id: uniqueId,
-          introduce,
-          name,
-          rating,
-          password: pw,
-        },
-        { headers: { Authorization: `${grant}` + " " + `${access}` } }
-      )
-      .then((res) => console.log("유저 정보 데이터 전송 성공", pw, res.data));
+      .put("http://10.0.2.2:8080/api/userInfo", {
+        avgReactTime: response,
+        distance,
+        id: uniqueId,
+        introduce,
+        name,
+        rating,
+        password: pw,
+      })
+      .then((res) => console.log("유저 정보 데이터 전송 성공"));
   };
   const onChangeIntroduce = (payload) => {
     setIntroduce(payload);

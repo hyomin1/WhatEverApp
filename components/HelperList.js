@@ -1,14 +1,8 @@
-import { Modal, Pressable, ScrollView, Text, View } from "react-native";
+import { Modal, Pressable, ScrollView, Text, View, Image } from "react-native";
 import styled from "styled-components/native";
-import { MaterialIcons } from "@expo/vector-icons";
+
 import { useRecoilValue } from "recoil";
-import {
-  contentData,
-  ratingHelperData,
-  responseHelperData,
-  winRatData,
-  winResData,
-} from "../atom";
+import { contentData, ratingHelperData, responseHelperData } from "../atom";
 
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
@@ -130,6 +124,7 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
                           introduce: data.introduce,
                           rating: data.rating,
                           id: data.id,
+                          image: data.image,
                         })
                       }
                     >
@@ -140,7 +135,12 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
                           alignItems: "center",
                         }}
                       >
-                        <Text>사진</Text>
+                        <Image
+                          source={{
+                            uri: `data:image/png;base64,${data.image}`,
+                          }}
+                          style={{ height: 90, width: 90, borderRadius: 50 }}
+                        />
                       </View>
                       <View style={{ flex: 2 }}>
                         <Name>{data.name}</Name>

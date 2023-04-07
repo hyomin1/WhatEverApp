@@ -1,10 +1,9 @@
 import { View, Text, Pressable } from "react-native";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components/native";
-import { accessData, contentData, grantData, imgData, workData } from "../atom";
+import { imgData, workData } from "../atom";
 import axios from "axios";
 import { useEffect } from "react";
-import { apiClient } from "../api";
 import { client } from "../client";
 import { useNavigation } from "@react-navigation/native";
 const Container = styled.View`
@@ -79,8 +78,6 @@ const Button = styled.Pressable`
 `;
 const HelperProfile = ({ route }) => {
   const img = useRecoilValue(imgData);
-  const access = useRecoilValue(accessData);
-  const grant = useRecoilValue(grantData);
 
   const work = useRecoilValue(workData);
 
@@ -92,15 +89,9 @@ const HelperProfile = ({ route }) => {
   const onPressBtn = async () => {
     console.log(work);
     axios
-      .post(
-        `http://10.0.2.2:8080/api/conversation/${route.params.id}`,
-        {
-          id: work.id,
-        },
-        {
-          headers: { Authorization: `${grant}` + " " + `${access}` },
-        }
-      )
+      .post(`http://10.0.2.2:8080/api/conversation/${route.params.id}`, {
+        id: work.id,
+      })
       .then((res) => {
         const sub = client.subscribe(
           `/topic/chat/${res.data._id}`,
@@ -121,7 +112,9 @@ const HelperProfile = ({ route }) => {
     <Container>
       <Box>
         <MyProfile>
-          <ProfileImg source={{ uri: img }} />
+          <ProfileImg
+            source={{ uri: `data:image/png;base64,${route.params.image}` }}
+          />
           <View style={{ paddingVertical: 20 }}>
             <Name>{route.params.name}</Name>
             {route.params.rating ? (

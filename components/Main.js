@@ -16,27 +16,38 @@ import { useRecoilValue, useRecoilState } from "recoil";
 import {
   accessData,
   grantData,
-  pwData,
   contentData,
-  winRatData,
-  winResData,
   myIdData,
   ratingHelperData,
   responseHelperData,
   helperImage,
-  helperImgData,
 } from "../atom";
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, AntDesign, Entypo } from "@expo/vector-icons";
 import Order from "./Order";
 import { apiClient } from "../api";
 import { client } from "../client";
-import { accessToken } from "../token";
 
-const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("window");
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
   flex: 1;
   justify-content: center;
   align-items: center;
+`;
+const SearchContaienr = styled.View`
+  position: absolute;
+  width: 70%;
+  left: 50%;
+  top: 2%;
+`;
+const SearchInput = styled.Pressable`
+  height: 40px;
+  background-color: white;
+  opacity: 0.8;
+  border-radius: 20px;
+  padding: 0px 20px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
 `;
 const BtnContainer = styled.View`
   position: absolute;
@@ -69,7 +80,6 @@ const Main = ({ navigation: { navigate } }) => {
   const grant = useRecoilValue(grantData);
 
   const myId = useRecoilValue(myIdData); //웹소켓 연결시 구독을 위한 본인 고유 id 데이터
-  const [HelperImg, setHelperImg] = useRecoilState(helperImgData);
 
   const [distanceHelper, setDistanceHelper] = useRecoilState(contentData); //거리순으로 헬퍼데이터  (default)
   const [ratingHelper, setRatingHelper] = useRecoilState(ratingHelperData); //평점순으로 헬퍼데이터
@@ -87,59 +97,45 @@ const Main = ({ navigation: { navigate } }) => {
       coords: { latitude, longitude },
     } = await Location.getCurrentPositionAsync({ accuracy: 5 });
     axios
-      .put(
-        "http://10.0.2.2:8080/api/location/findHelper/distance",
-        { latitude, longitude },
-        {
-          headers: { Authorization: `${grant}` + " " + `${access}` },
-        }
-      )
+      .put("http://10.0.2.2:8080/api/location/findHelper/distance", {
+        latitude,
+        longitude,
+      })
       .then((res) => {
         setDistanceHelper(res.data.content);
-        console.log(res.data.content);
       });
 
     try {
-      const res2 = await apiClient.put(
-        "/api/location/findHelper/rating",
-        {
-          latitude,
-          longitude,
-        },
-        { headers: { Authorization: `${grant}` + " " + `${access}` } }
-      );
+      const res2 = await apiClient.put("/api/location/findHelper/rating", {
+        latitude,
+        longitude,
+      });
 
-      const res3 = await apiClient.put(
-        "api/location/findHelper/avgReactTime",
-        {
-          latitude,
-          longitude,
-        },
-        { headers: { Authorization: `${grant}` + " " + `${access}` } }
-      );
+      const res3 = await apiClient.put("api/location/findHelper/avgReactTime", {
+        latitude,
+        longitude,
+      });
       console.log("거리순,평점순,응답시간순");
 
       setRatingHelper(res2.data.content);
       setResponseHelper(res3.data.content);
+      //console.log(res2.data.content);
     } catch (error) {
       console.log(error);
     }
     setLocation({ latitude, longitude }); //내 위치 저장하기 위함
     setLoading(false);
   };
-  const headers = { Authorization: "Bearer " + `${accessToken}` };
+  const headers = {
+    Authorization: `${grant}` + " " + `${access}`,
+  };
   client.onConnect(headers, (frame) => {
     console.log("연결됨");
     const subscription = client.subscribe(`/queue/${myId}`, function (message) {
       console.log("로그인 웹소켓", message.body);
     });
   });
-  /*client.onConnect = function (frame) {
-    console.log("연결됨");
-    const subscription = client.subscribe(`/queue/${myId}`, function (message) {
-      console.log("로그인 웹소켓", message.body);
-    });
-  };*/
+
   client.onStompError = function (frame) {
     console.log("Broker reported error: " + frame.headers["message"]);
     console.log("Additional details: " + frame.body);
@@ -183,7 +179,7 @@ const Main = ({ navigation: { navigate } }) => {
                 }}
               >
                 <Image
-                  source={{ uri: `data:image/png;base64,${helperImage}` }}
+                  source={{ uri: `data:image/png;base64,${location.image}` }}
                   style={{ height: 35, width: 35, borderRadius: 20 }}
                 />
               </Marker>
@@ -193,11 +189,33 @@ const Main = ({ navigation: { navigate } }) => {
             setOrderVisible={setOrderVisible}
             orderVisible={orderVisible}
           />
+          <SearchContaienr style={{ marginLeft: -SCREEN_WIDTH / 3 }}>
+            <SearchInput>
+              <Text style={{ opacity: 0.6 }}>주소 검색</Text>
+              <Entypo name="magnifying-glass" size={22} color="gray" />
+            </SearchInput>
+          </SearchContaienr>
           <BtnContainer style={{ marginLeft: -SCREEN_WIDTH / 4 }}>
             <Button onPress={() => setOrderVisible(!orderVisible)}>
-              <Text style={{ color: "white", fontWeight: "600", fontSize: 17 }}>
-                심부름 요청하기
-              </Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <AntDesign
+                  name="shoppingcart"
+                  size={24}
+                  color="#0fbcf9"
+                  style={{ marginRight: 5 }}
+                />
+                <Text
+                  style={{ color: "#0fbcf9", fontWeight: "800", fontSize: 15 }}
+                >
+                  심부름 요청하기
+                </Text>
+              </View>
             </Button>
           </BtnContainer>
         </View>
