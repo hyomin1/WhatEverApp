@@ -20,13 +20,12 @@ import {
   myIdData,
   ratingHelperData,
   responseHelperData,
-  helperImage,
 } from "../atom";
 import { MaterialIcons, AntDesign, Entypo } from "@expo/vector-icons";
 import Order from "./Order";
 import { apiClient } from "../api";
 import { client } from "../client";
-import { Pressable } from "react-native/Libraries/Components/Pressable/Pressable";
+import { useMutation } from "react-query";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`

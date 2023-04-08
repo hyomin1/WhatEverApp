@@ -1,16 +1,19 @@
-import { View, Text, TextInput } from "react-native";
+import { View, Text, TextInput, Pressable, Modal } from "react-native";
 import styled from "styled-components/native";
 import { useState } from "react";
 import Fix from "./Fix";
 import { useRecoilValue } from "recoil";
 import { IntroduceData, myImgData, nameData, ratingData } from "../atom";
+import Postcode from "@actbase/react-daum-postcode";
+import * as Location from "expo-location";
 
-const Container = styled.View`
+const Container = styled.ScrollView`
   flex: 1;
   background-color: white;
 `;
 const Box = styled.View`
   flex: 3;
+  margin-bottom: 100px;
 `;
 const MyProfile = styled.View`
   flex-direction: row;
@@ -49,8 +52,7 @@ const Line = styled.View`
 const ContentBox = styled.View`
   flex-direction: row;
   justify-content: space-between;
-  margin: 0 20px;
-  margin-bottom: 30px;
+  margin: 30px 20px;
 `;
 const ContentText = styled.Text`
   font-size: 18px;
@@ -72,6 +74,10 @@ const CountText = styled.Text`
 
 const Profile = () => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [registerVisible, setRegisterVisible] = useState(false);
+
+  const [latitude, setLatitude] = useState();
+  const [longitude, setLongitude] = useState();
 
   const myImg = useRecoilValue(myImgData);
   const rating = useRecoilValue(ratingData);
@@ -84,7 +90,7 @@ const Profile = () => {
   const introduce = useRecoilValue(IntroduceData);
   return (
     <Container>
-      <Box>
+      <View>
         <MyProfile>
           <ProfileImg source={{ uri: `data:image/png;base64,${myImg}` }} />
           <View style={{ paddingVertical: 20 }}>
@@ -97,7 +103,7 @@ const Profile = () => {
           <ProfileText>회원정보 수정</ProfileText>
         </ProfileBtn>
         <Line />
-      </Box>
+      </View>
       <Box>
         <ContentBox>
           <ContentText>자기소개</ContentText>
@@ -120,6 +126,23 @@ const Profile = () => {
             <Text>0</Text>
           </Count>
         </View>
+      </Box>
+      <Box>
+        <Pressable onPress={() => setRegisterVisible(!registerVisible)}>
+          <Text>헬퍼 등록하기</Text>
+        </Pressable>
+        <Modal animationType="slide" visible={registerVisible}>
+          <Postcode
+            style={{ flex: 1, height: 250, marginBottom: 40 }}
+            jsOptions={{ animation: true }}
+            onSelected={async (data) => {
+              const location = await Location.geocodeAsync(data.query);
+              setLatitude(location[0].latitude); //여기서 location[0].latitude 바로 보내주면됨
+              setLongitude(location[0].longitude);
+              setRegisterVisible(!registerVisible);
+            }}
+          />
+        </Modal>
       </Box>
     </Container>
   );
