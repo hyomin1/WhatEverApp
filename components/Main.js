@@ -103,26 +103,18 @@ const Main = ({ navigation: { navigate } }) => {
       })
       .then((res) => {
         setDistanceHelper(res.data.content);
+        const rating = res.data.content.concat();
+        rating.sort(function (a, b) {
+          return b.rating - a.rating;
+        });
+        setRatingHelper(rating);
+        const response = res.data.content.concat();
+        response.sort(function (a, b) {
+          return a.avgReactTime - b.avgReactTime;
+        });
+        setResponseHelper(response);
       });
 
-    try {
-      const res2 = await apiClient.put("/api/location/findHelper/rating", {
-        latitude,
-        longitude,
-      });
-
-      const res3 = await apiClient.put("api/location/findHelper/avgReactTime", {
-        latitude,
-        longitude,
-      });
-      console.log("거리순,평점순,응답시간순");
-
-      setRatingHelper(res2.data.content);
-      setResponseHelper(res3.data.content);
-      //console.log(res2.data.content);
-    } catch (error) {
-      console.log(error);
-    }
     setLocation({ latitude, longitude }); //내 위치 저장하기 위함
     setLoading(false);
   };
@@ -170,20 +162,24 @@ const Main = ({ navigation: { navigate } }) => {
                 longitude: location.longitude,
               }}
             />
-            {distanceHelper.map((location) => (
-              <Marker
-                key={location.id}
-                coordinate={{
-                  latitude: location.latitude,
-                  longitude: location.longitude,
-                }}
-              >
-                <Image
-                  source={{ uri: `data:image/png;base64,${location.image}` }}
-                  style={{ height: 35, width: 35, borderRadius: 20 }}
-                />
-              </Marker>
-            ))}
+            {distanceHelper
+              ? distanceHelper.map((location) => (
+                  <Marker
+                    key={location.id}
+                    coordinate={{
+                      latitude: location.latitude,
+                      longitude: location.longitude,
+                    }}
+                  >
+                    <Image
+                      source={{
+                        uri: `data:image/png;base64,${location.image}`,
+                      }}
+                      style={{ height: 35, width: 35, borderRadius: 20 }}
+                    />
+                  </Marker>
+                ))
+              : null}
           </MapView>
           <Order
             setOrderVisible={setOrderVisible}
