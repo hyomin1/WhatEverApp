@@ -26,6 +26,7 @@ import { MaterialIcons, AntDesign, Entypo } from "@expo/vector-icons";
 import Order from "./Order";
 import { apiClient } from "../api";
 import { client } from "../client";
+import { Pressable } from "react-native/Libraries/Components/Pressable/Pressable";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
@@ -87,7 +88,14 @@ const Main = ({ navigation: { navigate } }) => {
     useRecoilState(responseHelperData); //응답시간순으로 헬퍼데이터
 
   const [orderVisible, setOrderVisible] = useState(false);
-
+  const onRegionChange = (region) => {
+    apiClient
+      .put("/api/location/findHelper/distance", {
+        latitude: region.latitude,
+        longitude: region.longitude,
+      })
+      .then((res) => console.log("지도 움직일때 마다 요청"));
+  };
   const getLocation = async () => {
     const { granted } = await Location.requestForegroundPermissionsAsync();
     if (!granted) {
@@ -146,12 +154,13 @@ const Main = ({ navigation: { navigate } }) => {
       ) : (
         <View style={{ flex: 16, position: "relative", width: SCREEN_WIDTH }}>
           <MapView
+            onRegionChangeComplete={onRegionChange}
             style={{ width: "100%", flex: 1 }}
             initialRegion={{
               latitude: location.latitude,
               longitude: location.longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
+              latitudeDelta: 0.005,
+              longitudeDelta: 0.005,
             }}
             showsUserLocation={true}
             provider={PROVIDER_GOOGLE}
@@ -165,6 +174,15 @@ const Main = ({ navigation: { navigate } }) => {
             {distanceHelper
               ? distanceHelper.map((location) => (
                   <Marker
+                    onPress={() =>
+                      navigate("HelperProfile", {
+                        name: location.name,
+                        introduce: location.introduce,
+                        rating: location.rating,
+                        id: location.id,
+                        image: location.image,
+                      })
+                    }
                     key={location.id}
                     coordinate={{
                       latitude: location.latitude,
