@@ -2,6 +2,17 @@ import { View, Text, Alert } from "react-native";
 import styled from "styled-components/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
+import { useRecoilValue } from "recoil";
+import {
+  ConversationData,
+  chatListData,
+  myIdData,
+  workChatData,
+} from "../atom";
+import { useEffect } from "react";
+import { apiClient } from "../api";
+import axios from "axios";
+import { client } from "../client";
 
 const ChatView = styled.View`
   flex: 9;
@@ -55,17 +66,56 @@ const MyChatText = styled.Text`
 const Chatting = () => {
   const [myMsg, setMyMsg] = useState([]);
   const [textInput, setTextInput] = useState();
+  const [workInform, setWorkInform] = useState();
+  const conversation = useRecoilValue(ConversationData);
+  const myId = useRecoilValue(myIdData);
+  const [myName, setMyName] = useState();
+  const [receiverName, setReceiverName] = useState();
+  const chat = {
+    senderName: myName,
+    receiverName: receiverName,
+    message: textInput,
+  };
+
   const sendMsg = () => {
     setMyMsg([...myMsg, textInput]);
     setTextInput("");
+    //console.log(textInput);
+    client.publish({
+      destination: `/pub/chat/${conversation._id}`,
+      body: JSON.stringify(chat),
+    });
   };
   const onChangeMyMsg = (payload) => {
     setTextInput(payload);
   };
+  //console.log(conversation.workId);
+  useEffect(() => {
+    axios
+      .get(`http://10.0.2.2:8080/api/work/${conversation.workId}`)
+      .then((res) => {
+        setWorkInform(res.data);
+      });
+
+    if (myId === conversation.creatorId) {
+      setMyName(conversation.creatorName);
+      setReceiverName(conversation.participatorName);
+    } else {
+      setMyName(conversation.participatorName);
+      setReceiverName(conversation.creatorName);
+    }
+  }, []);
+  //console.log(workInform);
 
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
       <ChatView>
+        <MyChatWrapper>
+          <Text>제목 : {workInform ? workInform.title : null}</Text>
+          <Text>내용 : {workInform ? workInform.context : null}</Text>
+          <Text>마감시간 : {workInform ? workInform.deadLineTime : null}</Text>
+        </MyChatWrapper>
+
         {myMsg.map((msg, index) => (
           <MyChat key={index}>
             <View style={{ justifyContent: "flex-end" }}>

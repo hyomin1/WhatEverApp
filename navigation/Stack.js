@@ -7,6 +7,7 @@ import Fix from "../components/Fix";
 import HelperProfile from "../components/HelperProfile";
 import HelperList from "../components/HelperList";
 import Chatting from "../components/Chatting";
+import Chat from "../components/Chat";
 
 const NativeStack = createNativeStackNavigator();
 
@@ -73,6 +74,7 @@ const Stack = () => (
         },
       }}
     />
+    <NativeStack.Screen name="Chat" component={Chat} />
     <NativeStack.Screen
       name="Chatting"
       component={Chatting}

@@ -6,6 +6,7 @@ import { useRecoilValue } from "recoil";
 import { IntroduceData, myImgData, nameData, ratingData } from "../atom";
 import Postcode from "@actbase/react-daum-postcode";
 import * as Location from "expo-location";
+import axios from "axios";
 
 const Container = styled.ScrollView`
   flex: 1;
@@ -140,6 +141,14 @@ const Profile = () => {
               setLatitude(location[0].latitude); //여기서 location[0].latitude 바로 보내주면됨
               setLongitude(location[0].longitude);
               setRegisterVisible(!registerVisible);
+              axios
+                .put("http://10.0.2.2:8080/api/userLocation", {
+                  latitude: location[0].latitude,
+                  longitude: location[0].longitude,
+                })
+                .then((res) => {
+                  console.log("등록 데이터", res.data);
+                });
             }}
           />
         </Modal>

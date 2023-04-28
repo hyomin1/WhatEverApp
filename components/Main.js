@@ -12,7 +12,7 @@ import * as Location from "expo-location";
 import styled from "styled-components/native";
 import { PROVIDER_GOOGLE } from "react-native-maps";
 import axios from "axios";
-import { useRecoilValue, useRecoilState } from "recoil";
+import { useRecoilValue, useRecoilState, useSetRecoilState } from "recoil";
 import {
   accessData,
   grantData,
@@ -20,12 +20,13 @@ import {
   myIdData,
   ratingHelperData,
   responseHelperData,
+  chatListData,
 } from "../atom";
 import { MaterialIcons, AntDesign, Entypo } from "@expo/vector-icons";
 import Order from "./Order";
 import { apiClient } from "../api";
 import { client } from "../client";
-import { useMutation } from "react-query";
+import StompJs from "@stomp/stompjs";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
@@ -78,6 +79,7 @@ const Main = ({ navigation: { navigate } }) => {
 
   const access = useRecoilValue(accessData);
   const grant = useRecoilValue(grantData);
+  const [msg, setMsg] = useState();
 
   const myId = useRecoilValue(myIdData); //웹소켓 연결시 구독을 위한 본인 고유 id 데이터
 
@@ -87,6 +89,7 @@ const Main = ({ navigation: { navigate } }) => {
     useRecoilState(responseHelperData); //응답시간순으로 헬퍼데이터
 
   const [orderVisible, setOrderVisible] = useState(false);
+
   const onRegionChange = (region) => {
     apiClient
       .put("/api/location/findHelper/distance", {
@@ -128,21 +131,40 @@ const Main = ({ navigation: { navigate } }) => {
   const headers = {
     Authorization: `${grant}` + " " + `${access}`,
   };
-  client.onConnect(headers, (frame) => {
-    console.log("연결됨");
-    const subscription = client.subscribe(`/queue/${myId}`, function (message) {
-      console.log("로그인 웹소켓", message.body);
-    });
-  });
 
+  client.onConnect = function (frame) {
+    console.log("연결됨");
+    const subscription = client.subscribe(
+      `/queue/${myId}`,
+      function (message) {
+        console.log("로그인 웹소켓");
+
+        if (JSON.parse(message.body).messageType === "OpenChat") {
+          console.log("오픈챗");
+          // console.log(message.body)
+          const chatId = JSON.parse(message.body).data[
+            JSON.parse(message.body).data.length - 1
+          ]._id;
+
+          const sub = client.subscribe(
+            `/topic/chat/${chatId}`,
+            function (message) {
+              console.log(message.body);
+            }
+          );
+        }
+      },
+      headers
+    );
+  };
   client.onStompError = function (frame) {
     console.log("Broker reported error: " + frame.headers["message"]);
     console.log("Additional details: " + frame.body);
   };
 
   useEffect(() => {
-    client.activate();
     getLocation();
+    client.activate();
   }, []);
   return (
     <View style={{ flex: 1 }}>

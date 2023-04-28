@@ -7,6 +7,8 @@ import { useSetRecoilState } from "recoil";
 import { useNavigation } from "@react-navigation/native";
 import { apiClient } from "../api";
 import axios from "axios";
+import { accessToken } from "../token";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Container = styled.View`
   background-color: #0fbcf9;
@@ -90,6 +92,8 @@ function Login({ navigation: { navigate } }) {
       .then((res) => {
         setAccess(res.data.accessToken);
         setGrant(res.data.grantType);
+        setMyId(res.data.id);
+
         if (res.status === 200) {
           axios.defaults.headers.common[
             "Authorization"

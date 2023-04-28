@@ -74,3 +74,15 @@ export const myImgData = atom({
   key: "myImg",
   default: null,
 });
+export const clientData = atom({
+  key: "client",
+  default: null,
+});
+export const subIdData = atom({
+  key: "subId",
+  default: null,
+});
+export const ConversationData = atom({
+  key: "conversation",
+  default: null,
+});

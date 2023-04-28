@@ -1,11 +1,20 @@
 import { View, Text, Pressable } from "react-native";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components/native";
-import { imgData, workData } from "../atom";
+import {
+  ConversationData,
+  accessData,
+  grantData,
+  imgData,
+  workData,
+} from "../atom";
 import axios from "axios";
 import { useEffect } from "react";
 import { client } from "../client";
 import { useNavigation } from "@react-navigation/native";
+import StompJs from "@stomp/stompjs";
+import { accessToken } from "../token";
+
 const Container = styled.View`
   flex: 1;
   background-color: white;
@@ -80,31 +89,29 @@ const HelperProfile = ({ route }) => {
   const img = useRecoilValue(imgData);
 
   const work = useRecoilValue(workData);
+  const grant = useRecoilValue(grantData);
+  const access = useRecoilValue(accessData);
 
-  const navigation = useNavigation();
-  const goMain = () => {
-    navigation.navigate("Tabs", { screen: "Main" });
+  const [conversation, setConverSation] = useRecoilState(ConversationData);
+
+  const headers = {
+    Authorization: `${grant}` + " " + `${access}`,
   };
-  useEffect(() => {}, []);
+  const navigation = useNavigation();
+
+  const goChat = () => {
+    navigation.navigate("Chatting");
+  };
   const onPressBtn = async () => {
-    console.log(work);
+    console.log("신청");
     axios
       .post(`http://10.0.2.2:8080/api/conversation/${route.params.id}`, {
         id: work.id,
       })
       .then((res) => {
-        const sub = client.subscribe(
-          `/topic/chat/${res.data._id}`,
-          function (message) {
-            console.log("심부름 요청후 웹소켓", message);
-          }
-        );
-
-        client.publish({
-          destination: `/pub/work/${res.data._id}`,
-          body: JSON.stringify(work),
-        });
-        goMain();
+        console.log("workid", res.data);
+        setConverSation(res.data);
+        goChat();
       })
       .catch((error) => console.log(error));
   };
