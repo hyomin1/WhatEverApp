@@ -163,7 +163,12 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
                           alignItems: "center",
                         }}
                       >
-                        <Text>사진</Text>
+                        <Image
+                          source={{
+                            uri: `data:image/png;base64,${data.image}`,
+                          }}
+                          style={{ height: 90, width: 90, borderRadius: 50 }}
+                        />
                       </View>
                       <View style={{ flex: 2 }}>
                         <Name>{data.name}</Name>
@@ -186,7 +191,12 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
                           alignItems: "center",
                         }}
                       >
-                        <Text>사진</Text>
+                        <Image
+                          source={{
+                            uri: `data:image/png;base64,${data.image}`,
+                          }}
+                          style={{ height: 90, width: 90, borderRadius: 50 }}
+                        />
                       </View>
                       <View style={{ flex: 2 }}>
                         <Name>{data.name}</Name>

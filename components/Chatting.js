@@ -1,4 +1,4 @@
-import { View, Text, Alert } from "react-native";
+import { View, Text, Alert, Pressable, ScrollView } from "react-native";
 import styled from "styled-components/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
@@ -7,6 +7,7 @@ import {
   ConversationData,
   chatListData,
   myIdData,
+  recvMsgData,
   workChatData,
 } from "../atom";
 import { useEffect } from "react";
@@ -21,7 +22,6 @@ const ChatView = styled.View`
 `;
 const ChatInputView = styled.View`
   flex: 1;
-
   flex-direction: row;
   align-items: center;
   justify-content: center;
@@ -52,6 +52,7 @@ const MyChatWrapper = styled.View`
   width: auto;
   height: auto;
   padding: 10px 15px;
+  margin-bottom: 10px;
 `;
 const Time = styled.Text`
   font-size: 10px;
@@ -66,11 +67,14 @@ const MyChatText = styled.Text`
 const Chatting = () => {
   const [myMsg, setMyMsg] = useState([]);
   const [textInput, setTextInput] = useState();
-  const [workInform, setWorkInform] = useState();
   const conversation = useRecoilValue(ConversationData);
   const myId = useRecoilValue(myIdData);
   const [myName, setMyName] = useState();
   const [receiverName, setReceiverName] = useState();
+  const recvMsg = useRecoilValue(recvMsgData);
+
+  const [chatMsg, setChatMsg] = useState();
+
   const chat = {
     senderName: myName,
     receiverName: receiverName,
@@ -89,14 +93,7 @@ const Chatting = () => {
   const onChangeMyMsg = (payload) => {
     setTextInput(payload);
   };
-  //console.log(conversation.workId);
   useEffect(() => {
-    axios
-      .get(`http://10.0.2.2:8080/api/work/${conversation.workId}`)
-      .then((res) => {
-        setWorkInform(res.data);
-      });
-
     if (myId === conversation.creatorId) {
       setMyName(conversation.creatorName);
       setReceiverName(conversation.participatorName);
@@ -105,28 +102,13 @@ const Chatting = () => {
       setReceiverName(conversation.creatorName);
     }
   }, []);
-  //console.log(workInform);
+
+  console.log("!!!!!!!!!!!!!!!!!!!", JSON.parse(recvMsg));
 
   return (
-    <View style={{ flex: 1, backgroundColor: "white" }}>
-      <ChatView>
-        <MyChatWrapper>
-          <Text>제목 : {workInform ? workInform.title : null}</Text>
-          <Text>내용 : {workInform ? workInform.context : null}</Text>
-          <Text>마감시간 : {workInform ? workInform.deadLineTime : null}</Text>
-        </MyChatWrapper>
-
-        {myMsg.map((msg, index) => (
-          <MyChat key={index}>
-            <View style={{ justifyContent: "flex-end" }}>
-              <Time>{new Date().toLocaleTimeString()}</Time>
-            </View>
-            <MyChatWrapper>
-              <MyChatText>{msg}</MyChatText>
-            </MyChatWrapper>
-          </MyChat>
-        ))}
-      </ChatView>
+    <ScrollView style={{ flex: 1, backgroundColor: "white" }}>
+      <ChatView></ChatView>
+      <View></View>
       <ChatInputView>
         <ChatInput
           value={textInput}
@@ -137,7 +119,7 @@ const Chatting = () => {
 
         <Ionicons onPress={sendMsg} name="md-send" size={24} color="#D0D3D7" />
       </ChatInputView>
-    </View>
+    </ScrollView>
   );
 };
 export default Chatting;

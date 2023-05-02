@@ -86,3 +86,11 @@ export const ConversationData = atom({
   key: "conversation",
   default: null,
 });
+export const recvMsgData = atom({
+  key: "recvMsg",
+  default: [],
+});
+export const chatListData = atom({
+  key: "chatList",
+  default: [],
+});

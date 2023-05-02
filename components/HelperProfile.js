@@ -4,6 +4,7 @@ import styled from "styled-components/native";
 import {
   ConversationData,
   accessData,
+  chatListData,
   grantData,
   imgData,
   workData,
@@ -91,6 +92,7 @@ const HelperProfile = ({ route }) => {
   const work = useRecoilValue(workData);
   const grant = useRecoilValue(grantData);
   const access = useRecoilValue(accessData);
+  const [chatList, setChatList] = useRecoilState(chatListData);
 
   const [conversation, setConverSation] = useRecoilState(ConversationData);
 
@@ -103,7 +105,6 @@ const HelperProfile = ({ route }) => {
     navigation.navigate("Chatting");
   };
   const onPressBtn = async () => {
-    console.log("신청");
     axios
       .post(`http://10.0.2.2:8080/api/conversation/${route.params.id}`, {
         id: work.id,
@@ -111,6 +112,11 @@ const HelperProfile = ({ route }) => {
       .then((res) => {
         console.log("workid", res.data);
         setConverSation(res.data);
+        setChatList(...chatList, res.data);
+        client.publish({
+          destination: `/pub/work/${res.data._id}`,
+          body: JSON.stringify(res.data),
+        });
         goChat();
       })
       .catch((error) => console.log(error));

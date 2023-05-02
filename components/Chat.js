@@ -1,5 +1,7 @@
 import { Text, View, Pressable } from "react-native";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components/native";
+import { ConversationData, chatListData } from "../atom";
 
 const ChatList = styled.Pressable`
   height: 80px;
@@ -18,19 +20,29 @@ const ProfileName = styled.View`
   align-items: flex-start;
 `;
 const Chat = ({ navigation }) => {
+  const chatList = useRecoilValue(chatListData);
+  const setConverSation = useSetRecoilState(ConversationData);
   const goChatting = () => {
     navigation.navigate("Stack", { screen: "Chatting" });
   };
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
-      <ChatList onPress={goChatting}>
-        <ProfileImg>
-          <Text>사진</Text>
-        </ProfileImg>
-        <ProfileName>
-          <Text>이름</Text>
-        </ProfileName>
-      </ChatList>
+      {chatList.map((data, index) => (
+        <ChatList
+          key={index}
+          onPress={() => {
+            goChatting();
+            setConverSation(data);
+          }}
+        >
+          <ProfileImg>
+            <Text>사진</Text>
+          </ProfileImg>
+          <ProfileName>
+            <Text>{data.participatorName}</Text>
+          </ProfileName>
+        </ChatList>
+      ))}
     </View>
   );
 };

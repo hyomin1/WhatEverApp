@@ -21,6 +21,7 @@ import {
   ratingHelperData,
   responseHelperData,
   chatListData,
+  recvMsgData,
 } from "../atom";
 import { MaterialIcons, AntDesign, Entypo } from "@expo/vector-icons";
 import Order from "./Order";
@@ -89,14 +90,19 @@ const Main = ({ navigation: { navigate } }) => {
     useRecoilState(responseHelperData); //응답시간순으로 헬퍼데이터
 
   const [orderVisible, setOrderVisible] = useState(false);
+  const [recvMsg, setRecvMsg] = useRecoilState(recvMsgData);
+  const [chatList, setChatList] = useRecoilState(chatListData);
 
   const onRegionChange = (region) => {
-    apiClient
-      .put("/api/location/findHelper/distance", {
+    axios
+      .put("http://10.0.2.2:8080/api/location/findHelper/distance", {
         latitude: region.latitude,
         longitude: region.longitude,
       })
-      .then((res) => console.log("지도 움직일때 마다 요청"));
+      .then((res) => {
+        setDistanceHelper(res.data.content);
+        console.log("지도 움직일때 마다 요청");
+      });
   };
   const getLocation = async () => {
     const { granted } = await Location.requestForegroundPermissionsAsync();
@@ -134,6 +140,16 @@ const Main = ({ navigation: { navigate } }) => {
 
   client.onConnect = function (frame) {
     console.log("연결됨");
+    axios.get("http://10.0.2.2:8080/api/conversations").then((res) => {
+      console.log(res.data[0].chatList[1].message);
+      setChatList(res.data);
+      res.data.map((id) =>
+        client.subscribe(`/topic/chat/${id._id}`, function (message) {
+          console.log("메시지", JSON.parse(message.body));
+          setRecvMsg([...recvMsg, message.body]);
+        })
+      );
+    });
     const subscription = client.subscribe(
       `/queue/${myId}`,
       function (message) {
@@ -141,15 +157,16 @@ const Main = ({ navigation: { navigate } }) => {
 
         if (JSON.parse(message.body).messageType === "OpenChat") {
           console.log("오픈챗");
-          // console.log(message.body)
+          console.log(message.body);
+
           const chatId = JSON.parse(message.body).data[
             JSON.parse(message.body).data.length - 1
           ]._id;
-
           const sub = client.subscribe(
             `/topic/chat/${chatId}`,
             function (message) {
-              console.log(message.body);
+              console.log("메시지", message.body);
+              setRecvMsg([...recvMsg, message.body]);
             }
           );
         }
