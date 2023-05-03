@@ -7,7 +7,7 @@ import { useSetRecoilState } from "recoil";
 import { useNavigation } from "@react-navigation/native";
 import { apiClient } from "../api";
 import axios from "axios";
-import { accessToken } from "../token";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Container = styled.View`
@@ -93,6 +93,7 @@ function Login({ navigation: { navigate } }) {
         setAccess(res.data.accessToken);
         setGrant(res.data.grantType);
         setMyId(res.data.id);
+        AsyncStorage.setItem("accessToken", res.data.accessToken);
 
         if (res.status === 200) {
           axios.defaults.headers.common[
@@ -107,27 +108,6 @@ function Login({ navigation: { navigate } }) {
         console.log("로그인 성공");
         goMain();
       });
-    /*try {
-      const res = await apiClient.post("/login", {
-        userId: id,
-        password: password,
-      });
-
-      setAccess(res.data.accessToken);
-      setGrant(res.data.grantType);
-      //await AsyncStorage.setItem("accessToken", res.data.accessToken);
-      setMyId(res.data.id);
-      console.log(res.data.grantType);
-      axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
-      Alert.alert("로그인 완료");r
-      console.log("로그인 성공");
-      goMain();
-    } catch (error) {
-      if (error.response.status === 403) {
-        Alert.alert("아이디 비밀번호를 확인해주세요");
-      }
-      console.log(error); //code 403 -> 아이디,비번 오류
-    }*/
   };
   const onPressLogin = () => {
     if (id === "") {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import MapView, { Marker } from "react-native-maps";
 import {
   View,
@@ -6,7 +6,7 @@ import {
   Image,
   ActivityIndicator,
   Text,
-  Alert,
+  Modal,
 } from "react-native";
 import * as Location from "expo-location";
 import styled from "styled-components/native";
@@ -22,12 +22,12 @@ import {
   responseHelperData,
   chatListData,
   recvMsgData,
+  clientData,
 } from "../atom";
 import { MaterialIcons, AntDesign, Entypo } from "@expo/vector-icons";
 import Order from "./Order";
-import { apiClient } from "../api";
 import { client } from "../client";
-import StompJs from "@stomp/stompjs";
+import Postcode from "@actbase/react-daum-postcode";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
@@ -74,6 +74,8 @@ const HelperView = styled.Pressable`
 `;
 
 const Main = ({ navigation: { navigate } }) => {
+  // const [searchLatitude, setSearchLatitude] = useState(0);
+  //const [searchLongitude, setSearchLongitude] = useState(0);
   const [location, setLocation] = useState();
   const [ok, setOk] = useState();
   const [isLoading, setLoading] = useState(true);
@@ -92,6 +94,10 @@ const Main = ({ navigation: { navigate } }) => {
   const [orderVisible, setOrderVisible] = useState(false);
   const [recvMsg, setRecvMsg] = useRecoilState(recvMsgData);
   const [chatList, setChatList] = useRecoilState(chatListData);
+
+  const [searchAddress, setSearchAddress] = useState(false);
+
+  const [clientInform, setClientInfrom] = useRecoilState(clientData);
 
   const onRegionChange = (region) => {
     axios
@@ -140,16 +146,20 @@ const Main = ({ navigation: { navigate } }) => {
 
   client.onConnect = function (frame) {
     console.log("연결됨");
-    axios.get("http://10.0.2.2:8080/api/conversations").then((res) => {
-      console.log(res.data[0].chatList[1].message);
-      setChatList(res.data);
-      res.data.map((id) =>
-        client.subscribe(`/topic/chat/${id._id}`, function (message) {
-          console.log("메시지", JSON.parse(message.body));
-          setRecvMsg([...recvMsg, message.body]);
-        })
-      );
-    });
+    axios
+      .get("http://10.0.2.2:8080/api/conversations")
+      .then((res) => {
+        console.log(res.data[0].chatList[1].message);
+        setChatList(res.data);
+        res.data.map((id) =>
+          client.subscribe(`/topic/chat/${id._id}`, function (message) {
+            console.log("메시지", JSON.parse(message.body));
+            setRecvMsg([...recvMsg, message.body]);
+          })
+        );
+      })
+      .catch(() => console.log("에러"));
+
     const subscription = client.subscribe(
       `/queue/${myId}`,
       function (message) {
@@ -194,7 +204,7 @@ const Main = ({ navigation: { navigate } }) => {
           <MapView
             onRegionChangeComplete={onRegionChange}
             style={{ width: "100%", flex: 1 }}
-            initialRegion={{
+            region={{
               latitude: location.latitude,
               longitude: location.longitude,
               latitudeDelta: 0.005,
@@ -228,9 +238,13 @@ const Main = ({ navigation: { navigate } }) => {
                     }}
                   >
                     <Image
-                      source={{
-                        uri: `data:image/png;base64,${location.image}`,
-                      }}
+                      source={
+                        location.image
+                          ? {
+                              uri: `data:image/png;base64,${location.image}`,
+                            }
+                          : require("../images/profile.jpg")
+                      }
                       style={{ height: 35, width: 35, borderRadius: 20 }}
                     />
                   </Marker>
@@ -241,11 +255,25 @@ const Main = ({ navigation: { navigate } }) => {
             setOrderVisible={setOrderVisible}
             orderVisible={orderVisible}
           />
+
           <SearchContaienr style={{ marginLeft: -SCREEN_WIDTH / 3 }}>
-            <SearchInput>
+            {/* 주소 검색이후 이동 + 서버 요청 코드 추가 */}
+            <SearchInput onPress={() => setSearchAddress(!searchAddress)}>
               <Text style={{ opacity: 0.6 }}>주소 검색</Text>
               <Entypo name="magnifying-glass" size={22} color="gray" />
             </SearchInput>
+            <Modal animationType="slide" visible={searchAddress}>
+              <Postcode
+                style={{ flex: 1, height: 250, marginBottom: 40 }}
+                jsOptions={{ animation: true }}
+                onSelected={async (data) => {
+                  const location = await Location.geocodeAsync(data.query);
+                  setSearchLatitude(location[0].latitude);
+                  setSearchLongitude(location[0].longitude);
+                  setSearchAddress(!searchAddress);
+                }}
+              />
+            </Modal>
           </SearchContaienr>
           <BtnContainer style={{ marginLeft: -SCREEN_WIDTH / 4 }}>
             <Button onPress={() => setOrderVisible(!orderVisible)}>

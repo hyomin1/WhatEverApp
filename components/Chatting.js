@@ -36,6 +36,7 @@ const ChatInput = styled.TextInput`
   background-color: #f2f3f6;
   font-size: 15px;
   font-weight: 600;
+  bottom: 0;
 `;
 const MyChat = styled.View`
   flex-direction: row;
@@ -102,8 +103,6 @@ const Chatting = () => {
       setReceiverName(conversation.creatorName);
     }
   }, []);
-
-  console.log("!!!!!!!!!!!!!!!!!!!", JSON.parse(recvMsg));
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "white" }}>
