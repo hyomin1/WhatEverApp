@@ -94,3 +94,7 @@ export const chatListData = atom({
   key: "chatList",
   default: [],
 });
+export const chatMsgData = atom({
+  key: "chatMsg",
+  default: [],
+});

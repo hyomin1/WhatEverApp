@@ -112,7 +112,7 @@ const HelperProfile = ({ route }) => {
       .then((res) => {
         console.log("workid", res.data);
         setConverSation(res.data);
-        setChatList(...chatList, res.data);
+        setChatList([...chatList, res.data]);
         client.publish({
           destination: `/pub/work/${res.data._id}`,
           body: JSON.stringify(res.data),

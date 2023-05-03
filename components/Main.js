@@ -23,6 +23,7 @@ import {
   chatListData,
   recvMsgData,
   clientData,
+  chatMsgData,
 } from "../atom";
 import { MaterialIcons, AntDesign, Entypo } from "@expo/vector-icons";
 import Order from "./Order";
@@ -93,11 +94,10 @@ const Main = ({ navigation: { navigate } }) => {
 
   const [orderVisible, setOrderVisible] = useState(false);
   const [recvMsg, setRecvMsg] = useRecoilState(recvMsgData);
+  const [chatMsg, setChatMsg] = useRecoilState(chatMsgData);
   const [chatList, setChatList] = useRecoilState(chatListData);
 
   const [searchAddress, setSearchAddress] = useState(false);
-
-  const [clientInform, setClientInfrom] = useRecoilState(clientData);
 
   const onRegionChange = (region) => {
     axios
@@ -149,12 +149,11 @@ const Main = ({ navigation: { navigate } }) => {
     axios
       .get("http://10.0.2.2:8080/api/conversations")
       .then((res) => {
-        console.log(res.data[0].chatList[1].message);
-        setChatList(res.data);
+        setChatList(res.data); // a1일 경우 a1의 채팅리스트를 저장함
         res.data.map((id) =>
           client.subscribe(`/topic/chat/${id._id}`, function (message) {
-            console.log("메시지", JSON.parse(message.body));
-            setRecvMsg([...recvMsg, message.body]);
+            console.log("채팅 목록에서 들어간 메시지", message.body);
+            setChatMsg(JSON.parse(message.body).chatList);
           })
         );
       })
@@ -175,8 +174,9 @@ const Main = ({ navigation: { navigate } }) => {
           const sub = client.subscribe(
             `/topic/chat/${chatId}`,
             function (message) {
-              console.log("메시지", message.body);
-              setRecvMsg([...recvMsg, message.body]);
+              console.log("요청해서 들어간 채팅방 메시지", message.body);
+              setChatMsg(JSON.parse(message.body).chatList);
+              //setChatList(JSON.parse(message.body));
             }
           );
         }

@@ -1,7 +1,7 @@
 import { Text, View, Pressable } from "react-native";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components/native";
-import { ConversationData, chatListData } from "../atom";
+import { ConversationData, chatListData, chatMsgData } from "../atom";
 
 const ChatList = styled.Pressable`
   height: 80px;
@@ -22,6 +22,7 @@ const ProfileName = styled.View`
 const Chat = ({ navigation }) => {
   const chatList = useRecoilValue(chatListData);
   const setConverSation = useSetRecoilState(ConversationData);
+  const setChatMsg = useSetRecoilState(chatMsgData);
   const goChatting = () => {
     navigation.navigate("Stack", { screen: "Chatting" });
   };
@@ -33,6 +34,8 @@ const Chat = ({ navigation }) => {
           onPress={() => {
             goChatting();
             setConverSation(data);
+            console.log("챗리스트 안", data);
+            //setChatMsg(data.chatList);
           }}
         >
           <ProfileImg>

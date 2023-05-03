@@ -2,13 +2,14 @@ import { View, Text, Alert, Pressable, ScrollView } from "react-native";
 import styled from "styled-components/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import {
   ConversationData,
   chatListData,
   myIdData,
   recvMsgData,
   workChatData,
+  chatMsgData,
 } from "../atom";
 import { useEffect } from "react";
 import { apiClient } from "../api";
@@ -19,6 +20,7 @@ const ChatView = styled.View`
   flex: 9;
   padding-top: 20px;
   align-items: flex-end;
+  margin-right: 5px;
 `;
 const ChatInputView = styled.View`
   flex: 1;
@@ -45,7 +47,7 @@ const MyChat = styled.View`
   margin-bottom: 10px;
   width: 80%;
 `;
-const MyChatWrapper = styled.View`
+const ChatWrapper = styled.View`
   background-color: #0fbcf9;
   border-radius: 20px;
   justify-content: center;
@@ -60,7 +62,7 @@ const Time = styled.Text`
   color: #d0d3d7;
   font-weight: 600;
 `;
-const MyChatText = styled.Text`
+const ChatText = styled.Text`
   color: white;
   font-weight: 600;
   font-size: 15px;
@@ -74,7 +76,7 @@ const Chatting = () => {
   const [receiverName, setReceiverName] = useState();
   const recvMsg = useRecoilValue(recvMsgData);
 
-  const [chatMsg, setChatMsg] = useState();
+  const [chatMsg, setChatMsg] = useRecoilState(chatMsgData);
 
   const chat = {
     senderName: myName,
@@ -83,9 +85,8 @@ const Chatting = () => {
   };
 
   const sendMsg = () => {
-    setMyMsg([...myMsg, textInput]);
+    //setMyMsg([...myMsg, textInput]);
     setTextInput("");
-    //console.log(textInput);
     client.publish({
       destination: `/pub/chat/${conversation._id}`,
       body: JSON.stringify(chat),
@@ -94,6 +95,7 @@ const Chatting = () => {
   const onChangeMyMsg = (payload) => {
     setTextInput(payload);
   };
+  //console.log(chatMsg);
   useEffect(() => {
     if (myId === conversation.creatorId) {
       setMyName(conversation.creatorName);
@@ -106,7 +108,13 @@ const Chatting = () => {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "white" }}>
-      <ChatView></ChatView>
+      <ChatView>
+        {chatMsg.map((data) => (
+          <ChatWrapper key={data._id}>
+            <ChatText>{data.message}</ChatText>
+          </ChatWrapper>
+        ))}
+      </ChatView>
       <View></View>
       <ChatInputView>
         <ChatInput
