@@ -2,7 +2,7 @@ import styled from "styled-components/native";
 import { Modal, View, ScrollView, Text, Pressable, Alert } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
-import { workData } from "../atom";
+import { workData, workListData } from "../atom";
 import SelectDropdown from "react-native-select-dropdown";
 import { useRecoilState, useRecoilValue } from "recoil";
 import Postcode from "@actbase/react-daum-postcode";
@@ -86,6 +86,8 @@ const Order = ({ orderVisible, setOrderVisible }) => {
   const [orderAddress, setOrderAddress] = useState(false);
   const [receiveAddress, setReceiveAddress] = useState(false);
 
+  const [workList, setWorkList] = useRecoilState(workListData);
+
   const onChangeTitle = (payload) => {
     setTitle(payload);
   };
@@ -112,6 +114,7 @@ const Order = ({ orderVisible, setOrderVisible }) => {
         setAddress2("");
         setWork(res.data);
         setOrderVisible(!orderVisible);
+        setWorkList([...workList, res.data]);
       })
       .catch((error) => console.log(error));
   };

@@ -39,14 +39,9 @@ const ChatInput = styled.TextInput`
   font-size: 15px;
   font-weight: 600;
   bottom: 0;
+  flex: 1;
 `;
-const MyChat = styled.View`
-  flex-direction: row;
-  justify-content: flex-end;
-  padding-right: 20px;
-  margin-bottom: 10px;
-  width: 80%;
-`;
+
 const ChatWrapper = styled.View`
   background-color: #0fbcf9;
   border-radius: 20px;
@@ -107,15 +102,18 @@ const Chatting = () => {
   }, []);
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: "white" }}>
-      <ChatView>
-        {chatMsg.map((data) => (
-          <ChatWrapper key={data._id}>
-            <ChatText>{data.message}</ChatText>
-          </ChatWrapper>
-        ))}
-      </ChatView>
-      <View></View>
+    <View style={{ flex: 1, backgroundColor: "white" }}>
+      <View style={{ flex: 20 }}>
+        <ScrollView>
+          <ChatView>
+            {chatMsg.map((data) => (
+              <ChatWrapper key={data._id}>
+                {data.message ? <ChatText>{data.message}</ChatText> : null}
+              </ChatWrapper>
+            ))}
+          </ChatView>
+        </ScrollView>
+      </View>
       <ChatInputView>
         <ChatInput
           value={textInput}
@@ -123,10 +121,9 @@ const Chatting = () => {
           placeholder="메시지 보내기"
           placeholderTextColor="#D0D3D7"
         />
-
         <Ionicons onPress={sendMsg} name="md-send" size={24} color="#D0D3D7" />
       </ChatInputView>
-    </ScrollView>
+    </View>
   );
 };
 export default Chatting;

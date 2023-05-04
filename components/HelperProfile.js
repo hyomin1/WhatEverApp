@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Modal, ScrollView, Pressable } from "react-native";
 import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components/native";
 import {
@@ -8,14 +8,13 @@ import {
   grantData,
   imgData,
   workData,
+  workListData,
 } from "../atom";
 import axios from "axios";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { client } from "../client";
 import { useNavigation } from "@react-navigation/native";
-import StompJs from "@stomp/stompjs";
-import { accessToken } from "../token";
-
+import { MaterialIcons } from "@expo/vector-icons";
 const Container = styled.View`
   flex: 1;
   background-color: white;
@@ -86,6 +85,37 @@ const Button = styled.Pressable`
   background-color: #2196f3;
   width: 60%;
 `;
+const WorkListText = styled.Text`
+  font-size: 16px;
+  font-weight: 600;
+`;
+const TitleBar = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 10px;
+  background-color: white;
+`;
+const Title = styled.Text`
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 10px;
+`;
+const Line = styled.View`
+  border-bottom-color: gray;
+  border-bottom-width: 0.5px;
+  margin-top: 3px;
+`;
+const OrderButton = styled.Pressable`
+  padding: 0 15px;
+  height: 40px;
+  border-radius: 10px;
+  margin: 5px 0px;
+  align-items: center;
+  justify-content: center;
+  background-color: #2196f3;
+  width: 100%;
+`;
+
 const HelperProfile = ({ route }) => {
   const img = useRecoilValue(imgData);
 
@@ -96,6 +126,10 @@ const HelperProfile = ({ route }) => {
 
   const [conversation, setConverSation] = useRecoilState(ConversationData);
 
+  const workList = useRecoilValue(workListData);
+  const [workListVisible, setWorkListVisible] = useState(false);
+  const [selectWork, setSelectWork] = useState();
+
   const headers = {
     Authorization: `${grant}` + " " + `${access}`,
   };
@@ -105,9 +139,15 @@ const HelperProfile = ({ route }) => {
     navigation.navigate("Chatting");
   };
   const onPressBtn = async () => {
+    //심부름 목록 보기
+    console.log("내 심부름 목록", workList);
+    setWorkListVisible(!workListVisible);
+  };
+  const onPressOrderBtn = async () => {
+    //심부름 목록 본 후 선택해서 신청
     axios
       .post(`http://10.0.2.2:8080/api/conversation/${route.params.id}`, {
-        id: work.id,
+        id: selectWork.id,
       })
       .then((res) => {
         console.log("workid", res.data);
@@ -117,9 +157,11 @@ const HelperProfile = ({ route }) => {
           destination: `/pub/work/${res.data._id}`,
           body: JSON.stringify(res.data),
         });
-        goChat();
+        console.log(selectWork);
+        // goChat();
       })
       .catch((error) => console.log(error));
+    setWorkListVisible(!workListVisible);
   };
   return (
     <Container>
@@ -165,10 +207,62 @@ const HelperProfile = ({ route }) => {
         <View style={{ justifyContent: "center", alignItems: "center" }}>
           <Button onPress={onPressBtn}>
             <Text style={{ color: "white", fontWeight: "600", fontSize: 15 }}>
-              신청하기
+              내 심부름 목록보기
             </Text>
           </Button>
         </View>
+        <Modal animationType="slide" visible={workListVisible}>
+          <View style={{ flex: 1 }}>
+            <TitleBar>
+              <View
+                style={{
+                  flex: 1,
+                  paddingHorizontal: 10,
+                }}
+              >
+                <MaterialIcons
+                  onPress={() => {
+                    setWorkListVisible(!workListVisible);
+                  }}
+                  name="cancel"
+                  size={24}
+                  color="black"
+                />
+              </View>
+
+              <Title>나의 심부름 목록</Title>
+
+              <View style={{ flex: 1 }}></View>
+            </TitleBar>
+            <Line />
+            <View style={{ flex: 10 }}>
+              {workList.map((data, index) => (
+                <Pressable
+                  key={data.id}
+                  style={{
+                    flexDirection: "row",
+                    borderBottomWidth: 1,
+                    height: 100,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                  onPress={() => setSelectWork(data)}
+                >
+                  <WorkListText>제목 : {data.title} </WorkListText>
+                  <WorkListText>내용 : {data.context} </WorkListText>
+                  <WorkListText>
+                    마감시간 : {data.deadLineTime}시간
+                  </WorkListText>
+                </Pressable>
+              ))}
+            </View>
+            <OrderButton onPress={onPressOrderBtn}>
+              <Text style={{ color: "white", fontWeight: "600", fontSize: 15 }}>
+                신청하기
+              </Text>
+            </OrderButton>
+          </View>
+        </Modal>
       </Box>
     </Container>
   );
