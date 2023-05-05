@@ -153,7 +153,8 @@ const Main = ({ navigation: { navigate } }) => {
         res.data.map((id) =>
           client.subscribe(`/topic/chat/${id._id}`, function (message) {
             console.log("채팅 목록에서 들어간 메시지", message.body);
-            setChatMsg(JSON.parse(message.body).chatList);
+            //setChatMsg(JSON.parse(message.body).chatList);
+            setChatList(JSON.parse(message.body));
           })
         );
       })
@@ -175,8 +176,8 @@ const Main = ({ navigation: { navigate } }) => {
             `/topic/chat/${chatId}`,
             function (message) {
               console.log("요청해서 들어간 채팅방 메시지", message.body);
-              setChatMsg(JSON.parse(message.body).chatList);
-              //setChatList(JSON.parse(message.body));
+              //setChatMsg(JSON.parse(message.body).chatList);
+              setChatList([...chatList, JSON.parse(message.body)]);
             }
           );
         }

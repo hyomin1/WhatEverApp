@@ -1,5 +1,5 @@
 import { View, Text, Modal, ScrollView, Pressable } from "react-native";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components/native";
 import {
   ConversationData,
@@ -9,6 +9,8 @@ import {
   imgData,
   workData,
   workListData,
+  chatMsgData,
+  chatRoomListData,
 } from "../atom";
 import axios from "axios";
 import { useState } from "react";
@@ -120,19 +122,15 @@ const HelperProfile = ({ route }) => {
   const img = useRecoilValue(imgData);
 
   const work = useRecoilValue(workData);
-  const grant = useRecoilValue(grantData);
-  const access = useRecoilValue(accessData);
-  const [chatList, setChatList] = useRecoilState(chatListData);
 
+  const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
+  const [chatList, setChatList] = useRecoilState(chatListData);
   const [conversation, setConverSation] = useRecoilState(ConversationData);
 
   const workList = useRecoilValue(workListData);
   const [workListVisible, setWorkListVisible] = useState(false);
   const [selectWork, setSelectWork] = useState();
 
-  const headers = {
-    Authorization: `${grant}` + " " + `${access}`,
-  };
   const navigation = useNavigation();
 
   const goChat = () => {
@@ -152,13 +150,14 @@ const HelperProfile = ({ route }) => {
       .then((res) => {
         console.log("workid", res.data);
         setConverSation(res.data);
+        //setChatRoomList([...chatRoomList, res.data]); //채팅방 목록 보여주기 위함
         setChatList([...chatList, res.data]);
         client.publish({
           destination: `/pub/work/${res.data._id}`,
           body: JSON.stringify(res.data),
         });
-        console.log(selectWork);
-        // goChat();
+        console.log("선택한 심부름", selectWork);
+        goChat();
       })
       .catch((error) => console.log(error));
     setWorkListVisible(!workListVisible);

@@ -1,7 +1,12 @@
 import { Text, View, Pressable } from "react-native";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components/native";
-import { ConversationData, chatListData, chatMsgData } from "../atom";
+import {
+  ConversationData,
+  chatListData,
+  chatMsgData,
+  chatRoomListData,
+} from "../atom";
 
 const ChatList = styled.Pressable`
   height: 80px;
@@ -21,11 +26,13 @@ const ProfileName = styled.View`
 `;
 const Chat = ({ navigation }) => {
   const chatList = useRecoilValue(chatListData);
+  const chatRoomList = useRecoilValue(chatRoomListData);
   const setConverSation = useSetRecoilState(ConversationData);
   const setChatMsg = useSetRecoilState(chatMsgData);
   const goChatting = () => {
     navigation.navigate("Stack", { screen: "Chatting" });
   };
+  console.log("Chat.js", chatList);
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
       {chatList.map((data, index) => (
@@ -35,7 +42,6 @@ const Chat = ({ navigation }) => {
             goChatting();
             setConverSation(data);
             console.log("챗리스트 안", data);
-            //setChatMsg(data.chatList);
           }}
         >
           <ProfileImg>

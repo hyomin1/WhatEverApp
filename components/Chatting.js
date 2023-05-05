@@ -72,6 +72,7 @@ const Chatting = () => {
   const recvMsg = useRecoilValue(recvMsgData);
 
   const [chatMsg, setChatMsg] = useRecoilState(chatMsgData);
+  const [chatting, setChatting] = useRecoilState(chatListData);
 
   const chat = {
     senderName: myName,
@@ -90,7 +91,7 @@ const Chatting = () => {
   const onChangeMyMsg = (payload) => {
     setTextInput(payload);
   };
-  //console.log(chatMsg);
+  console.log("챗내용", chatting);
   useEffect(() => {
     if (myId === conversation.creatorId) {
       setMyName(conversation.creatorName);
@@ -106,11 +107,13 @@ const Chatting = () => {
       <View style={{ flex: 20 }}>
         <ScrollView>
           <ChatView>
-            {chatMsg.map((data) => (
-              <ChatWrapper key={data._id}>
-                {data.message ? <ChatText>{data.message}</ChatText> : null}
-              </ChatWrapper>
-            ))}
+            {chatting.chatList
+              ? chatting.chatList.map((data) => (
+                  <ChatWrapper key={data._id}>
+                    {data.message ? <ChatText>{data.message}</ChatText> : null}
+                  </ChatWrapper>
+                ))
+              : null}
           </ChatView>
         </ScrollView>
       </View>
