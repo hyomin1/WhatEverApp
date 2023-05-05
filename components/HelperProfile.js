@@ -11,7 +11,7 @@ import {
   workListData,
 } from "../atom";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { client } from "../client";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialIcons } from "@expo/vector-icons";
