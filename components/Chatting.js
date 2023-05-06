@@ -10,6 +10,7 @@ import {
   recvMsgData,
   workChatData,
   chatMsgData,
+  chatRoomListData,
 } from "../atom";
 import { useEffect } from "react";
 import { apiClient } from "../api";
@@ -73,6 +74,7 @@ const Chatting = () => {
 
   const [chatMsg, setChatMsg] = useRecoilState(chatMsgData);
   const [chatting, setChatting] = useRecoilState(chatListData);
+  const chatRoomList = useRecoilValue(chatRoomListData);
 
   const chat = {
     senderName: myName,
@@ -91,7 +93,7 @@ const Chatting = () => {
   const onChangeMyMsg = (payload) => {
     setTextInput(payload);
   };
-  console.log("챗내용", chatting);
+  //console.log("챗내용", chatting); //chatting._id //채팅방 이름 === conversation._id
   useEffect(() => {
     if (myId === conversation.creatorId) {
       setMyName(conversation.creatorName);
@@ -107,7 +109,7 @@ const Chatting = () => {
       <View style={{ flex: 20 }}>
         <ScrollView>
           <ChatView>
-            {chatting.chatList
+            {chatting.chatList && chatting._id === conversation._id
               ? chatting.chatList.map((data) => (
                   <ChatWrapper key={data._id}>
                     {data.message ? <ChatText>{data.message}</ChatText> : null}

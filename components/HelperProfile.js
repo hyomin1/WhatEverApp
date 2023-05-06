@@ -150,8 +150,8 @@ const HelperProfile = ({ route }) => {
       .then((res) => {
         console.log("workid", res.data);
         setConverSation(res.data);
-        //setChatRoomList([...chatRoomList, res.data]); //채팅방 목록 보여주기 위함
-        setChatList([...chatList, res.data]);
+        setChatRoomList([...chatRoomList, res.data]); //채팅방 목록 보여주기 위함
+        //setChatList([...chatList, res.data]);
         client.publish({
           destination: `/pub/work/${res.data._id}`,
           body: JSON.stringify(res.data),

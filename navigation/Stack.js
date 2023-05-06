@@ -8,10 +8,11 @@ import HelperProfile from "../components/HelperProfile";
 import HelperList from "../components/HelperList";
 import Chatting from "../components/Chatting";
 import Chat from "../components/Chat";
+import { Ionicons } from "@expo/vector-icons";
 
 const NativeStack = createNativeStackNavigator();
 
-const Stack = () => (
+const Stack = ({ navigation }) => (
   <NativeStack.Navigator>
     <NativeStack.Screen
       name="Login"
@@ -85,6 +86,19 @@ const Stack = () => (
           fontWeight: "800",
           fontSize: 18,
         },
+        /*headerLeft: () => {
+          return (
+            <Ionicons
+              name="arrow-back"
+              size={24}
+              color="black"
+              onPress={() => {
+                navigation.navigate("Tabs", { screen: "Chat" });
+               
+              }}
+            />
+          );
+        },*/
       }}
     />
   </NativeStack.Navigator>

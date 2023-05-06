@@ -24,6 +24,7 @@ import {
   recvMsgData,
   clientData,
   chatMsgData,
+  chatRoomListData,
 } from "../atom";
 import { MaterialIcons, AntDesign, Entypo } from "@expo/vector-icons";
 import Order from "./Order";
@@ -96,6 +97,7 @@ const Main = ({ navigation: { navigate } }) => {
   const [recvMsg, setRecvMsg] = useRecoilState(recvMsgData);
   const [chatMsg, setChatMsg] = useRecoilState(chatMsgData);
   const [chatList, setChatList] = useRecoilState(chatListData);
+  const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
 
   const [searchAddress, setSearchAddress] = useState(false);
 
@@ -149,11 +151,15 @@ const Main = ({ navigation: { navigate } }) => {
     axios
       .get("http://10.0.2.2:8080/api/conversations")
       .then((res) => {
-        setChatList(res.data); // a1일 경우 a1의 채팅리스트를 저장함
+        setChatRoomList(res.data); // a1일 경우 a1의 채팅리스트를 저장함
+        console.log("채팅목록", res.data);
         res.data.map((id) =>
           client.subscribe(`/topic/chat/${id._id}`, function (message) {
-            console.log("채팅 목록에서 들어간 메시지", message.body);
-            //setChatMsg(JSON.parse(message.body).chatList);
+            //console.log("채팅 목록에서 들어간 메시지", message.body);
+            axios.get("http://10.0.2.2:8080/api/conversations").then((res) => {
+              //console.log("데이터확인", res.data);
+              setChatRoomList(res.data);
+            });
             setChatList(JSON.parse(message.body));
           })
         );
@@ -164,7 +170,6 @@ const Main = ({ navigation: { navigate } }) => {
       `/queue/${myId}`,
       function (message) {
         console.log("로그인 웹소켓");
-
         if (JSON.parse(message.body).messageType === "OpenChat") {
           console.log("오픈챗");
           console.log(message.body);
@@ -175,9 +180,14 @@ const Main = ({ navigation: { navigate } }) => {
           const sub = client.subscribe(
             `/topic/chat/${chatId}`,
             function (message) {
-              console.log("요청해서 들어간 채팅방 메시지", message.body);
-              //setChatMsg(JSON.parse(message.body).chatList);
-              setChatList([...chatList, JSON.parse(message.body)]);
+              //console.log("요청해서 들어간 채팅방 메시지", message.body);
+              axios
+                .get("http://10.0.2.2:8080/api/conversations")
+                .then((res) => {
+                  // console.log("데이터확인", res.data);
+                  setChatRoomList(res.data);
+                });
+              setChatList(JSON.parse(message.body));
             }
           );
         }

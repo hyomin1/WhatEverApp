@@ -1,5 +1,6 @@
+import { useEffect } from "react";
 import { Text, View, Pressable } from "react-native";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components/native";
 import {
   ConversationData,
@@ -25,23 +26,25 @@ const ProfileName = styled.View`
   align-items: flex-start;
 `;
 const Chat = ({ navigation }) => {
-  const chatList = useRecoilValue(chatListData);
-  const chatRoomList = useRecoilValue(chatRoomListData);
+  const [chatList, setChatList] = useRecoilState(chatListData);
+  const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
   const setConverSation = useSetRecoilState(ConversationData);
   const setChatMsg = useSetRecoilState(chatMsgData);
   const goChatting = () => {
     navigation.navigate("Stack", { screen: "Chatting" });
   };
-  console.log("Chat.js", chatList);
+  //console.log("Chat.js", chatRoomList);
+
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
-      {chatList.map((data, index) => (
+      {chatRoomList.map((data, index) => (
         <ChatList
           key={index}
           onPress={() => {
             goChatting();
             setConverSation(data);
-            console.log("챗리스트 안", data);
+            //console.log("챗리스트 안", data);
+            setChatList(data);
           }}
         >
           <ProfileImg>
