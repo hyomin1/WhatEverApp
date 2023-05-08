@@ -78,7 +78,7 @@ const WorkBtn = styled.Pressable`
 const WorkText = styled.Text`
   color: white;
   font-weight: 600;
-  font-size: 15px;
+  font-size: 18px;
 `;
 const WorkAcceptText = styled.Text`
   color: white;
@@ -108,7 +108,9 @@ const Chatting = () => {
     });
   };
   const onChangeMyMsg = (payload) => {
-    setTextInput(payload);
+    console.log("빈값", payload);
+    payload ? setTextInput(payload) : null;
+    //setTextInput(payload);
   };
   const onPressAccept = () => {
     console.log("수락");
@@ -146,7 +148,7 @@ const Chatting = () => {
                         내용 : {JSON.parse(data.message).context}
                       </WorkText>
                       <WorkText>
-                        마감시간 : {JSON.parse(data.message).deadLineTime}
+                        마감시간 : {JSON.parse(data.message).deadLineTime}시간
                       </WorkText>
                       <WorkBtn onPress={onPressAccept}>
                         <WorkAcceptText>수락하기</WorkAcceptText>
@@ -154,7 +156,7 @@ const Chatting = () => {
                     </WorkWrapper>
                   ) : data.messageType === "Chat" ? (
                     <ChatWrapper key={index}>
-                      <ChatText>{data.message}</ChatText>
+                      <ChatText>{data.message ? data.message : null}</ChatText>
                     </ChatWrapper>
                   ) : data.messageType === "Card" ? (
                     console.log(index + "Card Message", data.message)
