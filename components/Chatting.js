@@ -4,17 +4,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
-  ConversationData,
   chatListData,
   myIdData,
-  recvMsgData,
-  workChatData,
-  chatMsgData,
   chatRoomListData,
+  conversationData,
 } from "../atom";
 import { useEffect } from "react";
-import { apiClient } from "../api";
-import axios from "axios";
 import { client } from "../client";
 
 const ChatView = styled.View`
@@ -63,17 +58,40 @@ const ChatText = styled.Text`
   font-weight: 600;
   font-size: 15px;
 `;
+const WorkWrapper = styled.View`
+  background-color: #0fbcf9;
+  border-radius: 20px;
+  justify-content: center;
+  align-items: center;
+  width: 200px;
+  height: auto;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+`;
+const WorkBtn = styled.Pressable`
+  margin-top: 10px;
+  background-color: #2196f3;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+`;
+const WorkText = styled.Text`
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
+`;
+const WorkAcceptText = styled.Text`
+  color: white;
+  font=weight: 600;
+  font-size: 20px;
+`;
 const Chatting = () => {
-  const [myMsg, setMyMsg] = useState([]);
   const [textInput, setTextInput] = useState();
-  const conversation = useRecoilValue(ConversationData);
+  const conversation = useRecoilValue(conversationData);
   const myId = useRecoilValue(myIdData);
   const [myName, setMyName] = useState();
   const [receiverName, setReceiverName] = useState();
-  const recvMsg = useRecoilValue(recvMsgData);
-
-  const [chatMsg, setChatMsg] = useRecoilState(chatMsgData);
-  const [chatting, setChatting] = useRecoilState(chatListData);
+  const [chatList, setChatList] = useRecoilState(chatListData);
   const chatRoomList = useRecoilValue(chatRoomListData);
 
   const chat = {
@@ -83,7 +101,6 @@ const Chatting = () => {
   };
 
   const sendMsg = () => {
-    //setMyMsg([...myMsg, textInput]);
     setTextInput("");
     client.publish({
       destination: `/pub/chat/${conversation._id}`,
@@ -93,7 +110,10 @@ const Chatting = () => {
   const onChangeMyMsg = (payload) => {
     setTextInput(payload);
   };
-  //console.log("챗내용", chatting); //chatting._id //채팅방 이름 === conversation._id
+  const onPressAccept = () => {
+    console.log("수락");
+  };
+
   useEffect(() => {
     if (myId === conversation.creatorId) {
       setMyName(conversation.creatorName);
@@ -104,17 +124,42 @@ const Chatting = () => {
     }
   }, []);
 
+  useEffect(() => {
+    chatRoomList.map((data) => {
+      data._id === chatList._id ? setChatList(data) : null;
+    });
+  }, [chatRoomList]); //chatRoomList 업데이트 마다 chatList 데이터 새롭게 저장
+
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
       <View style={{ flex: 20 }}>
         <ScrollView>
           <ChatView>
-            {chatting.chatList && chatting._id === conversation._id
-              ? chatting.chatList.map((data) => (
-                  <ChatWrapper key={data._id}>
-                    {data.message ? <ChatText>{data.message}</ChatText> : null}
-                  </ChatWrapper>
-                ))
+            {chatList
+              ? chatList.chatList.map((data, index) =>
+                  data.messageType === "Work" ? (
+                    <WorkWrapper key={index}>
+                      <WorkText>
+                        제목 : {JSON.parse(data.message).title}
+                      </WorkText>
+                      <WorkText>
+                        내용 : {JSON.parse(data.message).context}
+                      </WorkText>
+                      <WorkText>
+                        마감시간 : {JSON.parse(data.message).deadLineTime}
+                      </WorkText>
+                      <WorkBtn onPress={onPressAccept}>
+                        <WorkAcceptText>수락하기</WorkAcceptText>
+                      </WorkBtn>
+                    </WorkWrapper>
+                  ) : data.messageType === "Chat" ? (
+                    <ChatWrapper key={index}>
+                      <ChatText>{data.message}</ChatText>
+                    </ChatWrapper>
+                  ) : data.messageType === "Card" ? (
+                    console.log(index + "Card Message", data.message)
+                  ) : null
+                )
               : null}
           </ChatView>
         </ScrollView>

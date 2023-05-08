@@ -94,9 +94,6 @@ const Main = ({ navigation: { navigate } }) => {
     useRecoilState(responseHelperData); //응답시간순으로 헬퍼데이터
 
   const [orderVisible, setOrderVisible] = useState(false);
-  const [recvMsg, setRecvMsg] = useRecoilState(recvMsgData);
-  const [chatMsg, setChatMsg] = useRecoilState(chatMsgData);
-  const [chatList, setChatList] = useRecoilState(chatListData);
   const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
 
   const [searchAddress, setSearchAddress] = useState(false);
@@ -157,10 +154,8 @@ const Main = ({ navigation: { navigate } }) => {
           client.subscribe(`/topic/chat/${id._id}`, function (message) {
             //console.log("채팅 목록에서 들어간 메시지", message.body);
             axios.get("http://10.0.2.2:8080/api/conversations").then((res) => {
-              //console.log("데이터확인", res.data);
               setChatRoomList(res.data);
             });
-            setChatList(JSON.parse(message.body));
           })
         );
       })
@@ -184,10 +179,8 @@ const Main = ({ navigation: { navigate } }) => {
               axios
                 .get("http://10.0.2.2:8080/api/conversations")
                 .then((res) => {
-                  // console.log("데이터확인", res.data);
                   setChatRoomList(res.data);
                 });
-              setChatList(JSON.parse(message.body));
             }
           );
         }

@@ -7,6 +7,7 @@ import {
   chatListData,
   chatMsgData,
   chatRoomListData,
+  conversationData,
 } from "../atom";
 
 const ChatList = styled.Pressable`
@@ -28,12 +29,11 @@ const ProfileName = styled.View`
 const Chat = ({ navigation }) => {
   const [chatList, setChatList] = useRecoilState(chatListData);
   const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
-  const setConverSation = useSetRecoilState(ConversationData);
-  const setChatMsg = useSetRecoilState(chatMsgData);
+  const setConversation = useSetRecoilState(conversationData);
+
   const goChatting = () => {
     navigation.navigate("Stack", { screen: "Chatting" });
   };
-  //console.log("Chat.js", chatRoomList);
 
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
@@ -42,8 +42,7 @@ const Chat = ({ navigation }) => {
           key={index}
           onPress={() => {
             goChatting();
-            setConverSation(data);
-            //console.log("챗리스트 안", data);
+            setConversation(data);
             setChatList(data);
           }}
         >

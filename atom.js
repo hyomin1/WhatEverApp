@@ -53,10 +53,12 @@ export const contentData = atom({
   default: null,
 });
 export const ratingHelperData = atom({
+  //평점순
   key: "ratingHelper",
   default: null,
 });
 export const responseHelperData = atom({
+  //응답시간순
   key: "responseHelper",
   default: null,
 });
@@ -82,26 +84,23 @@ export const subIdData = atom({
   key: "subId",
   default: null,
 });
-export const ConversationData = atom({
+export const conversationData = atom({
+  // 보내는 사람 받는 사람 누군지 설정 하기 위한 데이터
   key: "conversation",
   default: null,
 });
-export const recvMsgData = atom({
-  key: "recvMsg",
-  default: [],
-});
+
 export const chatRoomListData = atom({
+  //채팅방 목록 데이터
   key: "chatRoom",
   default: [],
 });
 export const chatListData = atom({
+  //채팅 내용 데이터
   key: "chatList",
   default: [],
 });
-export const chatMsgData = atom({
-  key: "chatMsg",
-  default: [],
-});
+
 export const workListData = atom({
   key: "workList",
   default: [],
