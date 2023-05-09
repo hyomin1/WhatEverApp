@@ -8,6 +8,7 @@ import {
   myIdData,
   chatRoomListData,
   conversationData,
+  receiverNameData,
 } from "../atom";
 import { useEffect } from "react";
 import { client } from "../client";
@@ -15,8 +16,7 @@ import { client } from "../client";
 const ChatView = styled.View`
   flex: 9;
   padding-top: 20px;
-  align-items: flex-end;
-  margin-right: 5px;
+  margin: 0px 5px;
 `;
 const ChatInputView = styled.View`
   flex: 1;
@@ -71,9 +71,10 @@ const WorkWrapper = styled.View`
 const WorkBtn = styled.Pressable`
   margin-top: 10px;
   background-color: #2196f3;
-  width: 100%;
+  width: 50%;
   justify-content: center;
   align-items: center;
+  border: 1px solid white;
 `;
 const WorkText = styled.Text`
   color: white;
@@ -82,7 +83,7 @@ const WorkText = styled.Text`
 `;
 const WorkAcceptText = styled.Text`
   color: white;
-  font=weight: 600;
+  font-weight: 600;
   font-size: 20px;
 `;
 const Chatting = () => {
@@ -90,7 +91,7 @@ const Chatting = () => {
   const conversation = useRecoilValue(conversationData);
   const myId = useRecoilValue(myIdData);
   const [myName, setMyName] = useState();
-  const [receiverName, setReceiverName] = useState();
+  const [receiverName, setReceiverName] = useRecoilState(receiverNameData);
   const [chatList, setChatList] = useRecoilState(chatListData);
   const chatRoomList = useRecoilValue(chatRoomListData);
 
@@ -101,19 +102,24 @@ const Chatting = () => {
   };
 
   const sendMsg = () => {
-    setTextInput("");
-    client.publish({
-      destination: `/pub/chat/${conversation._id}`,
-      body: JSON.stringify(chat),
-    });
+    if (textInput === "") {
+      Alert.alert("내용을 입력해주세요");
+    } else {
+      setTextInput("");
+      client.publish({
+        destination: `/pub/chat/${conversation._id}`,
+        body: JSON.stringify(chat),
+      });
+    }
   };
   const onChangeMyMsg = (payload) => {
-    console.log("빈값", payload);
-    payload ? setTextInput(payload) : null;
-    //setTextInput(payload);
+    setTextInput(payload);
   };
   const onPressAccept = () => {
     console.log("수락");
+  };
+  const onPressDeny = () => {
+    console.log("거절");
   };
 
   useEffect(() => {
@@ -140,24 +146,45 @@ const Chatting = () => {
             {chatList
               ? chatList.chatList.map((data, index) =>
                   data.messageType === "Work" ? (
-                    <WorkWrapper key={index}>
-                      <WorkText>
-                        제목 : {JSON.parse(data.message).title}
-                      </WorkText>
-                      <WorkText>
-                        내용 : {JSON.parse(data.message).context}
-                      </WorkText>
-                      <WorkText>
-                        마감시간 : {JSON.parse(data.message).deadLineTime}시간
-                      </WorkText>
-                      <WorkBtn onPress={onPressAccept}>
-                        <WorkAcceptText>수락하기</WorkAcceptText>
-                      </WorkBtn>
-                    </WorkWrapper>
+                    <View key={index} style={{ alignItems: "flex-end" }}>
+                      <WorkWrapper>
+                        <WorkText>
+                          제목 : {JSON.parse(data.message).title}
+                        </WorkText>
+                        <WorkText>
+                          내용 : {JSON.parse(data.message).context}
+                        </WorkText>
+                        <WorkText>
+                          마감시간 : {JSON.parse(data.message).deadLineTime}시간
+                        </WorkText>
+                        <View style={{ flexDirection: "row" }}>
+                          <WorkBtn onPress={onPressAccept}>
+                            <WorkAcceptText>수락</WorkAcceptText>
+                          </WorkBtn>
+                          <WorkBtn onPress={onPressDeny}>
+                            <WorkAcceptText>거절</WorkAcceptText>
+                          </WorkBtn>
+                        </View>
+                      </WorkWrapper>
+                    </View>
                   ) : data.messageType === "Chat" ? (
-                    <ChatWrapper key={index}>
-                      <ChatText>{data.message ? data.message : null}</ChatText>
-                    </ChatWrapper>
+                    <View key={index}>
+                      {data.senderName === myName ? (
+                        <View key={index} style={{ alignItems: "flex-end" }}>
+                          <ChatWrapper>
+                            <ChatText>
+                              {data.message ? data.message : null}
+                            </ChatText>
+                          </ChatWrapper>
+                        </View>
+                      ) : (
+                        <View key={index} style={{ alignItems: "flex-start" }}>
+                          <ChatWrapper>
+                            <ChatText>{data.message}</ChatText>
+                          </ChatWrapper>
+                        </View>
+                      )}
+                    </View>
                   ) : data.messageType === "Card" ? (
                     console.log(index + "Card Message", data.message)
                   ) : null

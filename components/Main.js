@@ -175,7 +175,7 @@ const Main = ({ navigation: { navigate } }) => {
           const sub = client.subscribe(
             `/topic/chat/${chatId}`,
             function (message) {
-              //console.log("요청해서 들어간 채팅방 메시지", message.body);
+              console.log("요청해서 들어간 채팅방 메시지", message.body);
               axios
                 .get("http://10.0.2.2:8080/api/conversations")
                 .then((res) => {
@@ -272,8 +272,8 @@ const Main = ({ navigation: { navigate } }) => {
                 jsOptions={{ animation: true }}
                 onSelected={async (data) => {
                   const location = await Location.geocodeAsync(data.query);
-                  setSearchLatitude(location[0].latitude);
-                  setSearchLongitude(location[0].longitude);
+                  //setSearchLatitude(location[0].latitude);
+                  //setSearchLongitude(location[0].longitude);
                   setSearchAddress(!searchAddress);
                 }}
               />
