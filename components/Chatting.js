@@ -97,6 +97,7 @@ const Chatting = () => {
   const [chatList, setChatList] = useRecoilState(chatListData);
   const chatRoomList = useRecoilValue(chatRoomListData);
   // const work = useRecoilValue(workData);
+  const [work, setWork] = useState();
 
   const chat = {
     senderName: myName,
@@ -119,14 +120,29 @@ const Chatting = () => {
     setTextInput(payload);
   };
   const onPressAccept = () => {
-    console.log("수락");
-    //console.log(work);
+    //console.log("수락");
+    //setWork(JSON.parse(chatRoomList[0].chatList[0].message));
     axios
       .put("http://10.0.2.2:8080/api/work/matching", {
-        id: conversation.participantId,
+        id: JSON.parse(chatRoomList[0].chatList[0].message).id,
+        title: JSON.parse(chatRoomList[0].chatList[0].message).title,
+        context: JSON.parse(chatRoomList[0].chatList[0].message).context,
+        deadLineTime: JSON.parse(chatRoomList[0].chatList[0].message)
+          .deadLineTime,
+        reward: JSON.parse(chatRoomList[0].chatList[0].message).reward,
+        latitude: JSON.parse(chatRoomList[0].chatList[0].message).latitude,
+        longitude: JSON.parse(chatRoomList[0].chatList[0].message).longitude,
+        proceeding: JSON.parse(chatRoomList[0].chatList[0].message).proceeding,
+        customerId: JSON.parse(chatRoomList[0].chatList[0].message).customerId,
+        helperId: conversation.participantId,
+        finished: JSON.parse(chatRoomList[0].chatList[0].message).finished,
       })
       .then((res) => {
-        console.log(res.data);
+        console.log("수락");
+        client.publish({
+          destination: `/pub/chat/${conversation._id}`,
+          body: JSON.stringify(chatRoomList[0]),
+        });
       })
       .catch((error) => console.log(error));
   };
@@ -144,12 +160,13 @@ const Chatting = () => {
     }
   }, []);
   //console.log(conversation.participantId);
+  //console.log(chatRoomList[0]);
   useEffect(() => {
     chatRoomList.map((data) => {
       data._id === chatList._id ? setChatList(data) : null;
     });
   }, [chatRoomList]); //chatRoomList 업데이트 마다 chatList 데이터 새롭게 저장
-  console.log(typeof chatRoomList[0].chatList[0].JSON.parse(message));
+  //console.log(chatRoomList[0].chatList[0].message);
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
       <View style={{ flex: 20 }}>
