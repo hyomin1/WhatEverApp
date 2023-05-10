@@ -9,9 +9,11 @@ import {
   chatRoomListData,
   conversationData,
   receiverNameData,
+  workData,
 } from "../atom";
 import { useEffect } from "react";
 import { client } from "../client";
+import axios from "axios";
 
 const ChatView = styled.View`
   flex: 9;
@@ -94,6 +96,7 @@ const Chatting = () => {
   const [receiverName, setReceiverName] = useRecoilState(receiverNameData);
   const [chatList, setChatList] = useRecoilState(chatListData);
   const chatRoomList = useRecoilValue(chatRoomListData);
+  // const work = useRecoilValue(workData);
 
   const chat = {
     senderName: myName,
@@ -117,6 +120,15 @@ const Chatting = () => {
   };
   const onPressAccept = () => {
     console.log("수락");
+    //console.log(work);
+    axios
+      .put("http://10.0.2.2:8080/api/work/matching", {
+        id: conversation.participantId,
+      })
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((error) => console.log(error));
   };
   const onPressDeny = () => {
     console.log("거절");
@@ -131,13 +143,13 @@ const Chatting = () => {
       setReceiverName(conversation.creatorName);
     }
   }, []);
-
+  //console.log(conversation.participantId);
   useEffect(() => {
     chatRoomList.map((data) => {
       data._id === chatList._id ? setChatList(data) : null;
     });
   }, [chatRoomList]); //chatRoomList 업데이트 마다 chatList 데이터 새롭게 저장
-
+  console.log(typeof chatRoomList[0].chatList[0].JSON.parse(message));
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
       <View style={{ flex: 20 }}>
