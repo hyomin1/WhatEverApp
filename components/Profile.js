@@ -93,7 +93,13 @@ const Profile = () => {
     <Container>
       <View>
         <MyProfile>
-          <ProfileImg source={{ uri: `data:image/png;base64,${myImg}` }} />
+          <ProfileImg
+            source={
+              myImg
+                ? { uri: `data:image/png;base64,${myImg}` }
+                : require("../images/profile.jpg")
+            }
+          />
           <View style={{ paddingVertical: 20 }}>
             <Name>{name}</Name>
             {rating ? <Text>⭐ {rating.toFixed(1)}/5</Text> : <Text>⭐</Text>}

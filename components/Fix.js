@@ -157,6 +157,7 @@ const Fix = ({ modalVisible, setModalVisible }) => {
       return;
     }
     setImg(result.uri);
+    console.log(result.uri);
     const localUri = result.uri;
     const fileName = localUri.split("/").pop();
     const match = /\.(\w+)$/.exec(fileName ?? "");
@@ -250,7 +251,9 @@ const Fix = ({ modalVisible, setModalVisible }) => {
             </TitleBar>
             <MainBar>
               <ImgView>
-                <ProfileImg source={{ uri: img }} />
+                <ProfileImg
+                  source={img ? { uri: img } : require("../images/profile.jpg")}
+                />
                 <View style={{ position: "relative" }}>
                   <AddPhoto onPress={pickImage}>
                     <Entypo name="camera" size={15} color="white" />

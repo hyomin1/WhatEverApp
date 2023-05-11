@@ -8,6 +8,9 @@ import {
   chatMsgData,
   chatRoomListData,
   conversationData,
+  nameData,
+  receiverNameData,
+  myIdData,
 } from "../atom";
 
 const ChatList = styled.Pressable`
@@ -30,6 +33,7 @@ const Chat = ({ navigation }) => {
   const [chatList, setChatList] = useRecoilState(chatListData);
   const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
   const setConversation = useSetRecoilState(conversationData);
+  const myId = useRecoilValue(myIdData);
 
   const goChatting = () => {
     navigation.navigate("Stack", { screen: "Chatting" });
@@ -50,7 +54,11 @@ const Chat = ({ navigation }) => {
             <Text>사진</Text>
           </ProfileImg>
           <ProfileName>
-            <Text>{data.participatorName}</Text>
+            {myId === data.creatorId ? (
+              <Text>{data.participatorName}</Text>
+            ) : (
+              <Text>{data.creatorName}</Text>
+            )}
           </ProfileName>
         </ChatList>
       ))}

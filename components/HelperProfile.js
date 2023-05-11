@@ -168,7 +168,11 @@ const HelperProfile = ({ route }) => {
       <Box>
         <MyProfile>
           <ProfileImg
-            source={{ uri: `data:image/png;base64,${route.params.image}` }}
+            source={
+              route.params.image
+                ? { uri: `data:image/png;base64,${route.params.image}` }
+                : require("../images/profile.jpg")
+            }
           />
           <View style={{ paddingVertical: 20 }}>
             <Name>{route.params.name}</Name>
