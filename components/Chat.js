@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Text, View, Pressable } from "react-native";
+import { Text, View, Pressable, ScrollView } from "react-native";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components/native";
 import {
@@ -40,7 +40,7 @@ const Chat = ({ navigation }) => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "white" }}>
+    <ScrollView style={{ flex: 1, backgroundColor: "white" }}>
       {chatRoomList.map((data, index) => (
         <ChatList
           key={index}
@@ -62,7 +62,7 @@ const Chat = ({ navigation }) => {
           </ProfileName>
         </ChatList>
       ))}
-    </View>
+    </ScrollView>
   );
 };
 export default Chat;

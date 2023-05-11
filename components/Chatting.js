@@ -151,33 +151,30 @@ const Chatting = () => {
     setTextInput(payload);
   };
   const onPressAccept = () => {
-    if (chatList.participatorName === myName) {
-      axios
-        .put("http://10.0.2.2:8080/api/work/matching", {
-          id: JSON.parse(chatRoomList[0].chatList[0].message).id,
-          title: JSON.parse(chatRoomList[0].chatList[0].message).title,
-          context: JSON.parse(chatRoomList[0].chatList[0].message).context,
-          deadLineTime: JSON.parse(chatRoomList[0].chatList[0].message)
-            .deadLineTime,
-          reward: JSON.parse(chatRoomList[0].chatList[0].message).reward,
-          latitude: JSON.parse(chatRoomList[0].chatList[0].message).latitude,
-          longitude: JSON.parse(chatRoomList[0].chatList[0].message).longitude,
-          proceeding: JSON.parse(chatRoomList[0].chatList[0].message)
-            .proceeding,
-          customerId: JSON.parse(chatRoomList[0].chatList[0].message)
-            .customerId,
-          helperId: conversation.participantId,
-          finished: JSON.parse(chatRoomList[0].chatList[0].message).finished,
-        })
-        .then((res) => {
-          console.log("수락");
-          client.publish({
-            destination: `/pub/chat/${conversation._id}`,
-            body: JSON.stringify(card),
-          });
-        })
-        .catch((error) => console.log(error));
-    }
+    axios
+      .put("http://10.0.2.2:8080/api/work/matching", {
+        id: JSON.parse(chatRoomList[0].chatList[0].message).id,
+        title: JSON.parse(chatRoomList[0].chatList[0].message).title,
+        context: JSON.parse(chatRoomList[0].chatList[0].message).context,
+        deadLineTime: JSON.parse(chatRoomList[0].chatList[0].message)
+          .deadLineTime,
+        reward: JSON.parse(chatRoomList[0].chatList[0].message).reward,
+        latitude: JSON.parse(chatRoomList[0].chatList[0].message).latitude,
+        longitude: JSON.parse(chatRoomList[0].chatList[0].message).longitude,
+        proceeding: JSON.parse(chatRoomList[0].chatList[0].message).proceeding,
+        customerId: JSON.parse(chatRoomList[0].chatList[0].message).customerId,
+        helperId: conversation.participantId,
+        finished: JSON.parse(chatRoomList[0].chatList[0].message).finished,
+      })
+      .then((res) => {
+        console.log("수락");
+        client.publish({
+          destination: `/pub/chat/${conversation._id}`,
+          body: JSON.stringify(card),
+        });
+        //console.log(chatList);
+      })
+      .catch((error) => console.log(error));
   };
   const onPressDeny = () => {
     if (chatList.participatorName === myName) console.log("거절");
@@ -192,14 +189,13 @@ const Chatting = () => {
       setReceiverName(conversation.creatorName);
     }
   }, []);
-  //console.log(conversation.participantId);
-  //console.log(chatRoomList[0]);
+
   useEffect(() => {
     chatRoomList.map((data) => {
       data._id === chatList._id ? setChatList(data) : null;
     });
   }, [chatRoomList]); //chatRoomList 업데이트 마다 chatList 데이터 새롭게 저장
-  //console.log(chatRoomList[0].chatList[0].message);
+  console.log(chatList.chatList);
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
       <View style={{ flex: 20 }}>
@@ -225,14 +221,16 @@ const Chatting = () => {
                             시간
                           </WorkText>
                         </View>
-                        <View style={{ flexDirection: "row" }}>
-                          <WorkBtn onPress={onPressAccept}>
-                            <WorkAcceptText>수락</WorkAcceptText>
-                          </WorkBtn>
-                          <WorkBtn onPress={onPressDeny}>
-                            <WorkAcceptText>거절</WorkAcceptText>
-                          </WorkBtn>
-                        </View>
+                        {myId === chatList.participantId ? (
+                          <View style={{ flexDirection: "row" }}>
+                            <WorkBtn onPress={onPressAccept}>
+                              <WorkAcceptText>수락</WorkAcceptText>
+                            </WorkBtn>
+                            <WorkBtn onPress={onPressDeny}>
+                              <WorkAcceptText>거절</WorkAcceptText>
+                            </WorkBtn>
+                          </View>
+                        ) : null}
                       </WorkWrapper>
                     </View>
                   ) : data.messageType === "Chat" ? (
