@@ -20,10 +20,6 @@ import {
   myIdData,
   ratingHelperData,
   responseHelperData,
-  chatListData,
-  recvMsgData,
-  clientData,
-  chatMsgData,
   chatRoomListData,
 } from "../atom";
 import { MaterialIcons, AntDesign, Entypo } from "@expo/vector-icons";
@@ -152,7 +148,7 @@ const Main = ({ navigation: { navigate } }) => {
         console.log("채팅목록", res.data);
         res.data.map((id) =>
           client.subscribe(`/topic/chat/${id._id}`, function (message) {
-            //console.log("채팅 목록에서 들어간 메시지", message.body);
+            console.log("채팅 목록에서 들어간 메시지", message.body);
             axios.get("http://10.0.2.2:8080/api/conversations").then((res) => {
               setChatRoomList(res.data);
             });
@@ -175,7 +171,7 @@ const Main = ({ navigation: { navigate } }) => {
           const sub = client.subscribe(
             `/topic/chat/${chatId}`,
             function (message) {
-              //console.log("요청해서 들어간 채팅방 메시지", message.body);
+              console.log("요청해서 들어간 채팅방 메시지", message.body);
               axios
                 .get("http://10.0.2.2:8080/api/conversations")
                 .then((res) => {

@@ -10,10 +10,12 @@ import {
   conversationData,
   receiverNameData,
   workData,
+  workListData,
 } from "../atom";
 import { useEffect } from "react";
 import { client } from "../client";
 import axios from "axios";
+import { useNavigation } from "@react-navigation/native";
 
 const ChatView = styled.View`
   flex: 9;
@@ -71,7 +73,6 @@ const ChatText = styled.Text`
   font-size: 17px;
 `;
 const WorkWrapper = styled.View`
-  flex: 1;
   background-color: #0fbcf9;
   border-radius: 15px;
   justify-content: center;
@@ -117,6 +118,21 @@ const WorkAcceptText = styled.Text`
   font-weight: 600;
   font-size: 19px;
 `;
+const CardWrapper = styled.View`
+  background-color: #2196f3;
+  border-radius: 15px;
+  justify-content: center;
+  align-items: center;
+  width: 200px;
+  height: 300px;
+  //padding: 10px 0px;
+  margin-bottom: 10px;
+`;
+const CardText = styled.Text`
+  color: black;
+  font-weight: 600;
+  font-size: 15px;
+`;
 const Chatting = () => {
   const [textInput, setTextInput] = useState();
   const conversation = useRecoilValue(conversationData);
@@ -126,17 +142,22 @@ const Chatting = () => {
   const [chatList, setChatList] = useRecoilState(chatListData);
   const chatRoomList = useRecoilValue(chatRoomListData);
 
+  //const [btnShow, setBtnShow] = useState();
+  const navigation = useNavigation();
+
+  const workList = useRecoilValue(workListData);
+
   const chat = {
     senderName: myName,
     receiverName: receiverName,
     message: textInput,
   };
   const card = {
-    messageType: "Card",
     message: "Accept work",
   };
 
   const sendMsg = () => {
+    console.log("보낼챗", chatList);
     if (textInput === "") {
       Alert.alert("내용을 입력해주세요");
     } else {
@@ -150,34 +171,51 @@ const Chatting = () => {
   const onChangeMyMsg = (payload) => {
     setTextInput(payload);
   };
+
   const onPressAccept = () => {
     axios
       .put("http://10.0.2.2:8080/api/work/matching", {
-        id: JSON.parse(chatRoomList[0].chatList[0].message).id,
-        title: JSON.parse(chatRoomList[0].chatList[0].message).title,
-        context: JSON.parse(chatRoomList[0].chatList[0].message).context,
-        deadLineTime: JSON.parse(chatRoomList[0].chatList[0].message)
-          .deadLineTime,
-        reward: JSON.parse(chatRoomList[0].chatList[0].message).reward,
-        latitude: JSON.parse(chatRoomList[0].chatList[0].message).latitude,
-        longitude: JSON.parse(chatRoomList[0].chatList[0].message).longitude,
-        proceeding: JSON.parse(chatRoomList[0].chatList[0].message).proceeding,
-        customerId: JSON.parse(chatRoomList[0].chatList[0].message).customerId,
+        id: JSON.parse(chatList.chatList[0].message).id,
+        title: JSON.parse(chatList.chatList[0].message).title,
+        context: JSON.parse(chatList.chatList[0].message).context,
+        deadLineTime: JSON.parse(chatList[0].chatList[0].message).deadLineTime,
+        reward: JSON.parse(chatList.chatList[0].message).reward,
+        latitude: JSON.parse(chatList.chatList[0].message).latitude,
+        longitude: JSON.parse(chatList.chatList[0].message).longitude,
+        proceeding: JSON.parse(chatList.chatList[0].message).proceeding,
+        customerId: JSON.parse(chatList.chatList[0].message).customerId,
         helperId: conversation.participantId,
-        finished: JSON.parse(chatRoomList[0].chatList[0].message).finished,
+        finished: JSON.parse(chatList.chatList[0].message).finished,
       })
       .then((res) => {
         console.log("수락");
         client.publish({
-          destination: `/pub/chat/${conversation._id}`,
+          destination: `/pub/card/${conversation._id}`,
           body: JSON.stringify(card),
         });
-        //console.log(chatList);
       })
       .catch((error) => console.log(error));
   };
   const onPressDeny = () => {
-    if (chatList.participatorName === myName) console.log("거절");
+    if (chatList.participatorName === myName) {
+      Alert.alert("거절되었습니다.");
+    }
+  };
+  const onPressWorkComplete = () => {
+    console.log("일 완료");
+    //console.log(J);
+  };
+  const onPressView = () => {
+    console.log("진행 상황 보기");
+    if (JSON.parse(chatList.chatList[0].message).deadLineTime === 1) {
+      console.log("마감시간 한시간");
+      navigation.navigate("HelperLocation", {
+        deadLineTime: 1,
+      });
+    } else {
+      console.log("마감시간 한시간 초과");
+    }
+    //진행상황 보기
   };
 
   useEffect(() => {
@@ -195,7 +233,8 @@ const Chatting = () => {
       data._id === chatList._id ? setChatList(data) : null;
     });
   }, [chatRoomList]); //chatRoomList 업데이트 마다 chatList 데이터 새롭게 저장
-  console.log(chatList.chatList);
+
+  console.log(workList);
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
       <View style={{ flex: 20 }}>
@@ -204,7 +243,15 @@ const Chatting = () => {
             {chatList
               ? chatList.chatList.map((data, index) =>
                   data.messageType === "Work" ? (
-                    <View key={index} style={{ alignItems: "flex-end" }}>
+                    <View
+                      key={index}
+                      style={{
+                        alignItems:
+                          data.senderName === myName
+                            ? "flex-end"
+                            : "flex-start",
+                      }}
+                    >
                       <WorkWrapper>
                         <WorkTitleWrapper>
                           <WorkTitle>심부름 요청서</WorkTitle>
@@ -222,7 +269,11 @@ const Chatting = () => {
                           </WorkText>
                         </View>
                         {myId === chatList.participantId ? (
-                          <View style={{ flexDirection: "row" }}>
+                          <View
+                            style={{
+                              flexDirection: "row",
+                            }}
+                          >
                             <WorkBtn onPress={onPressAccept}>
                               <WorkAcceptText>수락</WorkAcceptText>
                             </WorkBtn>
@@ -235,7 +286,7 @@ const Chatting = () => {
                     </View>
                   ) : data.messageType === "Chat" ? (
                     <View key={index}>
-                      {data.senderName === conversation.creatorName ? (
+                      {data.senderName === myName ? (
                         <View key={index} style={{ alignItems: "flex-end" }}>
                           <ChatWrapper>
                             <ChatText>
@@ -252,7 +303,18 @@ const Chatting = () => {
                       )}
                     </View>
                   ) : data.messageType === "Card" ? (
-                    console.log(index + "Card Message", data.message)
+                    <CardWrapper key={index}>
+                      <CardText>{data.message}</CardText>
+                      {myId === chatList.participantId ? (
+                        <Pressable onPress={onPressWorkComplete}>
+                          <Text>일 완료하기</Text>
+                        </Pressable>
+                      ) : (
+                        <Pressable onPress={onPressView}>
+                          <Text>진행상황</Text>
+                        </Pressable>
+                      )}
+                    </CardWrapper>
                   ) : null
                 )
               : null}
@@ -264,6 +326,7 @@ const Chatting = () => {
           value={textInput}
           onChangeText={onChangeMyMsg}
           placeholder="메시지 보내기"
+          r
           placeholderTextColor="#D0D3D7"
         />
         <Ionicons onPress={sendMsg} name="md-send" size={24} color="#D0D3D7" />

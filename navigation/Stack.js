@@ -11,6 +11,7 @@ import Chat from "../components/Chat";
 import { Ionicons } from "@expo/vector-icons";
 import { useRecoilValue } from "recoil";
 import { receiverNameData } from "../atom";
+import HelperLocation from "../components/HelperLocation";
 
 const NativeStack = createNativeStackNavigator();
 
@@ -92,6 +93,7 @@ const Stack = ({ navigation }) => {
           },
         }}
       />
+      <NativeStack.Screen name="HelperLocation" component={HelperLocation} />
     </NativeStack.Navigator>
   );
 };
