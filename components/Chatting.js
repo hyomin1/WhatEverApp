@@ -18,6 +18,7 @@ import { client } from "../client";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
+import BackgroundTimer from "react-native-background-timer";
 
 const ChatView = styled.View`
   flex: 9;
@@ -177,25 +178,25 @@ const Chatting = () => {
   };
 
   const intervalId = (id) => {
-    // BackgroundTimer.setInterval(async () => {
-    //   const { granted } = await Location.requestForegroundPermissionsAsync();
-    //   if (!granted) {
-    //     setOk("error");
-    //   }
-    //   const {
-    //     coords: { latitude, longitude },
-    //   } = await Location.getCurrentPositionAsync({ accuracy: 5 });
-    //   console.log(latitude, longitude);
-    //   axios
-    //     .post(`http://10.0.2.2:8080/api/location/helperLocation/${id}`, {
-    //       latitude: latitude,
-    //       longitude: longitude,
-    //     })
-    //     .then((res) => {
-    //       console.log("위치데이터", res.data);
-    //     })
-    //     .catch((error) => console.log(error));
-    // }, 5000);
+    BackgroundTimer.setInterval(async () => {
+      const { granted } = await Location.requestForegroundPermissionsAsync();
+      if (!granted) {
+        setOk("error");
+      }
+      const {
+        coords: { latitude, longitude },
+      } = await Location.getCurrentPositionAsync({ accuracy: 5 });
+      console.log(latitude, longitude);
+      axios
+        .post(`http://10.0.2.2:8080/api/location/helperLocation/${id}`, {
+          latitude: latitude,
+          longitude: longitude,
+        })
+        .then((res) => {
+          console.log("위치데이터", res.data);
+        })
+        .catch((error) => console.log(error));
+    }, 5000);
   };
 
   const onPressAccept = () => {

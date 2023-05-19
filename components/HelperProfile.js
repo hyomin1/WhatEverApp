@@ -18,6 +18,8 @@ import { useState } from "react";
 import { client } from "../client";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { Entypo } from "@expo/vector-icons";
+
 const Container = styled.View`
   flex: 1;
   background-color: white;
@@ -91,6 +93,7 @@ const Button = styled.Pressable`
 const WorkListText = styled.Text`
   font-size: 16px;
   font-weight: 600;
+  margin-right: 10px;
 `;
 const TitleBar = styled.View`
   flex-direction: row;
@@ -148,6 +151,7 @@ const HelperProfile = ({ route }) => {
   };
   const onPressOrderBtn = async () => {
     //심부름 목록 본 후 선택해서 신청
+
     axios
       .post(`http://10.0.2.2:8080/api/conversation/${route.params.id}`, {
         id: selectWork.id,
@@ -254,13 +258,22 @@ const HelperProfile = ({ route }) => {
                     justifyContent: "center",
                     alignItems: "center",
                   }}
-                  onPress={() => setSelectWork(data)}
+                  onPress={() => {
+                    setSelectWork(data);
+                    console.log("선택");
+                  }}
                 >
                   <WorkListText>제목 : {data.title} </WorkListText>
                   <WorkListText>내용 : {data.context} </WorkListText>
                   <WorkListText>
                     마감시간 : {data.deadLineTime}시간
                   </WorkListText>
+                  <Entypo
+                    name="pencil"
+                    size={24}
+                    color="black"
+                    onPress={() => {}}
+                  />
                 </Pressable>
               ))}
             </View>
