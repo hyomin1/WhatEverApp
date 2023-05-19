@@ -11,11 +11,13 @@ import {
   receiverNameData,
   workData,
   workListData,
+  helperLocationData,
 } from "../atom";
 import { useEffect } from "react";
 import { client } from "../client";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
+import * as Location from "expo-location";
 
 const ChatView = styled.View`
   flex: 9;
@@ -141,11 +143,13 @@ const Chatting = () => {
   const [receiverName, setReceiverName] = useRecoilState(receiverNameData);
   const [chatList, setChatList] = useRecoilState(chatListData);
   const chatRoomList = useRecoilValue(chatRoomListData);
+  const [ok, setOk] = useState();
 
-  //const [btnShow, setBtnShow] = useState();
   const navigation = useNavigation();
 
   const workList = useRecoilValue(workListData);
+  const [helperLocation, setHelperLocation] =
+    useRecoilState(helperLocationData);
 
   const chat = {
     senderName: myName,
@@ -172,20 +176,43 @@ const Chatting = () => {
     setTextInput(payload);
   };
 
+  const intervalId = (id) => {
+    // BackgroundTimer.setInterval(async () => {
+    //   const { granted } = await Location.requestForegroundPermissionsAsync();
+    //   if (!granted) {
+    //     setOk("error");
+    //   }
+    //   const {
+    //     coords: { latitude, longitude },
+    //   } = await Location.getCurrentPositionAsync({ accuracy: 5 });
+    //   console.log(latitude, longitude);
+    //   axios
+    //     .post(`http://10.0.2.2:8080/api/location/helperLocation/${id}`, {
+    //       latitude: latitude,
+    //       longitude: longitude,
+    //     })
+    //     .then((res) => {
+    //       console.log("위치데이터", res.data);
+    //     })
+    //     .catch((error) => console.log(error));
+    // }, 5000);
+  };
+
   const onPressAccept = () => {
+    const work = JSON.parse(chatList.chatList[0].message);
     axios
       .put("http://10.0.2.2:8080/api/work/matching", {
-        id: JSON.parse(chatList.chatList[0].message).id,
-        title: JSON.parse(chatList.chatList[0].message).title,
-        context: JSON.parse(chatList.chatList[0].message).context,
-        deadLineTime: JSON.parse(chatList[0].chatList[0].message).deadLineTime,
-        reward: JSON.parse(chatList.chatList[0].message).reward,
-        latitude: JSON.parse(chatList.chatList[0].message).latitude,
-        longitude: JSON.parse(chatList.chatList[0].message).longitude,
-        proceeding: JSON.parse(chatList.chatList[0].message).proceeding,
-        customerId: JSON.parse(chatList.chatList[0].message).customerId,
+        id: work.id,
+        title: work.title,
+        context: work.context,
+        deadLineTime: work.deadLineTime,
+        reward: work.reward,
+        latitude: work.latitude,
+        longitude: work.longitude,
+        proceeding: work.proceeding,
+        customerId: work.customerId,
         helperId: conversation.participantId,
-        finished: JSON.parse(chatList.chatList[0].message).finished,
+        finished: work.finished,
       })
       .then((res) => {
         console.log("수락");
@@ -193,6 +220,10 @@ const Chatting = () => {
           destination: `/pub/card/${conversation._id}`,
           body: JSON.stringify(card),
         });
+
+        if (work.deadLineTime === 1) {
+          intervalId(work.id);
+        }
       })
       .catch((error) => console.log(error));
   };
@@ -203,20 +234,28 @@ const Chatting = () => {
   };
   const onPressWorkComplete = () => {
     console.log("일 완료");
-    //console.log(J);
   };
   const onPressView = () => {
     console.log("진행 상황 보기");
     if (JSON.parse(chatList.chatList[0].message).deadLineTime === 1) {
       console.log("마감시간 한시간");
-      navigation.navigate("HelperLocation", {
-        deadLineTime: 1,
-      });
+      axios
+        .get(
+          `http://10.0.2.2:8080/api/location/helperLocation/${
+            JSON.parse(chatList.chatList[0].message).id
+          }`
+        )
+        .then((res) => {
+          navigation.navigate("HelperLocation", {
+            location: res.data,
+          });
+        });
     } else {
       console.log("마감시간 한시간 초과");
     }
     //진행상황 보기
   };
+  //console.log(chatList);
 
   useEffect(() => {
     if (myId === conversation.creatorId) {
@@ -234,7 +273,7 @@ const Chatting = () => {
     });
   }, [chatRoomList]); //chatRoomList 업데이트 마다 chatList 데이터 새롭게 저장
 
-  console.log(workList);
+  console.log(myId);
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
       <View style={{ flex: 20 }}>

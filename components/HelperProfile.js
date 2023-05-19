@@ -122,13 +122,13 @@ const OrderButton = styled.Pressable`
 const HelperProfile = ({ route }) => {
   const img = useRecoilValue(imgData);
 
-  const work = useRecoilValue(workData);
+  //const work = useRecoilValue(workData);
 
   const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
   const [chatList, setChatList] = useRecoilState(chatListData);
   const [conversation, setConversation] = useRecoilState(conversationData);
 
-  const workList = useRecoilValue(workListData);
+  const [workList, setWorkList] = useRecoilState(workListData);
   const [workListVisible, setWorkListVisible] = useState(false);
   const [selectWork, setSelectWork] = useState();
 
@@ -139,6 +139,10 @@ const HelperProfile = ({ route }) => {
   };
   const onPressBtn = async () => {
     //심부름 목록 보기
+    axios.get("http://10.0.2.2:8080/api/workList").then((res) => {
+      console.log("worklist", res.data);
+      setWorkList(res.data);
+    });
     console.log("내 심부름 목록", workList);
     setWorkListVisible(!workListVisible);
   };

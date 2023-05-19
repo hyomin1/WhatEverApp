@@ -2,8 +2,14 @@ import { View, Text, TextInput, Pressable, Modal } from "react-native";
 import styled from "styled-components/native";
 import { useState } from "react";
 import Fix from "./Fix";
-import { useRecoilValue } from "recoil";
-import { IntroduceData, myImgData, nameData, ratingData } from "../atom";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import {
+  IntroduceData,
+  helperLocationData,
+  myImgData,
+  nameData,
+  ratingData,
+} from "../atom";
 import Postcode from "@actbase/react-daum-postcode";
 import * as Location from "expo-location";
 import axios from "axios";
@@ -82,6 +88,7 @@ const Profile = () => {
 
   const myImg = useRecoilValue(myImgData);
   const rating = useRecoilValue(ratingData);
+  const setHelperLocation = useSetRecoilState(helperLocationData);
 
   const goFix = () => {
     setModalVisible(!modalVisible);
@@ -153,7 +160,8 @@ const Profile = () => {
                   longitude: location[0].longitude,
                 })
                 .then((res) => {
-                  console.log("등록 데이터", res.data);
+                  //console.log("등록 데이터", res.data);
+                  //setHelperLocation(res.data);
                 });
             }}
           />

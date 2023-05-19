@@ -114,7 +114,7 @@ const Order = ({ orderVisible, setOrderVisible }) => {
         setAddress2("");
         setWork(res.data);
         setOrderVisible(!orderVisible);
-        setWorkList([...workList, res.data]);
+        // setWorkList([...workList, res.data]);
       })
       .catch((error) => console.log(error));
   };

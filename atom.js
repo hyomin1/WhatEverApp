@@ -110,3 +110,7 @@ export const receiverNameData = atom({
   key: "receiverName",
   default: null,
 });
+export const helperLocationData = atom({
+  key: "helperLocation",
+  default: null,
+});

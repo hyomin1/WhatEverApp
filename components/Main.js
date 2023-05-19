@@ -7,6 +7,8 @@ import {
   ActivityIndicator,
   Text,
   Modal,
+  Alert,
+  PermissionsAndroid,
 } from "react-native";
 import * as Location from "expo-location";
 import styled from "styled-components/native";
@@ -21,6 +23,7 @@ import {
   ratingHelperData,
   responseHelperData,
   chatRoomListData,
+  helperLocationData,
 } from "../atom";
 import { MaterialIcons, AntDesign, Entypo } from "@expo/vector-icons";
 import Order from "./Order";
@@ -94,6 +97,7 @@ const Main = ({ navigation: { navigate } }) => {
 
   const [searchAddress, setSearchAddress] = useState(false);
 
+  const setHelperLocation = useSetRecoilState(helperLocationData);
   const onRegionChange = (region) => {
     axios
       .put("http://10.0.2.2:8080/api/location/findHelper/distance", {
@@ -152,6 +156,15 @@ const Main = ({ navigation: { navigate } }) => {
             axios.get("http://10.0.2.2:8080/api/conversations").then((res) => {
               setChatRoomList(res.data);
             });
+            axios
+              .post(
+                `http://10.0.2.2:8080/api/fcm/` +
+                  String(message.headers.destination).split("/")[3]
+              )
+              .then((res) => {
+                console.log("fcm 2", res.data);
+              })
+              .catch((error) => console.log(error));
           })
         );
       })
@@ -177,6 +190,12 @@ const Main = ({ navigation: { navigate } }) => {
                 .then((res) => {
                   setChatRoomList(res.data);
                 });
+              axios
+                .post(`http://10.0.2.2:8080/api/fcm/${chatId}`)
+                .then((res) => {
+                  console.log("fcm 2", res.data);
+                })
+                .catch((error) => console.log(error));
             }
           );
         }
@@ -189,9 +208,27 @@ const Main = ({ navigation: { navigate } }) => {
     console.log("Additional details: " + frame.body);
   };
 
+  // const getFcmToken = async () => {
+  //   const fcmToken = await messaging().getToken();
+  //   console.log("FCM Token", fcmToken);
+  //   axios.put(`http://10.0.2.2:8080/api/fcm/${fcmToken}`).then((res) => {
+  //     console.log("fcm", res.data);
+  //   });
+  // };
+  // messaging().setBackgroundMessageHandler(async (remoteMessage) => {
+  //   console.log(remoteMessage);
+  // });
   useEffect(() => {
+    //getFcmToken();
+    //console.log(messaging().getToken("I7fXUDUIrBPFzH4k0qdHAAGrl3j1"))
     getLocation();
     client.activate();
+
+    // const unsubscribe = messaging().onMessage(async (remoteMessage) => {
+    //   console.log("acd");
+    //   console.log("Remote Message", JSON.stringify(remoteMessage));
+    // });
+    // return unsubscribe;
   }, []);
   return (
     <View style={{ flex: 1 }}>
