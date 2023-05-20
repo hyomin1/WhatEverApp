@@ -2,7 +2,7 @@ import styled from "styled-components/native";
 import { Modal, View, ScrollView, Text, Pressable, Alert } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
-import { workData, workListData } from "../atom";
+import { indexData, workData, workListData } from "../atom";
 import SelectDropdown from "react-native-select-dropdown";
 import { useRecoilState, useRecoilValue } from "recoil";
 import Postcode from "@actbase/react-daum-postcode";
@@ -68,7 +68,14 @@ const AddressText = styled.Text`
   font-size: 16px;
 `;
 
-const Order = ({ orderVisible, setOrderVisible }) => {
+const Order = ({
+  orderVisible,
+  setOrderVisible,
+  titleName,
+  btnText,
+  alertText,
+  divide,
+}) => {
   const hours = [1, 2, 3, 4];
 
   const [title, setTitle] = useState();
@@ -88,6 +95,8 @@ const Order = ({ orderVisible, setOrderVisible }) => {
 
   const [workList, setWorkList] = useRecoilState(workListData);
 
+  const indexValue = useRecoilValue(indexData);
+
   const onChangeTitle = (payload) => {
     setTitle(payload);
   };
@@ -97,26 +106,51 @@ const Order = ({ orderVisible, setOrderVisible }) => {
   const onChangeReward = (payload) => {
     setReward(payload);
   };
+
   const onPressBtn = async () => {
-    await axios
-      .post("http://10.0.2.2:8080/api/work", {
-        latitude,
-        longitude,
-        reward,
-        deadLineTime,
-        title,
-        context,
-      })
-      .then((res) => {
-        console.log("심부름 요청 성공", res.data);
-        Alert.alert("심부름 요청이 등록되었습니다.");
-        setAddress("");
-        setAddress2("");
-        setWork(res.data);
-        setOrderVisible(!orderVisible);
-        // setWorkList([...workList, res.data]);
-      })
-      .catch((error) => console.log(error));
+    if (divide === "0") {
+      await axios
+        .post("http://10.0.2.2:8080/api/work", {
+          latitude,
+          longitude,
+          reward,
+          deadLineTime,
+          title,
+          context,
+        })
+        .then((res) => {
+          console.log("심부름 요청 성공", res.data);
+          Alert.alert(alertText);
+          setAddress("");
+          setAddress2("");
+          setWork(res.data);
+          setOrderVisible(!orderVisible);
+        })
+        .catch((error) => console.log(error));
+    } else {
+      //심부름 수정
+      setOrderVisible(!orderVisible);
+      const copiedWorkList = [...workList];
+      copiedWorkList[indexValue].title = title
+        ? title
+        : copiedWorkList[indexValue].title;
+      copiedWorkList[indexValue].context = context
+        ? context
+        : copiedWorkList[indexValue].context;
+      copiedWorkList[indexValue].latitude = latitude
+        ? latitude
+        : copiedWorkList[indexValue].latitude;
+      copiedWorkList[indexValue].longitude = longitude
+        ? longitude
+        : copiedWorkList[indexValue].longitude;
+      copiedWorkList[indexValue].deadLineTime = deadLineTime
+        ? deadLineTime
+        : copiedWorkList[indexValue].deadLineTime;
+      copiedWorkList[indexValue].reward = reward
+        ? reward
+        : copiedWorkList[indexValue].reward;
+      setWorkList(copiedWorkList);
+    }
   };
 
   return (
@@ -147,7 +181,7 @@ const Order = ({ orderVisible, setOrderVisible }) => {
                 />
               </View>
 
-              <Title>심부름 요청서</Title>
+              <Title>{titleName}</Title>
 
               <View style={{ flex: 1 }}></View>
             </TitleBar>
@@ -243,7 +277,7 @@ const Order = ({ orderVisible, setOrderVisible }) => {
                 <Text
                   style={{ color: "white", fontWeight: "600", fontSize: 15 }}
                 >
-                  요청
+                  {btnText}
                 </Text>
               </Button>
             </MainBar>

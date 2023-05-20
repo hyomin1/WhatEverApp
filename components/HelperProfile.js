@@ -2,23 +2,19 @@ import { View, Text, Modal, ScrollView, Pressable } from "react-native";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components/native";
 import {
-  ConversationData,
-  accessData,
   chatListData,
-  grantData,
   imgData,
-  workData,
   workListData,
-  chatMsgData,
   chatRoomListData,
   conversationData,
+  indexData,
 } from "../atom";
 import axios from "axios";
 import { useState } from "react";
 import { client } from "../client";
 import { useNavigation } from "@react-navigation/native";
-import { MaterialIcons } from "@expo/vector-icons";
-import { Entypo } from "@expo/vector-icons";
+import { MaterialIcons, Entypo } from "@expo/vector-icons";
+import Order from "./Order";
 
 const Container = styled.View`
   flex: 1;
@@ -135,6 +131,10 @@ const HelperProfile = ({ route }) => {
   const [workListVisible, setWorkListVisible] = useState(false);
   const [selectWork, setSelectWork] = useState();
 
+  const [orderVisible, setOrderVisible] = useState(false);
+
+  const [indexValue, setIndexValue] = useRecoilState(indexData);
+
   const navigation = useNavigation();
 
   const goChat = () => {
@@ -149,6 +149,7 @@ const HelperProfile = ({ route }) => {
     console.log("내 심부름 목록", workList);
     setWorkListVisible(!workListVisible);
   };
+
   const onPressOrderBtn = async () => {
     //심부름 목록 본 후 선택해서 신청
 
@@ -247,6 +248,13 @@ const HelperProfile = ({ route }) => {
               <View style={{ flex: 1 }}></View>
             </TitleBar>
             <Line />
+            <Order
+              orderVisible={orderVisible}
+              setOrderVisible={setOrderVisible}
+              titleName="심부름 수정"
+              btnText="수정 완료"
+              alertText="심부름 수정이 완료되었습니다."
+            />
             <View style={{ flex: 10 }}>
               {workList.map((data, index) => (
                 <Pressable
@@ -257,6 +265,7 @@ const HelperProfile = ({ route }) => {
                     height: 100,
                     justifyContent: "center",
                     alignItems: "center",
+                    paddingHorizontal: 30,
                   }}
                   onPress={() => {
                     setSelectWork(data);
@@ -272,7 +281,15 @@ const HelperProfile = ({ route }) => {
                     name="pencil"
                     size={24}
                     color="black"
-                    onPress={() => {}}
+                    onPress={() => {
+                      // const copiedWorkList = [...workList];
+                      // copiedWorkList[index].title = "title";
+                      // setWorkList(copiedWorkList);
+                      console.log("수정", data);
+                      setOrderVisible(!orderVisible);
+                      console.log(index);
+                      setIndexValue(index);
+                    }}
                   />
                 </Pressable>
               ))}

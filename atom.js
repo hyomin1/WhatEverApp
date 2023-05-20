@@ -114,3 +114,9 @@ export const helperLocationData = atom({
   key: "helperLocation",
   default: null,
 });
+
+export const indexData = atom({
+  //심부름 수정 목록 인덱스 데이터
+  key: "index",
+  default: null,
+});

@@ -208,27 +208,9 @@ const Main = ({ navigation: { navigate } }) => {
     console.log("Additional details: " + frame.body);
   };
 
-  // const getFcmToken = async () => {
-  //   const fcmToken = await messaging().getToken();
-  //   console.log("FCM Token", fcmToken);
-  //   axios.put(`http://10.0.2.2:8080/api/fcm/${fcmToken}`).then((res) => {
-  //     console.log("fcm", res.data);
-  //   });
-  // };
-  // messaging().setBackgroundMessageHandler(async (remoteMessage) => {
-  //   console.log(remoteMessage);
-  // });
   useEffect(() => {
-    //getFcmToken();
-    //console.log(messaging().getToken("I7fXUDUIrBPFzH4k0qdHAAGrl3j1"))
     getLocation();
     client.activate();
-
-    // const unsubscribe = messaging().onMessage(async (remoteMessage) => {
-    //   console.log("acd");
-    //   console.log("Remote Message", JSON.stringify(remoteMessage));
-    // });
-    // return unsubscribe;
   }, []);
   return (
     <View style={{ flex: 1 }}>
@@ -291,6 +273,10 @@ const Main = ({ navigation: { navigate } }) => {
           <Order
             setOrderVisible={setOrderVisible}
             orderVisible={orderVisible}
+            titleName="심부름 요청서"
+            btnText="요청"
+            alertText="심부름 요청이 등록되었습니다."
+            divide="0"
           />
 
           <SearchContaienr style={{ marginLeft: -SCREEN_WIDTH / 3 }}>
