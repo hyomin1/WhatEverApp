@@ -29,6 +29,7 @@ import { MaterialIcons, AntDesign, Entypo } from "@expo/vector-icons";
 import Order from "./Order";
 import { client } from "../client";
 import Postcode from "@actbase/react-daum-postcode";
+import messaging from "@react-native-firebase/messaging";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
