@@ -12,6 +12,8 @@ import {
   workData,
   workListData,
   helperLocationData,
+  accessData,
+  grantData,
 } from "../atom";
 import { useEffect } from "react";
 import { client } from "../client";
@@ -146,6 +148,9 @@ const Chatting = () => {
   const chatRoomList = useRecoilValue(chatRoomListData);
   const [ok, setOk] = useState();
 
+  const access = useRecoilValue(accessData);
+  const grant = useRecoilValue(grantData);
+
   const navigation = useNavigation();
 
   const workList = useRecoilValue(workListData);
@@ -170,6 +175,7 @@ const Chatting = () => {
       client.publish({
         destination: `/pub/chat/${conversation._id}`,
         body: JSON.stringify(chat),
+        headers: { Authorization: `${grant}` + " " + `${access}` },
       });
     }
   };
