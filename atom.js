@@ -120,3 +120,8 @@ export const indexData = atom({
   key: "index",
   default: null,
 });
+
+export const historyWorkData = atom({
+  key: "historyWork",
+  default: null,
+});

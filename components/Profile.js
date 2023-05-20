@@ -143,8 +143,9 @@ const Profile = () => {
       </Box>
       <Box>
         <Pressable onPress={() => setRegisterVisible(!registerVisible)}>
-          <Text>헬퍼 등록하기</Text>
+          <Text>내 위치 등록하기</Text>
         </Pressable>
+        {/**관리자면 신고내역 보는 코드  */}
         <Modal animationType="slide" visible={registerVisible}>
           <Postcode
             style={{ flex: 1, height: 250, marginBottom: 40 }}

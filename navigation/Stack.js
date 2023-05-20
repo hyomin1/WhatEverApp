@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRecoilValue } from "recoil";
 import { receiverNameData } from "../atom";
 import HelperLocation from "../components/HelperLocation";
+import History from "../components/History";
 
 const NativeStack = createNativeStackNavigator();
 
@@ -94,6 +95,7 @@ const Stack = ({ navigation }) => {
         }}
       />
       <NativeStack.Screen name="HelperLocation" component={HelperLocation} />
+      <NativeStack.Screen name="StackHistory" component={History} />
     </NativeStack.Navigator>
   );
 };

@@ -128,7 +128,7 @@ const Order = ({
         })
         .catch((error) => console.log(error));
     } else {
-      //심부름 수정
+      //심부름 수정 (수정한 데이터 어떻게 유지?)
       setOrderVisible(!orderVisible);
       const copiedWorkList = [...workList];
       copiedWorkList[indexValue].title = title
