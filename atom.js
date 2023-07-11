@@ -125,3 +125,8 @@ export const historyWorkData = atom({
   key: "historyWork",
   default: null,
 });
+
+export const fcmTokenData = atom({
+  key: "fcmToken",
+  default: null,
+});

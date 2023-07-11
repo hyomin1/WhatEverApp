@@ -9,7 +9,6 @@ import {
   chatRoomListData,
   conversationData,
   receiverNameData,
-  workData,
   workListData,
   helperLocationData,
   accessData,
@@ -177,6 +176,12 @@ const Chatting = () => {
         body: JSON.stringify(chat),
         headers: { Authorization: `${grant}` + " " + `${access}` },
       });
+      axios
+        .post(`http://10.0.2.2:8080/api/fcm/${conversation._id}`)
+        .then((res) => {
+          console.log("fcm alarm", res.data);
+        })
+        .catch((error) => console.log("fcmerr", error));
     }
   };
   const onChangeMyMsg = (payload) => {
@@ -232,7 +237,7 @@ const Chatting = () => {
           intervalId(work.id);
         }
       })
-      .catch((error) => console.log(error));
+      .catch((error) => console.log("accept", error));
   };
   const onPressDeny = () => {
     if (chatList.participatorName === myName) {

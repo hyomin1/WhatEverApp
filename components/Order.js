@@ -129,8 +129,11 @@ const Order = ({
         .catch((error) => console.log(error));
     } else {
       //심부름 수정 (수정한 데이터 어떻게 유지?)
+
+      console.log("수저완료");
       setOrderVisible(!orderVisible);
       const copiedWorkList = [...workList];
+      console.log("wl", workList);
       copiedWorkList[indexValue].title = title
         ? title
         : copiedWorkList[indexValue].title;
@@ -150,6 +153,19 @@ const Order = ({
         ? reward
         : copiedWorkList[indexValue].reward;
       setWorkList(copiedWorkList);
+      axios
+        .put("http://10.0.2.2:8080/api/work", {
+          id: copiedWorkList[indexValue].id,
+          title: copiedWorkList[indexValue].title,
+          context: copiedWorkList[indexValue].context,
+          latitude: copiedWorkList[indexValue].latitude,
+          longitude: copiedWorkList[indexValue].longitude,
+          deadLineTime: copiedWorkList[indexValue].deadLineTime,
+          reward: copiedWorkList[indexValue].reward,
+        })
+        .then((res) => {
+          console.log("수정전송");
+        });
     }
   };
 

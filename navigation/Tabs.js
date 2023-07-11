@@ -112,8 +112,8 @@ const Tabs = ({ navigation: { navigate } }) => {
         component={History}
         listeners={({ navigation }) => ({
           tabPress: (e) => {
-            axios.get("http://10.0.2.2:8080/api/workList").then((res) => {
-              console.log("historyWorkList", res.data);
+            axios.get("http://10.0.2.2:8080/api/workList/all").then((res) => {
+              console.log("이용내역", res.data);
               setHistoryWork(res.data);
             });
           },

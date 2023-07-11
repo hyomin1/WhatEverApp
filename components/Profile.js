@@ -45,6 +45,7 @@ const ProfileBtn = styled.Pressable`
   align-items: center;
   justify-content: center;
   background-color: #2196f3;
+  border-radius: 5px;
 `;
 const ProfileText = styled.Text`
   color: white;

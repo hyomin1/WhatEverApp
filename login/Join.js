@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Alert, View } from "react-native";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import styled from "styled-components/native";
-import { api, apiClient } from "../api";
+import { api, apiClient, BASE_URL } from "../api";
 import { idData, nameData, pwData } from "../atom";
 
 const Container = styled.View`
@@ -68,7 +68,7 @@ const Join = ({ navigation: { navigate } }) => {
   };
   const sendJoin = async () => {
     try {
-      const res = await axios.post("http://10.0.2.2:8080/join", {
+      const res = await axios.post(`${BASE_URL}/join`, {
         name: name,
         userId: id,
         password: pw1,
@@ -87,7 +87,10 @@ const Join = ({ navigation: { navigate } }) => {
       Alert.alert("비밀번호를 입력해주세요");
     } else if (pw1 !== pw2) {
       Alert.alert("비밀번호가 동일하지 않습니다");
-    } else {
+    } //else if (pw1.length < 8 || pw2.length < 8) {
+    //Alert.alert("8자 이상 입력해주세요.");
+    //}
+    else {
       setPw(pw1);
       sendJoin();
     }

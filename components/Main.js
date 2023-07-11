@@ -1,18 +1,7 @@
 import React, { useState, useEffect } from "react";
-import MapView, { Marker } from "react-native-maps";
-import {
-  View,
-  Dimensions,
-  Image,
-  ActivityIndicator,
-  Text,
-  Modal,
-  Alert,
-  PermissionsAndroid,
-} from "react-native";
+import { View, Dimensions, ActivityIndicator, Text, Modal } from "react-native";
 import * as Location from "expo-location";
 import styled from "styled-components/native";
-import { PROVIDER_GOOGLE } from "react-native-maps";
 import axios from "axios";
 import { useRecoilValue, useRecoilState, useSetRecoilState } from "recoil";
 import {
@@ -30,6 +19,8 @@ import Order from "./Order";
 import { client } from "../client";
 import Postcode from "@actbase/react-daum-postcode";
 import messaging from "@react-native-firebase/messaging";
+import { BASE_URL } from "../api";
+import Map from "./Map";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
@@ -76,15 +67,12 @@ const HelperView = styled.Pressable`
 `;
 
 const Main = ({ navigation: { navigate } }) => {
-  // const [searchLatitude, setSearchLatitude] = useState(0);
-  //const [searchLongitude, setSearchLongitude] = useState(0);
   const [location, setLocation] = useState();
   const [ok, setOk] = useState();
   const [isLoading, setLoading] = useState(true);
 
   const access = useRecoilValue(accessData);
   const grant = useRecoilValue(grantData);
-  const [msg, setMsg] = useState();
 
   const myId = useRecoilValue(myIdData); //웹소켓 연결시 구독을 위한 본인 고유 id 데이터
 
@@ -99,17 +87,17 @@ const Main = ({ navigation: { navigate } }) => {
   const [searchAddress, setSearchAddress] = useState(false);
 
   const setHelperLocation = useSetRecoilState(helperLocationData);
-  const onRegionChange = (region) => {
+  const getToken = async () => {
+    const token = await messaging().getToken();
+    //console.log(token);
     axios
-      .put("http://10.0.2.2:8080/api/location/findHelper/distance", {
-        latitude: region.latitude,
-        longitude: region.longitude,
-      })
+      .put(`${BASE_URL}/api/fcm/${token}`)
       .then((res) => {
-        setDistanceHelper(res.data.content);
-        console.log("지도 움직일때 마다 요청");
-      });
+        //console.log("fcm", res.data);
+      })
+      .catch((error) => console.log(error));
   };
+
   const getLocation = async () => {
     const { granted } = await Location.requestForegroundPermissionsAsync();
     if (!granted) {
@@ -119,18 +107,20 @@ const Main = ({ navigation: { navigate } }) => {
       coords: { latitude, longitude },
     } = await Location.getCurrentPositionAsync({ accuracy: 5 });
     axios
-      .put("http://10.0.2.2:8080/api/location/findHelper/distance", {
+      .put(`${BASE_URL}/api/location/findHelper/distance`, {
         latitude,
         longitude,
       })
-      .then((res) => {
-        setDistanceHelper(res.data.content);
-        const rating = res.data.content.concat();
+      .then(({ data }) => {
+        console.log(data);
+        setDistanceHelper(data);
+        const rating = data.concat();
         rating.sort(function (a, b) {
+          //평점 순 정렬
           return b.rating - a.rating;
         });
         setRatingHelper(rating);
-        const response = res.data.content.concat();
+        const response = data.concat(); //응답시간 순 정렬
         response.sort(function (a, b) {
           return a.avgReactTime - b.avgReactTime;
         });
@@ -147,25 +137,16 @@ const Main = ({ navigation: { navigate } }) => {
   client.onConnect = function (frame) {
     console.log("연결됨");
     axios
-      .get("http://10.0.2.2:8080/api/conversations")
+      .get(`${BASE_URL}/api/conversations`)
       .then((res) => {
         setChatRoomList(res.data); // a1일 경우 a1의 채팅리스트를 저장함
         console.log("채팅목록", res.data);
         res.data.map((id) =>
           client.subscribe(`/topic/chat/${id._id}`, function (message) {
-            console.log("채팅 목록에서 들어간 메시지", message.body);
-            axios.get("http://10.0.2.2:8080/api/conversations").then((res) => {
+            //console.log("채팅 목록에서 들어간 메시지", message.body);
+            axios.get(`${BASE_URL}/api/conversations`).then((res) => {
               setChatRoomList(res.data);
             });
-            axios
-              .post(
-                `http://10.0.2.2:8080/api/fcm/` +
-                  String(message.headers.destination).split("/")[3]
-              )
-              .then((res) => {
-                console.log("fcm 2", res.data);
-              })
-              .catch((error) => console.log(error));
           })
         );
       })
@@ -177,7 +158,6 @@ const Main = ({ navigation: { navigate } }) => {
         console.log("로그인 웹소켓");
         if (JSON.parse(message.body).messageType === "OpenChat") {
           console.log("오픈챗");
-          console.log(message.body);
 
           const chatId = JSON.parse(message.body).data[
             JSON.parse(message.body).data.length - 1
@@ -185,18 +165,10 @@ const Main = ({ navigation: { navigate } }) => {
           const sub = client.subscribe(
             `/topic/chat/${chatId}`,
             function (message) {
-              console.log("요청해서 들어간 채팅방 메시지", message.body);
-              axios
-                .get("http://10.0.2.2:8080/api/conversations")
-                .then((res) => {
-                  setChatRoomList(res.data);
-                });
-              axios
-                .post(`http://10.0.2.2:8080/api/fcm/${chatId}`)
-                .then((res) => {
-                  console.log("fcm 2", res.data);
-                })
-                .catch((error) => console.log(error));
+              //console.log("요청해서 들어간 채팅방 메시지", message.body);
+              axios.get(`${BASE_URL}/api/conversations`).then((res) => {
+                setChatRoomList(res.data);
+              });
             }
           );
         }
@@ -210,7 +182,9 @@ const Main = ({ navigation: { navigate } }) => {
   };
 
   useEffect(() => {
+    getToken();
     getLocation();
+    client.connectHeaders.Authorization = `${grant}` + " " + `${access}`;
     client.activate();
   }, []);
   return (
@@ -221,56 +195,7 @@ const Main = ({ navigation: { navigate } }) => {
         </Loader>
       ) : (
         <View style={{ flex: 16, position: "relative", width: SCREEN_WIDTH }}>
-          <MapView
-            onRegionChangeComplete={onRegionChange}
-            style={{ width: "100%", flex: 1 }}
-            region={{
-              latitude: location.latitude,
-              longitude: location.longitude,
-              latitudeDelta: 0.005,
-              longitudeDelta: 0.005,
-            }}
-            showsUserLocation={true}
-            provider={PROVIDER_GOOGLE}
-          >
-            <Marker
-              coordinate={{
-                latitude: location.latitude,
-                longitude: location.longitude,
-              }}
-            />
-            {distanceHelper
-              ? distanceHelper.map((location) => (
-                  <Marker
-                    onPress={() =>
-                      navigate("HelperProfile", {
-                        name: location.name,
-                        introduce: location.introduce,
-                        rating: location.rating,
-                        id: location.id,
-                        image: location.image,
-                      })
-                    }
-                    key={location.id}
-                    coordinate={{
-                      latitude: location.latitude,
-                      longitude: location.longitude,
-                    }}
-                  >
-                    <Image
-                      source={
-                        location.image
-                          ? {
-                              uri: `data:image/png;base64,${location.image}`,
-                            }
-                          : require("../images/profile.jpg")
-                      }
-                      style={{ height: 35, width: 35, borderRadius: 20 }}
-                    />
-                  </Marker>
-                ))
-              : null}
-          </MapView>
+          <Map location={location} distanceHelper={distanceHelper} />
           <Order
             setOrderVisible={setOrderVisible}
             orderVisible={orderVisible}

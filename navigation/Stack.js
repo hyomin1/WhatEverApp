@@ -13,6 +13,8 @@ import { useRecoilValue } from "recoil";
 import { receiverNameData } from "../atom";
 import HelperLocation from "../components/HelperLocation";
 import History from "../components/History";
+import AdminLogin from "../login/AdminLogin";
+import AdminView from "../components/AdminView";
 
 const NativeStack = createNativeStackNavigator();
 
@@ -96,6 +98,8 @@ const Stack = ({ navigation }) => {
       />
       <NativeStack.Screen name="HelperLocation" component={HelperLocation} />
       <NativeStack.Screen name="StackHistory" component={History} />
+      <NativeStack.Screen name="AdminLogin" component={AdminLogin} />
+      <NativeStack.Screen name="AdminView" component={AdminView} />
     </NativeStack.Navigator>
   );
 };

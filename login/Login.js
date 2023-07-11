@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { View, Alert } from "react-native";
+import { View, Alert, Text } from "react-native";
 import styled from "styled-components/native";
 
 import { accessData, grantData, myIdData } from "../atom";
-import { useSetRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { useNavigation } from "@react-navigation/native";
-import { apiClient } from "../api";
+import { apiClient, BASE_URL } from "../api";
 import axios from "axios";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -85,7 +85,7 @@ function Login({ navigation: { navigate } }) {
 
   const sendLogin = async () => {
     axios
-      .post("http://10.0.2.2:8080/login", {
+      .post(`${BASE_URL}/login`, {
         userId: id,
         password: password,
       })
@@ -106,6 +106,7 @@ function Login({ navigation: { navigate } }) {
 
         Alert.alert("로그인 완료");
         console.log("로그인 성공");
+
         goMain();
       });
   };
@@ -117,6 +118,27 @@ function Login({ navigation: { navigate } }) {
     } else {
       sendLogin();
     }
+  };
+  const onPressAdmin = () => {
+    axios
+      .post(`${BASE_URL}/loginAdmin`, {
+        userId: id,
+        password: password,
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          axios.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${res.data.accessToken}`;
+          apiClient.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${res.data.accessToken}`;
+        }
+        navigate("AdminView");
+      })
+      .catch((error) => {
+        Alert.alert("관리자가 아닙니다.");
+      });
   };
 
   return (
@@ -137,6 +159,9 @@ function Login({ navigation: { navigate } }) {
         <Button onPress={onPressLogin}>
           <LoginText>로그인</LoginText>
         </Button>
+        <JoinBtn onPress={onPressAdmin}>
+          <Text style={{ color: "white" }}>관리자 로그인</Text>
+        </JoinBtn>
         <Line />
         <JoinBtn>
           <JoinText onPress={() => navigate("Join")}>회원가입</JoinText>

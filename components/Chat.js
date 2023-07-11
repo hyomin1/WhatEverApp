@@ -51,6 +51,7 @@ const Chat = ({ navigation }) => {
           }}
         >
           <ProfileImg>
+            {/**사진 데이터 어디서? */}
             <Text>사진</Text>
           </ProfileImg>
           <ProfileName>
