@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Dimensions, ActivityIndicator, Text, Modal } from "react-native";
+import { View, Dimensions, ActivityIndicator, Text } from "react-native";
 import * as Location from "expo-location";
 import styled from "styled-components/native";
 import axios from "axios";
@@ -14,49 +14,20 @@ import {
   chatRoomListData,
   helperLocationData,
 } from "../atom";
-import { MaterialIcons, AntDesign, Entypo } from "@expo/vector-icons";
-import Order from "./Order";
+import { MaterialIcons } from "@expo/vector-icons";
+import Order from "../components/Order";
 import { client } from "../client";
-import Postcode from "@actbase/react-daum-postcode";
 import messaging from "@react-native-firebase/messaging";
 import { BASE_URL } from "../api";
 import Map from "./Map";
+import RequestBtn from "./RequestBtn";
+import SearchBar from "./SearchBar";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
   flex: 1;
   justify-content: center;
   align-items: center;
-`;
-const SearchContaienr = styled.View`
-  position: absolute;
-  width: 70%;
-  left: 50%;
-  top: 2%;
-`;
-const SearchInput = styled.Pressable`
-  height: 40px;
-  background-color: white;
-  opacity: 0.8;
-  border-radius: 20px;
-  padding: 0px 20px;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-`;
-const BtnContainer = styled.View`
-  position: absolute;
-  width: 50%;
-  bottom: 4%;
-  left: 50%;
-`;
-const Button = styled.Pressable`
-  padding: 0 15px;
-  height: 45px;
-  border-radius: 20px;
-  align-items: center;
-  justify-content: center;
-  background-color: black;
 `;
 const HelperView = styled.Pressable`
   flex-direction: row;
@@ -84,8 +55,6 @@ const Main = ({ navigation: { navigate } }) => {
   const [orderVisible, setOrderVisible] = useState(false);
   const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
 
-  const [searchAddress, setSearchAddress] = useState(false);
-
   const setHelperLocation = useSetRecoilState(helperLocationData);
   const getToken = async () => {
     const token = await messaging().getToken();
@@ -106,20 +75,20 @@ const Main = ({ navigation: { navigate } }) => {
     const {
       coords: { latitude, longitude },
     } = await Location.getCurrentPositionAsync({ accuracy: 5 });
-    axios
+    axios //서버에서 헬퍼 정보 받아오기
       .put(`${BASE_URL}/api/location/findHelper/distance`, {
         latitude,
         longitude,
       })
       .then(({ data }) => {
-        console.log(data);
-        setDistanceHelper(data);
-        const rating = data.concat();
+        setDistanceHelper(data); //거리순 데이터
+
+        const rating = data.concat(); //평점 순 정렬
         rating.sort(function (a, b) {
-          //평점 순 정렬
           return b.rating - a.rating;
         });
         setRatingHelper(rating);
+
         const response = data.concat(); //응답시간 순 정렬
         response.sort(function (a, b) {
           return a.avgReactTime - b.avgReactTime;
@@ -140,7 +109,7 @@ const Main = ({ navigation: { navigate } }) => {
       .get(`${BASE_URL}/api/conversations`)
       .then((res) => {
         setChatRoomList(res.data); // a1일 경우 a1의 채팅리스트를 저장함
-        console.log("채팅목록", res.data);
+        //console.log("채팅목록", res.data);
         res.data.map((id) =>
           client.subscribe(`/topic/chat/${id._id}`, function (message) {
             //console.log("채팅 목록에서 들어간 메시지", message.body);
@@ -195,7 +164,16 @@ const Main = ({ navigation: { navigate } }) => {
         </Loader>
       ) : (
         <View style={{ flex: 16, position: "relative", width: SCREEN_WIDTH }}>
-          <Map location={location} distanceHelper={distanceHelper} />
+          <Map
+            location={location}
+            distanceHelper={distanceHelper}
+            navigate={navigate}
+          />
+          <SearchBar />
+          <RequestBtn
+            setOrderVisible={setOrderVisible}
+            orderVisible={orderVisible}
+          />
           <Order
             setOrderVisible={setOrderVisible}
             orderVisible={orderVisible}
@@ -204,52 +182,8 @@ const Main = ({ navigation: { navigate } }) => {
             alertText="심부름 요청이 등록되었습니다."
             divide="0"
           />
-
-          <SearchContaienr style={{ marginLeft: -SCREEN_WIDTH / 3 }}>
-            {/* 주소 검색이후 이동 + 서버 요청 코드 추가 */}
-            <SearchInput onPress={() => setSearchAddress(!searchAddress)}>
-              <Text style={{ opacity: 0.6 }}>주소 검색</Text>
-              <Entypo name="magnifying-glass" size={22} color="gray" />
-            </SearchInput>
-            <Modal animationType="slide" visible={searchAddress}>
-              <Postcode
-                style={{ flex: 1, height: 250, marginBottom: 40 }}
-                jsOptions={{ animation: true }}
-                onSelected={async (data) => {
-                  const location = await Location.geocodeAsync(data.query);
-                  //setSearchLatitude(location[0].latitude);
-                  //setSearchLongitude(location[0].longitude);
-                  setSearchAddress(!searchAddress);
-                }}
-              />
-            </Modal>
-          </SearchContaienr>
-          <BtnContainer style={{ marginLeft: -SCREEN_WIDTH / 4 }}>
-            <Button onPress={() => setOrderVisible(!orderVisible)}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <AntDesign
-                  name="shoppingcart"
-                  size={24}
-                  color="#0fbcf9"
-                  style={{ marginRight: 5 }}
-                />
-                <Text
-                  style={{ color: "#0fbcf9", fontWeight: "800", fontSize: 15 }}
-                >
-                  심부름 요청하기
-                </Text>
-              </View>
-            </Button>
-          </BtnContainer>
         </View>
       )}
-
       <HelperView onPress={() => navigate("HelperList")}>
         <Text style={{ fontWeight: "600" }}>주변 헬퍼 보기</Text>
         <MaterialIcons name="keyboard-arrow-up" size={24} color="black" />

@@ -1,12 +1,4 @@
-import {
-  Text,
-  View,
-  Dimensions,
-  Modal,
-  Pressable,
-  ScrollView,
-  Alert,
-} from "react-native";
+import { Text, View, Modal, ScrollView, Alert } from "react-native";
 import styled from "styled-components/native";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
@@ -33,13 +25,14 @@ const Container = styled.View`
   flex: 1;
   background-color: white;
   width: 100%;
-  padding: 0px 10px;
+  //padding: 0px 10px;
 `;
 const TitleBar = styled.View`
   flex-direction: row;
   justify-content: space-between;
   margin-top: 10px;
   background-color: white;
+  padding: 0px 10px;
 `;
 const Title = styled.Text`
   font-weight: 600;
@@ -74,8 +67,8 @@ const AddPhoto = styled.Pressable`
 `;
 const Line = styled.View`
   border-bottom-color: gray;
-  border-bottom-width: 0.5px;
-  margin: 10px 0;
+  border-bottom-width: 0.8px;
+  margin-bottom: 20px;
 `;
 const FixView = styled.View`
   flex: 2;
@@ -94,7 +87,7 @@ const Input = styled.TextInput`
   border-width: 1px;
   padding: 10px;
   margin: 10px 20px;
-  border-radius: 10px;
+  border-radius: 5px;
 `;
 const IntroduceInput = styled.TextInput`
   height: 160px;
@@ -110,7 +103,7 @@ const Button = styled.Pressable`
   margin: 5px 0;
   align-items: center;
   justify-content: center;
-  background-color: black;
+  background-color: #2196f3;
 `;
 const CheckBtn = styled.Pressable`
   padding: 0 15px;
@@ -119,10 +112,15 @@ const CheckBtn = styled.Pressable`
   border-radius: 10px;
   align-items: center;
   justify-content: center;
-  background-color: black;
+  background-color: #2196f3;
+`;
+const BlankBox = styled.View`
+  background-color: #dcdde1;
+  width: 100%;
+  height: 6px;
 `;
 
-const Fix = ({ modalVisible, setModalVisible }) => {
+const Fix = ({ modalVisible, setModalVisible, myImg }) => {
   const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions(); //권한 요청을 위한 hooks
   const [img, setImg] = useRecoilState(imgData);
 
@@ -138,7 +136,7 @@ const Fix = ({ modalVisible, setModalVisible }) => {
   const [changePw, setChangePw] = useState(); //비밀번호 수정용1
   const [changePw2, setChangePw2] = useState(); //비밀번호 수정용2
   const setMyImg = useSetRecoilState(myImgData);
-  const [ok, setOk] = useState(false);
+  //const [ok, setOk] = useState(false);
 
   const pickImage = async () => {
     if (!status.granted) {
@@ -189,7 +187,7 @@ const Fix = ({ modalVisible, setModalVisible }) => {
     setChangePw2(payload);
   };
   const changePassword = () => {
-    if (changePw === changePw2) {
+    if (changePw === changePw2 && changePw !== "" && changePw2 !== "") {
       Alert.alert("비밀번호 변경 완료");
       setPw(changePw);
       setChangePw("");
@@ -249,10 +247,15 @@ const Fix = ({ modalVisible, setModalVisible }) => {
               <Title>프로필 수정</Title>
               <View style={{ flex: 1, backgroundColor: "white" }}></View>
             </TitleBar>
+            <Line />
             <MainBar>
               <ImgView>
                 <ProfileImg
-                  source={img ? { uri: img } : require("../images/profile.jpg")}
+                  source={
+                    myImg
+                      ? { uri: `data:image/png;base64,${myImg}` }
+                      : require("../images/profile.jpg")
+                  }
                 />
                 <View style={{ position: "relative" }}>
                   <AddPhoto onPress={pickImage}>
@@ -260,7 +263,7 @@ const Fix = ({ modalVisible, setModalVisible }) => {
                   </AddPhoto>
                 </View>
               </ImgView>
-              <Line />
+              <BlankBox></BlankBox>
               <FixView>
                 <InputView>
                   <Inform>이름</Inform>
@@ -312,13 +315,19 @@ const Fix = ({ modalVisible, setModalVisible }) => {
                     </CheckBtn>
                   </View>
                 </InputView>
-                <Button onPress={onPressBtn}>
-                  <Text
-                    style={{ color: "white", fontWeight: "600", fontSize: 15 }}
-                  >
-                    완료
-                  </Text>
-                </Button>
+                <View style={{ paddingHorizontal: 30 }}>
+                  <Button onPress={onPressBtn}>
+                    <Text
+                      style={{
+                        color: "white",
+                        fontWeight: "600",
+                        fontSize: 15,
+                      }}
+                    >
+                      완료
+                    </Text>
+                  </Button>
+                </View>
               </FixView>
             </MainBar>
           </Container>

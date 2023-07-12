@@ -130,7 +130,7 @@ const Order = ({
     } else {
       //심부름 수정 (수정한 데이터 어떻게 유지?)
 
-      console.log("수저완료");
+      console.log("수정 완료");
       setOrderVisible(!orderVisible);
       const copiedWorkList = [...workList];
       console.log("wl", workList);

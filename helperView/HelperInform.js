@@ -3,8 +3,9 @@ import { useNavigation } from "@react-navigation/native";
 import styled from "styled-components/native";
 
 const Name = styled.Text`
-  font-weight: 600;
+  font-weight: 800;
   margin-bottom: 5px;
+  font-size: 17px;
 `;
 const Distance = styled.Text`
   color: rgba(0, 0, 0, 0.6);
@@ -15,13 +16,16 @@ const Rating = styled.Text`
 `;
 const Response = styled.Text`
   margin-bottom: 20px;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 13px;
 `;
 const HelperInformation = styled.Pressable`
   margin-top: 15px;
   flex-direction: row;
   flex: 1;
-  border-bottom-color: black;
-  border-bottom-width: 0.5px;
+  background-color: white;
+  border-radius: 20px;
+  // padding: 0px 10px;
 `;
 
 const HelperInform = ({ data }) => {
@@ -56,11 +60,15 @@ const HelperInform = ({ data }) => {
           style={{ height: 90, width: 90, borderRadius: 50 }}
         />
       </View>
-      <View style={{ flex: 2 }}>
+      <View style={{ flex: 2, paddingTop: 10 }}>
         <Name>{data.name}</Name>
         <Distance>{data.distance.toFixed(2)}m</Distance>
         <Rating>⭐ {data.rating ? data.rating.toFixed(1) : 0}/5</Rating>
-        <Response>응답시간 {data.avgReactTime}초</Response>
+        {data.avgReactTime ? (
+          <Response>응답시간 {data.avgReactTime}초</Response>
+        ) : (
+          <Response>응답시간 알 수 없음</Response>
+        )}
       </View>
     </HelperInformation>
   );

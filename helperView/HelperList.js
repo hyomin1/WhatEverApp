@@ -12,14 +12,13 @@ const TitleBar = styled.View`
   flex-direction: row;
   justify-content: space-between;
   margin-top: 10px;
-  background-color: white;
 `;
 
 const MainBar = styled.View`
   flex: 1;
 `;
 const ChooseText = styled.Text`
-  font-size: 12px;
+  font-size: 13px;
   margin-right: 5px;
   font-weight: 500;
 `;
@@ -34,8 +33,8 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
   const [isResponse, setIsResponse] = useState(false);
 
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView style={{ backgroundColor: "white" }}>
+    <View style={{ flex: 1, backgroundColor: "#dcdde1" }}>
+      <ScrollView>
         <Container>
           <TitleBar>
             <View style={{ flex: 1, paddingHorizontal: 10 }}></View>
@@ -88,7 +87,7 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
           </TitleBar>
 
           <MainBar>
-            <View style={{ flex: 2 }}>
+            <View style={{ flex: 2, paddingHorizontal: 10 }}>
               {distanceData && isDistance
                 ? distanceData.map((data) => (
                     <HelperInform key={data.id} data={data} />

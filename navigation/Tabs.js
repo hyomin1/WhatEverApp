@@ -1,5 +1,5 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Main from "../components/Main";
+import Main from "../mainView/Main";
 import History from "../components/History";
 import Chat from "../components/Chat";
 

@@ -1,7 +1,7 @@
 import { View, Text, TextInput, Pressable, Modal } from "react-native";
 import styled from "styled-components/native";
 import { useState } from "react";
-import Fix from "./Fix";
+import ProfileFix from "./ProfileFix";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import {
   IntroduceData,
@@ -27,17 +27,16 @@ const MyProfile = styled.View`
   margin: 20px 15px;
 `;
 const ProfileImg = styled.Image`
-  width: 100px;
-  height: 100px;
-  border-radius: 50px;
+  width: 80px;
+  height: 80px;
+  border-radius: 40px;
   margin-right: 20px;
 `;
 const Name = styled.Text`
   margin-bottom: 5px;
-  font-size: 20px;
+  font-size: 23px;
   font-weight: 800;
 `;
-
 const ProfileBtn = styled.Pressable`
   padding: 0 15px;
   height: 40px;
@@ -55,15 +54,18 @@ const ProfileText = styled.Text`
 const Line = styled.View`
   border-bottom-color: gray;
   border-bottom-width: 0.5px;
-  margin: 10px 0;
+  margin-top: 10px;
 `;
 const ContentBox = styled.View`
   flex-direction: row;
   justify-content: space-between;
-  margin: 30px 20px;
+  margin: 20px 20px;
+`;
+const CountBox = styled.View`
+  padding: 0 20px;
 `;
 const ContentText = styled.Text`
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
 `;
 const Count = styled.View`
@@ -73,11 +75,22 @@ const Count = styled.View`
   justify-content: space-between;
   align-items: center;
   height: 50px;
-  border: 1px solid rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(0, 0, 0, 0.5);
+`;
+const Count1 = styled(Count)`
+  border-radius: 10px;
+`;
+const Count2 = styled(Count)`
+  border-radius: 10px;
 `;
 const CountText = styled.Text`
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 800;
+`;
+const BlankBox = styled.View`
+  background-color: #dcdde1;
+  width: 100%;
+  height: 6px;
 `;
 
 const Profile = () => {
@@ -91,7 +104,7 @@ const Profile = () => {
   const rating = useRecoilValue(ratingData);
   const setHelperLocation = useSetRecoilState(helperLocationData);
 
-  const goFix = () => {
+  const goProfileFix = () => {
     setModalVisible(!modalVisible);
   };
 
@@ -113,8 +126,13 @@ const Profile = () => {
             {rating ? <Text>⭐ {rating.toFixed(1)}/5</Text> : <Text>⭐</Text>}
           </View>
         </MyProfile>
-        <Fix setModalVisible={setModalVisible} modalVisible={modalVisible} />
-        <ProfileBtn onPress={goFix}>
+        {/**프로필 수정 UI*/}
+        <ProfileFix
+          setModalVisible={setModalVisible}
+          modalVisible={modalVisible}
+          myImg={myImg}
+        />
+        <ProfileBtn onPress={goProfileFix}>
           <ProfileText>회원정보 수정</ProfileText>
         </ProfileBtn>
         <Line />
@@ -124,28 +142,33 @@ const Profile = () => {
           <ContentText>자기소개</ContentText>
         </ContentBox>
         <View style={{ paddingHorizontal: 20 }}>
-          <Text style={{ fontSize: 16, fontWeight: "600" }}>{introduce}</Text>
+          <Text style={{ fontSize: 16, fontWeight: "400" }}>{introduce}</Text>
         </View>
       </Box>
+      <BlankBox></BlankBox>
       <Box>
         <ContentBox>
           <ContentText>요청정보</ContentText>
         </ContentBox>
-        <View style={{ paddingHorizontal: 20 }}>
-          <Count>
+        <CountBox>
+          <Count1>
             <CountText>총 심부름수</CountText>
             <Text>0</Text>
-          </Count>
-          <Count>
+          </Count1>
+          <Count2>
             <CountText>요청한 심부름 수</CountText>
             <Text>0</Text>
-          </Count>
-        </View>
+          </Count2>
+        </CountBox>
       </Box>
+      <BlankBox></BlankBox>
       <Box>
-        <Pressable onPress={() => setRegisterVisible(!registerVisible)}>
-          <Text>내 위치 등록하기</Text>
-        </Pressable>
+        <ContentBox>
+          <ContentText>헬퍼 등록</ContentText>
+        </ContentBox>
+        <ProfileBtn onPress={() => setRegisterVisible(!registerVisible)}>
+          <ProfileText>내 위치 등록하기</ProfileText>
+        </ProfileBtn>
         {/**관리자면 신고내역 보는 코드  */}
         <Modal animationType="slide" visible={registerVisible}>
           <Postcode

@@ -1,20 +1,20 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import Profile from "../components/Profile";
+import Profile from "../profile/Profile";
 import Join from "../login/Join";
 import Login from "../login/Login";
 import Tabs from "./Tabs";
-import Fix from "../components/Fix";
-import HelperProfile from "../components/HelperProfile";
-import HelperList from "../components/HelperList";
+import Fix from "../profile/ProfileFix";
+import HelperProfile from "../helperView/HelperProfile";
+import HelperList from "../helperView/HelperList";
 import Chatting from "../components/Chatting";
 import Chat from "../components/Chat";
-import { Ionicons } from "@expo/vector-icons";
 import { useRecoilValue } from "recoil";
 import { receiverNameData } from "../atom";
-import HelperLocation from "../components/HelperLocation";
+import HelperLocation from "../helperView/HelperLocation";
 import History from "../components/History";
 import AdminLogin from "../login/AdminLogin";
 import AdminView from "../components/AdminView";
+import Map from "../mainView/Map";
 
 const NativeStack = createNativeStackNavigator();
 
@@ -71,6 +71,7 @@ const Stack = ({ navigation }) => {
           },
         }}
       />
+      <NativeStack.Screen name="Map" component={Map} />
       <NativeStack.Screen
         name="HelperProfile"
         component={HelperProfile}

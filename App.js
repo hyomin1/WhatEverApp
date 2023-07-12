@@ -9,6 +9,8 @@ import { useEffect } from "react";
 import { Alert } from "react-native";
 import axios from "axios";
 import { fcmTokenData } from "./atom";
+import { createGlobalStyle } from "styled-components/native";
+import { View } from "react-native";
 
 export default function App() {
   const queryClient = new QueryClient();
@@ -21,6 +23,7 @@ export default function App() {
     //background
     console.log("Message handled in the background!", remoteMessage); //remoteMessage.body , remoteMessage.title
   });
+
   useEffect(() => {
     //getToken();
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {

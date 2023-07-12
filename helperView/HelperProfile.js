@@ -14,7 +14,8 @@ import { useState } from "react";
 import { client } from "../client";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialIcons, Entypo } from "@expo/vector-icons";
-import Order from "./Order";
+import Order from "../components/Order";
+import { BASE_URL } from "../api";
 
 const Container = styled.View`
   flex: 1;
@@ -25,15 +26,14 @@ const Box = styled.View`
 `;
 const MyProfile = styled.View`
   flex-direction: row;
-  border-bottom-color: black;
-  border-bottom-width: 0.5px;
+
   padding: 20px 20px;
 `;
 const ProfileImg = styled.Image`
-  width: 100px;
-  height: 100px;
-  border-radius: 50px;
-  margin-right: 20px;
+  width: 80px;
+  height: 80px;
+  border-radius: 40px;
+  margin-right: 25px;
 `;
 const Name = styled.Text`
   margin-bottom: 5px;
@@ -66,15 +66,20 @@ const Count = styled.View`
   justify-content: space-between;
   align-items: center;
   height: 50px;
-  border: 1px solid rgba(0, 0, 0, 0.7);
+  border: 2px solid rgba(0, 0, 0, 0.7);
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
 `;
+const BlankBox = styled.View`
+  background-color: #dcdde1;
+  width: 100%;
+  height: 6px;
+`;
 const CountText = styled.Text`
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 800;
 `;
 const Button = styled.Pressable`
   padding: 0 15px;
@@ -142,9 +147,8 @@ const HelperProfile = ({ route }) => {
   };
   const onPressBtn = async () => {
     //심부름 목록 보기
-    axios.get("http://10.0.2.2:8080/api/workList").then((res) => {
-      console.log("worklist", res.data);
-      setWorkList(res.data);
+    axios.get(`${BASE_URL}/api/workList`).then(({ data }) => {
+      setWorkList(data);
     });
     console.log("내 심부름 목록", workList);
     setWorkListVisible(!workListVisible);
@@ -152,18 +156,17 @@ const HelperProfile = ({ route }) => {
 
   const onPressOrderBtn = async () => {
     //심부름 목록 본 후 선택해서 신청
-
     axios
-      .post(`http://10.0.2.2:8080/api/conversation/${route.params.id}`, {
+      .post(`${BASE_URL}/api/conversation/${route.params.id}`, {
         id: selectWork.id,
       })
-      .then((res) => {
-        console.log("workid", res.data);
-        setConversation(res.data);
-        setChatRoomList([...chatRoomList, res.data]); //채팅방 목록 보여주기 위함
-        setChatList(res.data);
+      .then(({ data }) => {
+        console.log("workid", data);
+        setConversation(data);
+        setChatRoomList([...chatRoomList, data]); //채팅방 목록 보여주기 위함
+        setChatList(data);
         client.publish({
-          destination: `/pub/work/${res.data._id}`,
+          destination: `/pub/work/${data._id}`,
           body: JSON.stringify(selectWork),
         });
         console.log("선택한 심부름", selectWork);
@@ -192,6 +195,7 @@ const HelperProfile = ({ route }) => {
             )}
           </View>
         </MyProfile>
+        <BlankBox></BlankBox>
         <ContentWrapper>
           <ContentBox>
             <ContentText>헬퍼소개</ContentText>
@@ -202,6 +206,7 @@ const HelperProfile = ({ route }) => {
             </Text>
           </View>
         </ContentWrapper>
+        <BlankBox></BlankBox>
 
         <ContentBox>
           <ContentText>요청정보</ContentText>
@@ -217,6 +222,7 @@ const HelperProfile = ({ route }) => {
             <Text>0</Text>
           </Count>
         </CountWrapper>
+
         <View style={{ justifyContent: "center", alignItems: "center" }}>
           <Button onPress={onPressBtn}>
             <Text style={{ color: "white", fontWeight: "600", fontSize: 15 }}>
