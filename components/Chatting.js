@@ -57,7 +57,7 @@ const ChatWrapper = styled.View`
   margin-bottom: 10px;
 `;
 const ChatWrapper2 = styled.View`
-  background-color: #2196f3;
+  background-color: white;
   border-radius: 20px;
   justify-content: center;
   align-items: center;
@@ -77,27 +77,27 @@ const ChatText = styled.Text`
   font-size: 17px;
 `;
 const WorkWrapper = styled.View`
-  background-color: #0fbcf9;
+  background-color: white;
   border-radius: 15px;
   justify-content: center;
   align-items: center;
-  width: 200px;
+  width: 250px;
   height: 300px;
   //padding: 10px 0px;
   margin-bottom: 10px;
 `;
 const WorkTitleWrapper = styled.View`
-  background-color: #2196f3;
+  background-color: #0fbcf9;
   width: 100%;
-  height: 10px;
   flex: 1;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
 `;
 const WorkTitle = styled.Text`
-  font-size: 20px;
+  margin-left: 10px;
+  font-size: 14px;
   font-weight: 800;
 `;
 const WorkBtn = styled.Pressable`
@@ -123,19 +123,33 @@ const WorkAcceptText = styled.Text`
   font-size: 19px;
 `;
 const CardWrapper = styled.View`
-  background-color: #2196f3;
+  flex: 1;
+  background-color: white;
   border-radius: 15px;
-  justify-content: center;
   align-items: center;
-  width: 200px;
+  justify-content: space-between;
+  width: 250px;
   height: 300px;
-  //padding: 10px 0px;
   margin-bottom: 10px;
 `;
-const CardText = styled.Text`
+const CardTitle = styled.Text`
   color: black;
   font-weight: 600;
-  font-size: 15px;
+  font-size: 18px;
+  background-color: #0fbcf9;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  width: 250px;
+  height: 90px;
+  padding-left: 10px;
+  padding-top: 20px;
+`;
+const CardText = styled.Text`
+  background-color: lightgray;
+  width: 180px;
+  text-align: center;
+  height: 40px;
+  border-radius: 10px;
 `;
 const Chatting = () => {
   const [textInput, setTextInput] = useState();
@@ -166,7 +180,6 @@ const Chatting = () => {
   };
 
   const sendMsg = () => {
-    console.log("보낼챗", chatList);
     if (textInput === "") {
       Alert.alert("내용을 입력해주세요");
     } else {
@@ -287,7 +300,7 @@ const Chatting = () => {
 
   console.log(myId);
   return (
-    <View style={{ flex: 1, backgroundColor: "white" }}>
+    <View style={{ flex: 1, backgroundColor: "lightgray" }}>
       <View style={{ flex: 20 }}>
         <ScrollView>
           <ChatView>
@@ -307,7 +320,12 @@ const Chatting = () => {
                         <WorkTitleWrapper>
                           <WorkTitle>심부름 요청서</WorkTitle>
                         </WorkTitleWrapper>
-                        <View style={{ flex: 5, paddingTop: 10 }}>
+                        <View
+                          style={{
+                            flex: 5,
+                            paddingTop: 10,
+                          }}
+                        >
                           <WorkText>
                             제목 : {JSON.parse(data.message).title}
                           </WorkText>
@@ -355,14 +373,30 @@ const Chatting = () => {
                     </View>
                   ) : data.messageType === "Card" ? (
                     <CardWrapper key={index}>
-                      <CardText>{data.message}</CardText>
+                      <CardTitle>심부름 수락했어요</CardTitle>
                       {myId === chatList.participantId ? (
-                        <Pressable onPress={onPressWorkComplete}>
-                          <Text>일 완료하기</Text>
+                        <Pressable
+                          style={{
+                            flex: 1,
+                            justifyContent: "flex-end",
+                            marginBottom: 10,
+                            backgroundColor: "lightgray",
+                          }}
+                          onPress={onPressWorkComplete}
+                        >
+                          <CardText>일 완료하기</CardText>
                         </Pressable>
                       ) : (
-                        <Pressable onPress={onPressView}>
-                          <Text>진행상황</Text>
+                        <Pressable
+                          style={{
+                            flex: 1,
+                            justifyContent: "flex-end",
+                            marginBottom: 10,
+                            backgroundColor: "lightgray",
+                          }}
+                          onPress={onPressView}
+                        >
+                          <CardText>진행상황 보기</CardText>
                         </Pressable>
                       )}
                     </CardWrapper>

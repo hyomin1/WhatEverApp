@@ -104,7 +104,7 @@ const Main = ({ navigation: { navigate } }) => {
   };
 
   client.onConnect = function (frame) {
-    console.log("연결됨");
+    //console.log("연결됨");
     axios
       .get(`${BASE_URL}/api/conversations`)
       .then((res) => {
@@ -124,9 +124,9 @@ const Main = ({ navigation: { navigate } }) => {
     const subscription = client.subscribe(
       `/queue/${myId}`,
       function (message) {
-        console.log("로그인 웹소켓");
+        //console.log("로그인 웹소켓");
         if (JSON.parse(message.body).messageType === "OpenChat") {
-          console.log("오픈챗");
+          //console.log("오픈챗");
 
           const chatId = JSON.parse(message.body).data[
             JSON.parse(message.body).data.length - 1

@@ -1,4 +1,4 @@
-import { View, Text, Modal, ScrollView, Pressable } from "react-native";
+import { View, Text, Modal, ScrollView, Pressable, Alert } from "react-native";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components/native";
 import {
@@ -54,7 +54,7 @@ const ContentText = styled.Text`
   font-weight: 600;
 `;
 const CountWrapper = styled.View`
-  padding: 0px 20px;
+  padding: 10px 20px;
   width: 100%;
   justify-content: center;
   align-items: center;
@@ -71,6 +71,7 @@ const Count = styled.View`
   border-top-right-radius: 10px;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
+  margin-bottom: 5px;
 `;
 const BlankBox = styled.View`
   background-color: #dcdde1;
@@ -92,9 +93,10 @@ const Button = styled.Pressable`
   width: 60%;
 `;
 const WorkListText = styled.Text`
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 800;
   margin-right: 10px;
+  margin-bottom: 5px;
 `;
 const TitleBar = styled.View`
   flex-direction: row;
@@ -116,17 +118,21 @@ const OrderButton = styled.Pressable`
   padding: 0 15px;
   height: 40px;
   border-radius: 10px;
-  margin: 5px 0px;
+  margin-top: 20px;
   align-items: center;
   justify-content: center;
   background-color: #2196f3;
   width: 100%;
 `;
+const ErrandList = styled.Pressable`
+  margin-top: 15px;
+  flex-direction: row;
+  border-radius: 20px;
+  border: 1px solid white;
+`;
 
 const HelperProfile = ({ route }) => {
   const img = useRecoilValue(imgData);
-
-  //const work = useRecoilValue(workData);
 
   const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
   const [chatList, setChatList] = useRecoilState(chatListData);
@@ -134,11 +140,13 @@ const HelperProfile = ({ route }) => {
 
   const [workList, setWorkList] = useRecoilState(workListData);
   const [workListVisible, setWorkListVisible] = useState(false);
-  const [selectWork, setSelectWork] = useState();
+  const [selectWork, setSelectWork] = useState(); //내가 선택한 일 정보
 
   const [orderVisible, setOrderVisible] = useState(false);
 
   const [indexValue, setIndexValue] = useRecoilState(indexData);
+
+  const [selectColor, setSelectColor] = useState(false);
 
   const navigation = useNavigation();
 
@@ -195,7 +203,7 @@ const HelperProfile = ({ route }) => {
             )}
           </View>
         </MyProfile>
-        <BlankBox></BlankBox>
+        <Line />
         <ContentWrapper>
           <ContentBox>
             <ContentText>헬퍼소개</ContentText>
@@ -248,12 +256,13 @@ const HelperProfile = ({ route }) => {
                   color="black"
                 />
               </View>
-
-              <Title>나의 심부름 목록</Title>
-
+              <View style={{ flex: 1 }}>
+                <Title>나의 심부름 목록</Title>
+              </View>
               <View style={{ flex: 1 }}></View>
             </TitleBar>
             <Line />
+
             <Order
               orderVisible={orderVisible}
               setOrderVisible={setOrderVisible}
@@ -261,50 +270,63 @@ const HelperProfile = ({ route }) => {
               btnText="수정 완료"
               alertText="심부름 수정이 완료되었습니다."
             />
-            <View style={{ flex: 10 }}>
+            <View
+              style={{
+                flex: 10,
+                backgroundColor: "#dcdde1",
+                paddingHorizontal: 15,
+              }}
+            >
               {workList.map((data, index) => (
-                <Pressable
+                <ErrandList
                   key={data.id}
                   style={{
                     flexDirection: "row",
-                    borderBottomWidth: 1,
-                    height: 100,
                     justifyContent: "center",
                     alignItems: "center",
                     paddingHorizontal: 30,
+                    paddingVertical: 10,
+                    backgroundColor:
+                      selectColor && workList[index] === data
+                        ? "gray"
+                        : "white",
                   }}
                   onPress={() => {
                     setSelectWork(data);
-                    console.log("선택");
+                    setSelectColor(!selectColor);
+                    console.log(workList.indexOf(data, 0));
+                    console.log("wd", index);
                   }}
                 >
-                  <WorkListText>제목 : {data.title} </WorkListText>
-                  <WorkListText>내용 : {data.context} </WorkListText>
-                  <WorkListText>
-                    마감시간 : {data.deadLineTime}시간
-                  </WorkListText>
+                  <View style={{ flex: 1 }}>
+                    <WorkListText>제목 : {data.title} </WorkListText>
+                    <WorkListText>내용 : {data.context} </WorkListText>
+                    <WorkListText>
+                      마감시간 : {data.deadLineTime}시간
+                    </WorkListText>
+                  </View>
+
                   <Entypo
                     name="pencil"
                     size={24}
                     color="black"
                     onPress={() => {
-                      // const copiedWorkList = [...workList];
-                      // copiedWorkList[index].title = "title";
-                      // setWorkList(copiedWorkList);
-                      console.log("수정", data);
+                      //console.log("수정", data);
                       setOrderVisible(!orderVisible);
-                      console.log(index);
+                      //console.log(index);
                       setIndexValue(index);
                     }}
                   />
-                </Pressable>
+                </ErrandList>
               ))}
+              <OrderButton onPress={onPressOrderBtn}>
+                <Text
+                  style={{ color: "white", fontWeight: "600", fontSize: 15 }}
+                >
+                  신청하기
+                </Text>
+              </OrderButton>
             </View>
-            <OrderButton onPress={onPressOrderBtn}>
-              <Text style={{ color: "white", fontWeight: "600", fontSize: 15 }}>
-                신청하기
-              </Text>
-            </OrderButton>
           </View>
         </Modal>
       </Box>

@@ -1,15 +1,10 @@
-import { useEffect } from "react";
 import { Text, View, Pressable, ScrollView } from "react-native";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components/native";
 import {
-  ConversationData,
   chatListData,
-  chatMsgData,
   chatRoomListData,
   conversationData,
-  nameData,
-  receiverNameData,
   myIdData,
 } from "../atom";
 
@@ -17,18 +12,31 @@ const ChatList = styled.Pressable`
   height: 80px;
   align-items: center;
   flex-direction: row;
-  border-bottom-width: 1px;
+
+  flex-direction: row;
+  flex: 1;
+  background-color: white;
 `;
 const ProfileImg = styled.View`
   flex: 1;
   justify-content: center;
   align-items: center;
 `;
-const ProfileName = styled.View`
+const ProfileView = styled.View`
   flex: 4;
-  justify-content: center;
-  align-items: flex-start;
+  height: 80px;
 `;
+const ProfileName = styled.View`
+  margin-top: 10px;
+`;
+
+const ProfileText = styled.Text`
+  font-size: 17px;
+`;
+const LastChat = styled.Text`
+  color: gray;
+`;
+
 const Chat = ({ navigation }) => {
   const [chatList, setChatList] = useRecoilState(chatListData);
   const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
@@ -40,7 +48,7 @@ const Chat = ({ navigation }) => {
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: "white" }}>
+    <ScrollView style={{ flex: 1, backgroundColor: "lightgray" }}>
       {chatRoomList.map((data, index) => (
         <ChatList
           key={index}
@@ -54,13 +62,16 @@ const Chat = ({ navigation }) => {
             {/**사진 데이터 어디서? */}
             <Text>사진</Text>
           </ProfileImg>
-          <ProfileName>
-            {myId === data.creatorId ? (
-              <Text>{data.participatorName}</Text>
-            ) : (
-              <Text>{data.creatorName}</Text>
-            )}
-          </ProfileName>
+          <ProfileView>
+            <ProfileName>
+              {myId === data.creatorId ? (
+                <ProfileText>{data.participatorName}</ProfileText>
+              ) : (
+                <ProfileText>{data.creatorName}</ProfileText>
+              )}
+            </ProfileName>
+            <LastChat>안녕하세요, 심부름 문의 입니다.</LastChat>
+          </ProfileView>
         </ChatList>
       ))}
     </ScrollView>

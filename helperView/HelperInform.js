@@ -25,7 +25,6 @@ const HelperInformation = styled.Pressable`
   flex: 1;
   background-color: white;
   border-radius: 20px;
-  // padding: 0px 10px;
 `;
 
 const HelperInform = ({ data }) => {

@@ -8,6 +8,7 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import Postcode from "@actbase/react-daum-postcode";
 import * as Location from "expo-location";
 import axios from "axios";
+import { BASE_URL } from "../api";
 
 const Container = styled.View`
   flex: 1;
@@ -15,13 +16,12 @@ const Container = styled.View`
 
 const TitleBar = styled.View`
   flex-direction: row;
-  justify-content: space-between;
   margin-top: 10px;
   background-color: white;
 `;
 const Title = styled.Text`
   font-weight: 600;
-  font-size: 16px;
+  font-size: 17px;
   margin-bottom: 10px;
 `;
 const Line = styled.View`
@@ -35,7 +35,7 @@ const MainBar = styled.View`
 `;
 const MainText = styled.Text`
   font-weight: 600;
-  font-size: 18px;
+  font-size: 17px;
   margin-bottom: 10px;
 `;
 const TitleInput = styled.TextInput`
@@ -55,17 +55,32 @@ const Button = styled.Pressable`
   background-color: #2196f3;
 `;
 const ErrandPlace = styled.View`
+  border: 2px solid lightgray;
+  border-radius: 5px;
+  margin-bottom: 50px;
+`;
+const ErrandBox = styled.View`
   flex-direction: row;
   justify-content: space-between;
+  background-color: lightgray;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  align-items: center;
+  height: 40px;
+  padding: 0px 5px;
 `;
 const AddressInputText = styled.Text`
   color: blue;
+  font-size: 12px;
 `;
 const Address = styled.View`
-  margin-bottom: 20px;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
 `;
 const AddressText = styled.Text`
-  font-size: 16px;
+  font-size: 17px;
+  font-weight: 600;
 `;
 
 const Order = ({
@@ -110,7 +125,7 @@ const Order = ({
   const onPressBtn = async () => {
     if (divide === "0") {
       await axios
-        .post("http://10.0.2.2:8080/api/work", {
+        .post(`${BASE_URL}/api/work`, {
           latitude,
           longitude,
           reward,
@@ -128,12 +143,10 @@ const Order = ({
         })
         .catch((error) => console.log(error));
     } else {
-      //심부름 수정 (수정한 데이터 어떻게 유지?)
-
       console.log("수정 완료");
       setOrderVisible(!orderVisible);
       const copiedWorkList = [...workList];
-      console.log("wl", workList);
+      //console.log("wl", workList);
       copiedWorkList[indexValue].title = title
         ? title
         : copiedWorkList[indexValue].title;
@@ -154,7 +167,7 @@ const Order = ({
         : copiedWorkList[indexValue].reward;
       setWorkList(copiedWorkList);
       axios
-        .put("http://10.0.2.2:8080/api/work", {
+        .put(`${BASE_URL}/api/work`, {
           id: copiedWorkList[indexValue].id,
           title: copiedWorkList[indexValue].title,
           context: copiedWorkList[indexValue].context,
@@ -190,14 +203,16 @@ const Order = ({
                 <MaterialIcons
                   onPress={() => {
                     setOrderVisible(!orderVisible);
+                    setDeadLineTime(0);
                   }}
                   name="cancel"
                   size={24}
                   color="black"
                 />
               </View>
-
-              <Title>{titleName}</Title>
+              <View style={{ flex: 1 }}>
+                <Title>{titleName}</Title>
+              </View>
 
               <View style={{ flex: 1 }}></View>
             </TitleBar>
@@ -214,15 +229,20 @@ const Order = ({
                   onChangeText={onChangeContext}
                   placeholder="내용을 입력해주세요..."
                 />
-                <ErrandPlace
-                  style={{
-                    flexDirection: "row",
-                  }}
-                >
-                  <MainText>심부름 시킬장소</MainText>
-                  <Pressable onPress={() => setOrderAddress(!orderAddress)}>
-                    <AddressInputText>주소 입력</AddressInputText>
-                  </Pressable>
+                <ErrandPlace>
+                  <ErrandBox>
+                    <MainText style={{ marginBottom: 0 }}>
+                      심부름 시킬장소
+                    </MainText>
+                    <Pressable onPress={() => setOrderAddress(!orderAddress)}>
+                      <AddressInputText>주소 입력</AddressInputText>
+                    </Pressable>
+                  </ErrandBox>
+
+                  <Address>
+                    <AddressText>{address}</AddressText>
+                  </Address>
+
                   <Modal animationType="slide" visible={orderAddress}>
                     <Postcode
                       style={{ flex: 1, height: 250, marginBottom: 40 }}
@@ -239,18 +259,22 @@ const Order = ({
                     />
                   </Modal>
                 </ErrandPlace>
-                <Address>
-                  <AddressText>{address}</AddressText>
-                </Address>
-                <ErrandPlace
-                  style={{
-                    flexDirection: "row",
-                  }}
-                >
-                  <MainText>심부름 받을장소</MainText>
-                  <Pressable onPress={() => setReceiveAddress(!receiveAddress)}>
-                    <AddressInputText>주소 입력</AddressInputText>
-                  </Pressable>
+
+                <ErrandPlace>
+                  <ErrandBox>
+                    <MainText style={{ marginBottom: 0 }}>
+                      심부름 받을장소
+                    </MainText>
+                    <Pressable
+                      onPress={() => setReceiveAddress(!receiveAddress)}
+                    >
+                      <AddressInputText>주소 입력</AddressInputText>
+                    </Pressable>
+                  </ErrandBox>
+                  <Address>
+                    <AddressText>{address2}</AddressText>
+                  </Address>
+
                   <Modal animationType="slide" visible={receiveAddress}>
                     <Postcode
                       style={{ flex: 1, height: 250, marginBottom: 40 }}
@@ -266,24 +290,39 @@ const Order = ({
                     />
                   </Modal>
                 </ErrandPlace>
-                <Address>
-                  <AddressText>{address2}</AddressText>
-                </Address>
+                <ErrandPlace>
+                  <ErrandBox>
+                    <MainText style={{ marginBottom: 0 }}>
+                      예상 소요 시간
+                    </MainText>
+                    <SelectDropdown
+                      buttonStyle={{
+                        //backgroundColor: "#2196f3",
+                        width: 70,
+                        height: 40,
+                        border: "none",
+                        backgroundColor: "lightgray",
+                      }}
+                      buttonTextStyle={{
+                        color: "blue",
+                        fontWeight: "600",
+                        fontSize: 14,
+                      }}
+                      data={hours}
+                      onSelect={(hour) => setDeadLineTime(hour)}
+                      defaultButtonText="시간"
+                    />
+                  </ErrandBox>
+                  <Address>
+                    {deadLineTime ? (
+                      <AddressText>{deadLineTime}시간</AddressText>
+                    ) : (
+                      <AddressText></AddressText>
+                    )}
+                  </Address>
+                </ErrandPlace>
 
-                <MainText>예상 소요 시간</MainText>
-                <SelectDropdown
-                  buttonStyle={{
-                    backgroundColor: "#2196f3",
-                  }}
-                  buttonTextStyle={{
-                    color: "white",
-                    fontWeight: "600",
-                  }}
-                  data={hours}
-                  onSelect={(hour) => setDeadLineTime(hour)}
-                  defaultButtonText="시간"
-                />
-                <MainText style={{ marginTop: 20 }}>심부름 비</MainText>
+                <MainText style={{ marginTop: 20 }}>심부름비</MainText>
                 <TitleInput
                   onChangeText={onChangeReward}
                   placeholder="금액을 입력하세요..."

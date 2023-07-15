@@ -79,6 +79,7 @@ const Count = styled.View`
 `;
 const Count1 = styled(Count)`
   border-radius: 10px;
+  margin-bottom: 10px;
 `;
 const Count2 = styled(Count)`
   border-radius: 10px;
