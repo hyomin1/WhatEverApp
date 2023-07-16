@@ -130,3 +130,8 @@ export const fcmTokenData = atom({
   key: "fcmToken",
   default: null,
 });
+
+export const sendWorkData = atom({
+  key: "sendWork",
+  default: null,
+});

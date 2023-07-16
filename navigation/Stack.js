@@ -11,7 +11,7 @@ import Chat from "../components/Chat";
 import { useRecoilValue } from "recoil";
 import { receiverNameData } from "../atom";
 import HelperLocation from "../helperView/HelperLocation";
-import History from "../components/History";
+import History from "../historyView/History";
 import AdminLogin from "../login/AdminLogin";
 import AdminView from "../components/AdminView";
 import Map from "../mainView/Map";
@@ -42,7 +42,6 @@ const Stack = ({ navigation }) => {
         component={Profile}
         options={{
           headerTitle: "내 정보",
-          headerStyle: {},
           headerTitleAlign: "center",
           headerTitleStyle: {
             fontWeight: "800",

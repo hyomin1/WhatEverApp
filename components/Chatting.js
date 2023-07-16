@@ -20,6 +20,7 @@ import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
 import BackgroundTimer from "react-native-background-timer";
+import { BASE_URL } from "../api";
 
 const ChatView = styled.View`
   flex: 9;
@@ -45,7 +46,6 @@ const ChatInput = styled.TextInput`
   bottom: 0;
   flex: 1;
 `;
-
 const ChatWrapper = styled.View`
   background-color: #0fbcf9;
   border-radius: 20px;
@@ -56,44 +56,39 @@ const ChatWrapper = styled.View`
   padding: 10px 15px;
   margin-bottom: 10px;
 `;
-const ChatWrapper2 = styled.View`
-  background-color: white;
-  border-radius: 20px;
-  justify-content: center;
-  align-items: center;
-  width: auto;
-  height: auto;
-  padding: 10px 15px;
-  margin-bottom: 10px;
-`;
-const Time = styled.Text`
-  font-size: 10px;
-  color: #d0d3d7;
-  font-weight: 600;
+const ChatWrapper2 = styled(ChatWrapper)`
+  background-color: #dcdde1;
 `;
 const ChatText = styled.Text`
-  color: black;
-  font-weight: 700;
+  color: white;
   font-size: 17px;
 `;
+const ChatText2 = styled(ChatText)`
+  color: black;
+`;
 const WorkWrapper = styled.View`
-  background-color: white;
+  background-color: #dcdde1;
   border-radius: 15px;
   justify-content: center;
   align-items: center;
   width: 250px;
-  height: 300px;
-  //padding: 10px 0px;
   margin-bottom: 10px;
 `;
 const WorkTitleWrapper = styled.View`
-  background-color: #0fbcf9;
+  background-color: #7f8fa6;
   width: 100%;
   flex: 1;
   justify-content: center;
   align-items: flex-start;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
+  height: 30px;
+`;
+const WorkTextView = styled.View`
+  flex: 5;
+  padding-top: 10px;
+  margin-left: 20px;
+  width: 250px;
 `;
 const WorkTitle = styled.Text`
   margin-left: 10px;
@@ -122,34 +117,23 @@ const WorkAcceptText = styled.Text`
   font-weight: 600;
   font-size: 19px;
 `;
-const CardWrapper = styled.View`
-  flex: 1;
-  background-color: white;
-  border-radius: 15px;
-  align-items: center;
-  justify-content: space-between;
-  width: 250px;
-  height: 300px;
-  margin-bottom: 10px;
+const CardWrapper = styled(WorkWrapper)`
+  height: 100px;
+  width: 200px;
 `;
-const CardTitle = styled.Text`
-  color: black;
-  font-weight: 600;
-  font-size: 18px;
-  background-color: #0fbcf9;
-  border-top-left-radius: 15px;
-  border-top-right-radius: 15px;
-  width: 250px;
-  height: 90px;
-  padding-left: 10px;
-  padding-top: 20px;
+const CardTitleWrapper = styled(WorkTitleWrapper)``;
+const CardTitle = styled(WorkTitle)``;
+const CardBtn = styled.Pressable`
+  flex: 2;
+  justify-content: center;
+  align-items: center;
 `;
 const CardText = styled.Text`
-  background-color: lightgray;
-  width: 180px;
+  background-color: #7f8fa6;
+  width: 100px;
   text-align: center;
-  height: 40px;
   border-radius: 10px;
+  color: #dcdde1;
 `;
 const Chatting = () => {
   const [textInput, setTextInput] = useState();
@@ -166,9 +150,9 @@ const Chatting = () => {
 
   const navigation = useNavigation();
 
-  const workList = useRecoilValue(workListData);
-  const [helperLocation, setHelperLocation] =
-    useRecoilState(helperLocationData);
+  //const workList = useRecoilValue(workListData);
+  // const [helperLocation, setHelperLocation] =
+  //   useRecoilState(helperLocationData);
 
   const chat = {
     senderName: myName,
@@ -212,7 +196,7 @@ const Chatting = () => {
       } = await Location.getCurrentPositionAsync({ accuracy: 5 });
       console.log(latitude, longitude);
       axios
-        .post(`http://10.0.2.2:8080/api/location/helperLocation/${id}`, {
+        .post(`${BASE_URL}/api/location/helperLocation/${id}`, {
           latitude: latitude,
           longitude: longitude,
         })
@@ -226,7 +210,7 @@ const Chatting = () => {
   const onPressAccept = () => {
     const work = JSON.parse(chatList.chatList[0].message);
     axios
-      .put("http://10.0.2.2:8080/api/work/matching", {
+      .put(`${BASE_URL}/api/work/matching`, {
         id: work.id,
         title: work.title,
         context: work.context,
@@ -266,7 +250,7 @@ const Chatting = () => {
       console.log("마감시간 한시간");
       axios
         .get(
-          `http://10.0.2.2:8080/api/location/helperLocation/${
+          `${BASE_URL}/api/location/helperLocation/${
             JSON.parse(chatList.chatList[0].message).id
           }`
         )
@@ -280,7 +264,6 @@ const Chatting = () => {
     }
     //진행상황 보기
   };
-  //console.log(chatList);
 
   useEffect(() => {
     if (myId === conversation.creatorId) {
@@ -298,9 +281,8 @@ const Chatting = () => {
     });
   }, [chatRoomList]); //chatRoomList 업데이트 마다 chatList 데이터 새롭게 저장
 
-  console.log(myId);
   return (
-    <View style={{ flex: 1, backgroundColor: "lightgray" }}>
+    <View style={{ flex: 1, backgroundColor: "white" }}>
       <View style={{ flex: 20 }}>
         <ScrollView>
           <ChatView>
@@ -320,12 +302,7 @@ const Chatting = () => {
                         <WorkTitleWrapper>
                           <WorkTitle>심부름 요청서</WorkTitle>
                         </WorkTitleWrapper>
-                        <View
-                          style={{
-                            flex: 5,
-                            paddingTop: 10,
-                          }}
-                        >
+                        <WorkTextView>
                           <WorkText>
                             제목 : {JSON.parse(data.message).title}
                           </WorkText>
@@ -336,7 +313,7 @@ const Chatting = () => {
                             마감시간 : {JSON.parse(data.message).deadLineTime}
                             시간
                           </WorkText>
-                        </View>
+                        </WorkTextView>
                         {myId === chatList.participantId ? (
                           <View
                             style={{
@@ -366,38 +343,25 @@ const Chatting = () => {
                       ) : (
                         <View key={index} style={{ alignItems: "flex-start" }}>
                           <ChatWrapper2>
-                            <ChatText>{data.message}</ChatText>
+                            <ChatText2>{data.message}</ChatText2>
                           </ChatWrapper2>
                         </View>
                       )}
                     </View>
                   ) : data.messageType === "Card" ? (
                     <CardWrapper key={index}>
-                      <CardTitle>심부름 수락했어요</CardTitle>
+                      <CardTitleWrapper>
+                        <CardTitle>심부름이 수락되었습니다</CardTitle>
+                      </CardTitleWrapper>
+
                       {myId === chatList.participantId ? (
-                        <Pressable
-                          style={{
-                            flex: 1,
-                            justifyContent: "flex-end",
-                            marginBottom: 10,
-                            backgroundColor: "lightgray",
-                          }}
-                          onPress={onPressWorkComplete}
-                        >
+                        <CardBtn onPress={onPressWorkComplete}>
                           <CardText>일 완료하기</CardText>
-                        </Pressable>
+                        </CardBtn>
                       ) : (
-                        <Pressable
-                          style={{
-                            flex: 1,
-                            justifyContent: "flex-end",
-                            marginBottom: 10,
-                            backgroundColor: "lightgray",
-                          }}
-                          onPress={onPressView}
-                        >
+                        <CardBtn onPress={onPressView}>
                           <CardText>진행상황 보기</CardText>
-                        </Pressable>
+                        </CardBtn>
                       )}
                     </CardWrapper>
                   ) : null
