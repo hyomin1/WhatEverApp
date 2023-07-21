@@ -2,7 +2,7 @@ import { useState } from "react";
 import { View, Alert, Text } from "react-native";
 import styled from "styled-components/native";
 
-import { accessData, grantData, myIdData } from "../atom";
+import { accessData, grantData, myIdData, chatRoomListData } from "../atom";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { useNavigation } from "@react-navigation/native";
 import { apiClient, BASE_URL } from "../api";
@@ -71,6 +71,8 @@ function Login({ navigation: { navigate } }) {
   const setGrant = useSetRecoilState(grantData);
 
   const setMyId = useSetRecoilState(myIdData);
+
+  const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
 
   const onChangeId = (payload) => {
     setId(payload);

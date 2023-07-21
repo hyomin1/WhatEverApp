@@ -49,7 +49,7 @@ const Map = ({ location, distanceHelper, navigate }) => {
           latitude: location.latitude,
           longitude: location.longitude,
         }}
-      />
+      ></Marker>
       {distanceHelper
         ? distanceHelper.map((location) => (
             <Marker

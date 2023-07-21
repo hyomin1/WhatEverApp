@@ -135,6 +135,11 @@ const CardText = styled.Text`
   border-radius: 10px;
   color: #dcdde1;
 `;
+const Time = styled.Text`
+  color: gray;
+  margin-top: 5px;
+  font-size: 12px;
+`;
 const Chatting = () => {
   const [textInput, setTextInput] = useState();
   const conversation = useRecoilValue(conversationData);
@@ -149,10 +154,6 @@ const Chatting = () => {
   const grant = useRecoilValue(grantData);
 
   const navigation = useNavigation();
-
-  //const workList = useRecoilValue(workListData);
-  // const [helperLocation, setHelperLocation] =
-  //   useRecoilState(helperLocationData);
 
   const chat = {
     senderName: myName,
@@ -204,7 +205,7 @@ const Chatting = () => {
           console.log("위치데이터", res.data);
         })
         .catch((error) => console.log(error));
-    }, 5000);
+    }, 10000);
   };
 
   const onPressAccept = () => {
@@ -292,12 +293,15 @@ const Chatting = () => {
                     <View
                       key={index}
                       style={{
-                        alignItems:
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent:
                           data.senderName === myName
                             ? "flex-end"
                             : "flex-start",
                       }}
                     >
+                      {<Time>{data.sendTime.slice(0, 16)}</Time>}
                       <WorkWrapper>
                         <WorkTitleWrapper>
                           <WorkTitle>심부름 요청서</WorkTitle>
@@ -333,7 +337,18 @@ const Chatting = () => {
                   ) : data.messageType === "Chat" ? (
                     <View key={index}>
                       {data.senderName === myName ? (
-                        <View key={index} style={{ alignItems: "flex-end" }}>
+                        <View
+                          key={index}
+                          style={{
+                            justifyContent: "flex-end",
+                            flexDirection: "row",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Time style={{ marginRight: 5 }}>
+                            {data.sendTime.slice(0, 10)}{" "}
+                            {data.sendTime.slice(11, 16)}
+                          </Time>
                           <ChatWrapper>
                             <ChatText>
                               {data.message ? data.message : null}
@@ -341,10 +356,21 @@ const Chatting = () => {
                           </ChatWrapper>
                         </View>
                       ) : (
-                        <View key={index} style={{ alignItems: "flex-start" }}>
+                        <View
+                          key={index}
+                          style={{
+                            justifyContent: "flex-start",
+                            flexDirection: "row",
+                            alignItems: "center",
+                          }}
+                        >
                           <ChatWrapper2>
                             <ChatText2>{data.message}</ChatText2>
                           </ChatWrapper2>
+                          <Time style={{ marginLeft: 5 }}>
+                            {data.sendTime.slice(0, 10)}{" "}
+                            {data.sendTime.slice(11, 16)}
+                          </Time>
                         </View>
                       )}
                     </View>

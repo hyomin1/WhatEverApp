@@ -105,21 +105,6 @@ const Main = ({ navigation: { navigate } }) => {
 
   client.onConnect = function (frame) {
     //console.log("연결됨");
-    axios
-      .get(`${BASE_URL}/api/conversations`)
-      .then((res) => {
-        setChatRoomList(res.data); // a1일 경우 a1의 채팅리스트를 저장함
-        //console.log("채팅목록", res.data);
-        res.data.map((id) =>
-          client.subscribe(`/topic/chat/${id._id}`, function (message) {
-            //console.log("채팅 목록에서 들어간 메시지", message.body);
-            axios.get(`${BASE_URL}/api/conversations`).then((res) => {
-              setChatRoomList(res.data);
-            });
-          })
-        );
-      })
-      .catch(() => console.log("에러"));
 
     const subscription = client.subscribe(
       `/queue/${myId}`,
@@ -135,8 +120,15 @@ const Main = ({ navigation: { navigate } }) => {
             `/topic/chat/${chatId}`,
             function (message) {
               //console.log("요청해서 들어간 채팅방 메시지", message.body);
-              axios.get(`${BASE_URL}/api/conversations`).then((res) => {
-                setChatRoomList(res.data);
+              axios.get(`${BASE_URL}/api/conversations`).then(({ data }) => {
+                data.sort(function (a, b) {
+                  return (
+                    new Date(b.updatedAt).getTime() -
+                    new Date(a.updatedAt).getTime()
+                  );
+                });
+                setChatRoomList(data);
+                //data.map(v => console.log(v))
               });
             }
           );
@@ -155,6 +147,30 @@ const Main = ({ navigation: { navigate } }) => {
     getLocation();
     client.connectHeaders.Authorization = `${grant}` + " " + `${access}`;
     client.activate();
+    setTimeout(() => {
+      axios
+        .get(`${BASE_URL}/api/conversations`)
+        .then((res) => {
+          console.log("성공");
+          setChatRoomList(res.data); // a1일 경우 a1의 채팅리스트를 저장함
+          //console.log("채팅목록", res.data);
+          res.data.map((id) =>
+            client.subscribe(`/topic/chat/${id._id}`, function (message) {
+              //console.log("채팅 목록에서 들어간 메시지", message.body);
+              axios.get(`${BASE_URL}/api/conversations`).then(({ data }) => {
+                data.sort(function (a, b) {
+                  return (
+                    new Date(b.updatedAt).getTime() -
+                    new Date(a.updatedAt).getTime()
+                  );
+                });
+                setChatRoomList(data);
+              });
+            })
+          );
+        })
+        .catch(() => console.log("에러"));
+    }, 1000);
   }, []);
   return (
     <View style={{ flex: 1 }}>

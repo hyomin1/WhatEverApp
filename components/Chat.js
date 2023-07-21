@@ -7,6 +7,7 @@ import {
   conversationData,
   myIdData,
 } from "../atom";
+import { useEffect } from "react";
 
 const ChatList = styled.Pressable`
   height: 80px;
@@ -42,6 +43,7 @@ const Chat = ({ navigation }) => {
   const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
   const setConversation = useSetRecoilState(conversationData);
   const myId = useRecoilValue(myIdData);
+  // console.log(chatRoomList[0].chatList);
 
   const goChatting = () => {
     navigation.navigate("Stack", { screen: "Chatting" });
@@ -56,10 +58,11 @@ const Chat = ({ navigation }) => {
             goChatting();
             setConversation(data);
             setChatList(data);
+            // console.log(data.chatList[0].messageType);
           }}
         >
           <ProfileImg>
-            {/**사진 데이터 어디서? */}
+            {/**사진 데이터 어디서? aws서버에서 */}
             <Text>사진</Text>
           </ProfileImg>
           <ProfileView>
@@ -70,7 +73,14 @@ const Chat = ({ navigation }) => {
                 <ProfileText>{data.creatorName}</ProfileText>
               )}
             </ProfileName>
-            <LastChat>안녕하세요, 심부름 문의 입니다.</LastChat>
+            <LastChat>
+              {data.chatList[data.chatList.length - 1]?.messageType === "Work"
+                ? "심부름 요청서 입니다..."
+                : data.chatList[data.chatList.length - 1]?.messageType ===
+                  "Card"
+                ? "심부름이 수락되었습니다..."
+                : data.chatList[data.chatList.length - 1]?.message}
+            </LastChat>
           </ProfileView>
         </ChatList>
       ))}

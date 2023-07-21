@@ -1,10 +1,8 @@
 import { LocationAccuracy } from "expo-location";
-import { View, Text, ActivityIndicator } from "react-native";
+import { View, Text, ActivityIndicator, Image } from "react-native";
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from "expo-location";
 import { useEffect, useState } from "react";
-import { useRecoilTransactionObserver_UNSTABLE } from "recoil";
-import { useInterval } from "../func";
 
 const HelperLocation = ({ route }) => {
   const [location, setLocation] = useState();
@@ -23,7 +21,6 @@ const HelperLocation = ({ route }) => {
     setLocation({ latitude, longitude });
     setLoading(false);
   };
-  console.log(route.params.location);
   useEffect(() => {
     getLocation();
     setLocations(route.params.location);
@@ -46,7 +43,18 @@ const HelperLocation = ({ route }) => {
           }}
           provider={PROVIDER_GOOGLE}
         >
-          <Polyline coordinates={locations} strokeWidth={8} />
+          <Marker
+            coordinate={{
+              latitude: locations[locations.length - 1].latitude,
+              longitude: locations[locations.length - 1].longitude,
+            }}
+          >
+            <Image
+              style={{ width: 50, height: 50, borderRadius: 25 }}
+              source={require("../images/rider.jpg")}
+            />
+          </Marker>
+          <Polyline coordinates={locations} strokeWidth={6} />
         </MapView>
       )}
     </View>
