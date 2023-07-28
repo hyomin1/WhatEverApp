@@ -92,7 +92,7 @@ function Login({ navigation: { navigate } }) {
   const goMain = () => {
     navigation.navigate("Tabs", { screen: "Main" });
   };
-
+  //유저 로그인시 비번,아이디 이상 없을 경우 실행
   const sendLogin = async () => {
     axios
       .post(`${BASE_URL}/login`, {
@@ -103,7 +103,7 @@ function Login({ navigation: { navigate } }) {
         setAccess(res.data.accessToken);
         setGrant(res.data.grantType);
         setMyId(res.data.id);
-        AsyncStorage.setItem("accessToken", res.data.accessToken);
+        //AsyncStorage.setItem("accessToken", res.data.accessToken);
 
         if (res.status === 200) {
           axios.defaults.headers.common[
@@ -120,6 +120,7 @@ function Login({ navigation: { navigate } }) {
         goMain();
       });
   };
+  //유저 로그인
   const onPressLogin = () => {
     if (id === "") {
       Alert.alert("아이디를 입력해주세요");
@@ -129,29 +130,30 @@ function Login({ navigation: { navigate } }) {
       sendLogin();
     }
   };
+  //어드민 로그인
   const onPressAdmin = () => {
-    axios
-      .post(`${BASE_URL}/loginAdmin`, {
-        userId: id,
-        password: password,
-      })
-      .then((res) => {
-        if (res.status === 200) {
-          axios.defaults.headers.common[
-            "Authorization"
-          ] = `Bearer ${res.data.accessToken}`;
-          apiClient.defaults.headers.common[
-            "Authorization"
-          ] = `Bearer ${res.data.accessToken}`;
-        }
-        setIsAdmin(true);
-        navigation.navigate("Tabs", {
-          screen: "Main",
-        });
-      })
-      .catch((error) => {
-        Alert.alert("관리자가 아닙니다.");
-      });
+    // axios
+    //   .post(`${BASE_URL}/loginAdmin`, {
+    //     userId: id,
+    //     password: password,
+    //   })
+    //   .then((res) => {
+    //     if (res.status === 200) {
+    //       axios.defaults.headers.common[
+    //         "Authorization"
+    //       ] = `Bearer ${res.data.accessToken}`;
+    //       apiClient.defaults.headers.common[
+    //         "Authorization"
+    //       ] = `Bearer ${res.data.accessToken}`;
+    //     }
+    //     setIsAdmin(true);
+    //     goMain();
+    //   })
+    //   .catch((error) => {
+    //     Alert.alert("관리자가 아닙니다.");
+    //   });
+    setIsAdmin(true);
+    goMain();
   };
 
   return (

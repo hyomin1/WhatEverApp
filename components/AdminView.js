@@ -10,10 +10,6 @@ const AdminView = () => {
 
   const onPressFetch = () => {
     console.log("클릭");
-    axios.get(`${BASE_URL}/admin/reportList`).then(({ data }) => {
-      setReportList(data);
-      console.log(res.data);
-    });
   };
 
   return (

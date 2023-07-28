@@ -137,6 +137,11 @@ const Tabs = ({ navigation: { navigate } }) => {
               />
             );
           },
+          headerTitleAlign: "center",
+          headerTitleStyle: {
+            fontSize: 18,
+            fontWeight: "800",
+          },
         }}
       />
       <Tab.Screen
