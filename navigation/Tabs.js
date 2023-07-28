@@ -2,15 +2,15 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Main from "../mainView/Main";
 import History from "../historyView/History";
 import Chat from "../components/Chat";
-
 import { Ionicons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import axios from "axios";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
+  adminData,
   distanceData,
   historyWorkData,
   IntroduceData,
@@ -18,9 +18,11 @@ import {
   nameData,
   pwData,
   ratingData,
+  reportData,
   responseData,
   uniqueIdData,
 } from "../atom";
+import { BASE_URL } from "../api";
 
 const Tab = createBottomTabNavigator();
 
@@ -33,8 +35,11 @@ const Tabs = ({ navigation: { navigate } }) => {
   const setRating = useSetRecoilState(ratingData); //내 프로필 평점 데이터
   const setUniqueId = useSetRecoilState(uniqueIdData);
   const setMyImg = useSetRecoilState(myImgData); //내 프로필 사진 데이터
+  const setReportList = useSetRecoilState(reportData);
 
   const [historyWork, setHistoryWork] = useRecoilState(historyWorkData);
+
+  const isAdmin = useRecoilValue(adminData);
 
   return (
     <Tab.Navigator
@@ -108,14 +113,18 @@ const Tabs = ({ navigation: { navigate } }) => {
         }}
       />
       <Tab.Screen
-        name="이용내역"
+        name={isAdmin ? "신고내역" : "이용내역"}
         component={History}
         listeners={({ navigation }) => ({
           tabPress: (e) => {
-            axios.get("http://10.0.2.2:8080/api/workList/all").then((res) => {
-              console.log("이용내역", res.data);
-              setHistoryWork(res.data);
-            });
+            isAdmin
+              ? axios.get(`${BASE_URL}/admin/reportList`).then(({ data }) => {
+                  setReportList(data);
+                  console.log(data);
+                })
+              : axios.get(`${BASE_URL}/api/workList/all`).then(({ data }) => {
+                  setHistoryWork(data);
+                });
           },
         })}
         options={{

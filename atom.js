@@ -135,3 +135,12 @@ export const sendWorkData = atom({
   key: "sendWork",
   default: null,
 });
+export const adminData = atom({
+  //admin check 용
+  key: "isAdmin",
+  default: false,
+});
+export const reportData = atom({
+  key: "report",
+  default: null,
+});

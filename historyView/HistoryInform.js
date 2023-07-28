@@ -1,0 +1,46 @@
+import styled from "styled-components/native";
+import { Text, Pressable, ScrollView, View } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+
+const HistoryInformation = styled.View`
+  margin-top: 15px;
+  flex: 1;
+  background-color: white;
+  border-radius: 20px;
+  padding: 20px 20px;
+`;
+
+const HistoryText = styled.Text`
+  font-size: 17px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #7f8fa6;
+`;
+
+const HistoryInform = ({ data, index, onPressReport }) => {
+  return (
+    <HistoryInformation>
+      <HistoryText>제목 : {data.title} </HistoryText>
+      <HistoryText>내용 : {data.context} </HistoryText>
+      <HistoryText>마감시간 : {data.deadLineTime}시간 </HistoryText>
+      <Pressable
+        style={{
+          flex: 1,
+          flexDirection: "row",
+          marginTop: 50,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        onPress={() => {
+          onPressReport(index);
+        }}
+      >
+        <Text style={{ color: "red", fontSize: 18, fontWeight: "600" }}>
+          신고하기
+        </Text>
+        <MaterialIcons name="report" size={24} color="red" />
+      </Pressable>
+    </HistoryInformation>
+  );
+};
+export default HistoryInform;

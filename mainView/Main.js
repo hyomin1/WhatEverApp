@@ -13,6 +13,7 @@ import {
   responseHelperData,
   chatRoomListData,
   helperLocationData,
+  adminData,
 } from "../atom";
 import { MaterialIcons } from "@expo/vector-icons";
 import Order from "../components/Order";
@@ -37,7 +38,7 @@ const HelperView = styled.Pressable`
   align-items: center;
 `;
 
-const Main = ({ navigation: { navigate } }) => {
+const Main = ({ navigation: { navigate }, route }) => {
   const [location, setLocation] = useState();
   const [ok, setOk] = useState();
   const [isLoading, setLoading] = useState(true);
@@ -56,6 +57,9 @@ const Main = ({ navigation: { navigate } }) => {
   const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
 
   const setHelperLocation = useSetRecoilState(helperLocationData);
+
+  const isAdmin = useRecoilValue(adminData);
+
   const getToken = async () => {
     const token = await messaging().getToken();
     //console.log(token);

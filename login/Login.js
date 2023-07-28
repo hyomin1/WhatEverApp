@@ -2,7 +2,13 @@ import { useState } from "react";
 import { View, Alert, Text } from "react-native";
 import styled from "styled-components/native";
 
-import { accessData, grantData, myIdData, chatRoomListData } from "../atom";
+import {
+  accessData,
+  grantData,
+  myIdData,
+  chatRoomListData,
+  adminData,
+} from "../atom";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { useNavigation } from "@react-navigation/native";
 import { apiClient, BASE_URL } from "../api";
@@ -72,7 +78,9 @@ function Login({ navigation: { navigate } }) {
 
   const setMyId = useSetRecoilState(myIdData);
 
-  const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
+  const setIsAdmin = useSetRecoilState(adminData);
+
+  //const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
 
   const onChangeId = (payload) => {
     setId(payload);
@@ -108,7 +116,7 @@ function Login({ navigation: { navigate } }) {
 
         Alert.alert("로그인 완료");
         console.log("로그인 성공");
-
+        setIsAdmin(false);
         goMain();
       });
   };
@@ -136,7 +144,10 @@ function Login({ navigation: { navigate } }) {
             "Authorization"
           ] = `Bearer ${res.data.accessToken}`;
         }
-        navigate("AdminView");
+        setIsAdmin(true);
+        navigation.navigate("Tabs", {
+          screen: "Main",
+        });
       })
       .catch((error) => {
         Alert.alert("관리자가 아닙니다.");

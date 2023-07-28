@@ -301,7 +301,7 @@ const Chatting = () => {
                             : "flex-start",
                       }}
                     >
-                      {<Time>{data.sendTime.slice(0, 16)}</Time>}
+                      {/*<Time>{data.sendTime.slice(0, 16)}</Time>*/}
                       <WorkWrapper>
                         <WorkTitleWrapper>
                           <WorkTitle>심부름 요청서</WorkTitle>

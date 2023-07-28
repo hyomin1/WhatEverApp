@@ -292,9 +292,7 @@ const Order = ({
                 </ErrandPlace>
                 <ErrandPlace>
                   <ErrandBox>
-                    <MainText style={{ marginBottom: 0 }}>
-                      예상 소요 시간
-                    </MainText>
+                    <MainText style={{ marginBottom: 0 }}>마감시간</MainText>
                     <SelectDropdown
                       buttonStyle={{
                         //backgroundColor: "#2196f3",
