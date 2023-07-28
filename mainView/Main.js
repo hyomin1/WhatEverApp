@@ -14,6 +14,8 @@ import {
   chatRoomListData,
   helperLocationData,
   adminData,
+  locationData,
+  currentLocationData,
 } from "../atom";
 import { MaterialIcons } from "@expo/vector-icons";
 import Order from "../components/Order";
@@ -39,7 +41,9 @@ const HelperView = styled.Pressable`
 `;
 
 const Main = ({ navigation: { navigate }, route }) => {
-  const [location, setLocation] = useState();
+  const [location, setLocation] = useRecoilState(locationData);
+  const [currentLocation, setCurrentLocation] =
+    useRecoilState(currentLocationData);
   const [ok, setOk] = useState();
   const [isLoading, setLoading] = useState(true);
 
@@ -72,6 +76,7 @@ const Main = ({ navigation: { navigate }, route }) => {
   };
 
   const getLocation = async () => {
+    //api에서 받아오는 location은 내 위치를 계속 추적함
     const { granted } = await Location.requestForegroundPermissionsAsync();
     if (!granted) {
       setOk("error");
@@ -101,6 +106,7 @@ const Main = ({ navigation: { navigate }, route }) => {
       });
 
     setLocation({ latitude, longitude }); //내 위치 저장하기 위함
+    setCurrentLocation({ latitude, longitude });
     setLoading(false);
   };
   const headers = {
@@ -145,6 +151,9 @@ const Main = ({ navigation: { navigate }, route }) => {
     console.log("Broker reported error: " + frame.headers["message"]);
     console.log("Additional details: " + frame.body);
   };
+  // useEffect(() => {
+  //   getLocation();
+  // }, [location]);
 
   useEffect(() => {
     getToken();
@@ -188,6 +197,7 @@ const Main = ({ navigation: { navigate }, route }) => {
             location={location}
             distanceHelper={distanceHelper}
             navigate={navigate}
+            currentLocation={currentLocation}
           />
           <SearchBar />
           <RequestBtn

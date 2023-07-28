@@ -30,6 +30,17 @@ export const IntroduceData = atom({
   key: "introduce",
   default: null,
 }); //프로필에서 받아오는 자기소개 데이터 ,프로필 수정시 자기소개
+export const locationData = atom({
+  //지도 상에서 보여지는 위치 , 검색 시 이동할 수 있음
+  key: "location",
+  default: null,
+});
+export const currentLocationData = atom({
+  //나의 현재 위치 = 홈 위치
+  key: "currentLocation",
+  default: null,
+});
+
 export const responseData = atom({
   key: "response",
   default: null,

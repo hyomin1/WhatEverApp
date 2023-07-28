@@ -2,13 +2,15 @@ import { View, Text, TextInput, Pressable, Modal } from "react-native";
 import styled from "styled-components/native";
 import { useState } from "react";
 import ProfileFix from "./ProfileFix";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   IntroduceData,
   helperLocationData,
   myImgData,
   nameData,
   ratingData,
+  locationData,
+  currentLocationData,
 } from "../atom";
 import Postcode from "@actbase/react-daum-postcode";
 import * as Location from "expo-location";
@@ -98,8 +100,11 @@ const Profile = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [registerVisible, setRegisterVisible] = useState(false);
 
-  const [latitude, setLatitude] = useState();
+  const [latitude, setLatitude] = useState(); //서버에 지정한 위치 보내주기 위함
   const [longitude, setLongitude] = useState();
+
+  const [location, setLocation] = useRecoilState(locationData);
+  const setCurrentLocation = useSetRecoilState(currentLocationData);
 
   const myImg = useRecoilValue(myImgData);
   const rating = useRecoilValue(ratingData);
@@ -170,7 +175,7 @@ const Profile = () => {
         <ProfileBtn onPress={() => setRegisterVisible(!registerVisible)}>
           <ProfileText>내 위치 등록하기</ProfileText>
         </ProfileBtn>
-        {/**관리자면 신고내역 보는 코드  */}
+
         <Modal animationType="slide" visible={registerVisible}>
           <Postcode
             style={{ flex: 1, height: 250, marginBottom: 40 }}
@@ -179,15 +184,21 @@ const Profile = () => {
               const location = await Location.geocodeAsync(data.query);
               setLatitude(location[0].latitude); //여기서 location[0].latitude 바로 보내주면됨
               setLongitude(location[0].longitude);
+
               setRegisterVisible(!registerVisible);
+
               axios
                 .put("http://10.0.2.2:8080/api/userLocation", {
                   latitude: location[0].latitude,
                   longitude: location[0].longitude,
                 })
-                .then((res) => {
+                .then(({ data: { latitude, longitude } }) => {
                   //console.log("등록 데이터", res.data);
                   //setHelperLocation(res.data);
+                  //setLocation({ latitude, longitude });
+
+                  setLocation({ latitude, longitude });
+                  setCurrentLocation({ latitude, longitude });
                 });
             }}
           />

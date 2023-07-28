@@ -5,7 +5,7 @@ import axios from "axios";
 import { useSetRecoilState } from "recoil";
 import { contentData, ratingHelperData, responseHelperData } from "../atom";
 
-const Map = ({ location, distanceHelper, navigate }) => {
+const Map = ({ location, distanceHelper, navigate, currentLocation }) => {
   const setDistanceHelper = useSetRecoilState(contentData);
   const setRatingHelper = useSetRecoilState(ratingHelperData);
   const setResponseHelper = useSetRecoilState(responseHelperData);
@@ -46,8 +46,8 @@ const Map = ({ location, distanceHelper, navigate }) => {
     >
       <Marker
         coordinate={{
-          latitude: location.latitude,
-          longitude: location.longitude,
+          latitude: currentLocation.latitude,
+          longitude: currentLocation.longitude,
         }}
       ></Marker>
       {distanceHelper

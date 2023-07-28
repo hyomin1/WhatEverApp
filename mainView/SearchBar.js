@@ -1,10 +1,11 @@
 import { Entypo } from "@expo/vector-icons";
 import Postcode from "@actbase/react-daum-postcode";
 import styled from "styled-components/native";
-import { Text, Modal, Dimensions, View } from "react-native";
+import { Text, Modal, Dimensions } from "react-native";
 import React, { useState } from "react";
 import * as Location from "expo-location";
-import Map from "./Map";
+import { useSetRecoilState } from "recoil";
+import { locationData } from "../atom";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -27,6 +28,7 @@ const SearchInput = styled.Pressable`
 
 const SearchBar = () => {
   const [searchAddress, setSearchAddress] = useState(false);
+  const setLocation = useSetRecoilState(locationData);
   return (
     <SearchContaienr style={{ marginLeft: -SCREEN_WIDTH / 3 }}>
       {/* 주소 검색이후 이동 + 서버 요청 코드 추가 */}
@@ -40,14 +42,10 @@ const SearchBar = () => {
           jsOptions={{ animation: true }}
           onSelected={async (data) => {
             const location = await Location.geocodeAsync(data.query);
-            //setSearchLatitude(location[0].latitude);
-            //setSearchLongitude(location[0].longitude);
+            const latitude = location[0].latitude;
+            const longitude = location[0].longitude;
+            setLocation({ latitude, longitude });
             setSearchAddress(!searchAddress);
-            return (
-              <View>
-                <Text>adfaaaaaaaaaaaaaaaaaaaaaaaaaaaasfdsafdfdsdasfdsaf</Text>
-              </View>
-            );
           }}
         />
       </Modal>
