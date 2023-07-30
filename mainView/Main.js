@@ -119,17 +119,19 @@ const Main = ({ navigation: { navigate }, route }) => {
     const subscription = client.subscribe(
       `/queue/${myId}`,
       function (message) {
-        //console.log("로그인 웹소켓");
+        console.log("로그인 웹소켓");
         if (JSON.parse(message.body).messageType === "OpenChat") {
-          //console.log("오픈챗");
+          console.log("오픈챗");
 
           const chatId = JSON.parse(message.body).data[
             JSON.parse(message.body).data.length - 1
           ]._id;
+          console.log("aaa");
+
+          console.log("bbb");
           const sub = client.subscribe(
             `/topic/chat/${chatId}`,
             function (message) {
-              //console.log("요청해서 들어간 채팅방 메시지", message.body);
               axios.get(`${BASE_URL}/api/conversations`).then(({ data }) => {
                 data.sort(function (a, b) {
                   return (
@@ -138,8 +140,8 @@ const Main = ({ navigation: { navigate }, route }) => {
                   );
                 });
                 setChatRoomList(data);
-                //data.map(v => console.log(v))
               });
+              console.log("요청해서 들어간 채팅방 메시지", message.body);
             }
           );
         }
@@ -151,10 +153,11 @@ const Main = ({ navigation: { navigate }, route }) => {
     console.log("Broker reported error: " + frame.headers["message"]);
     console.log("Additional details: " + frame.body);
   };
-  // useEffect(() => {
-  //   getLocation();
-  // }, [location]);
 
+  /*axios
+    .get(`${BASE_URL}/api/workList/nearBy`)
+    .then((res) => console.log("nearby", res))
+    .catch((error) => console.log(error));*/
   useEffect(() => {
     getToken();
     getLocation();
@@ -163,11 +166,18 @@ const Main = ({ navigation: { navigate }, route }) => {
     setTimeout(() => {
       axios
         .get(`${BASE_URL}/api/conversations`)
-        .then((res) => {
+        .then(({ data }) => {
           console.log("성공");
-          setChatRoomList(res.data); // a1일 경우 a1의 채팅리스트를 저장함
+          //setChatRoomList(res.data); // a1일 경우 a1의 채팅리스트를 저장함
           //console.log("채팅목록", res.data);
-          res.data.map((id) =>
+          data.sort(function (a, b) {
+            return (
+              new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+            );
+          });
+          setChatRoomList(data);
+
+          data.map((id) =>
             client.subscribe(`/topic/chat/${id._id}`, function (message) {
               //console.log("채팅 목록에서 들어간 메시지", message.body);
               axios.get(`${BASE_URL}/api/conversations`).then(({ data }) => {
@@ -177,6 +187,7 @@ const Main = ({ navigation: { navigate }, route }) => {
                     new Date(a.updatedAt).getTime()
                   );
                 });
+                console.log("wf", data);
                 setChatRoomList(data);
               });
             })

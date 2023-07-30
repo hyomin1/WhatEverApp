@@ -18,6 +18,7 @@ const HistoryText = styled.Text`
 `;
 
 const HistoryInform = ({ data, index, onPressReport }) => {
+  console.log("d", data);
   return (
     <HistoryInformation>
       <HistoryText>제목 : {data.title} </HistoryText>
@@ -39,6 +40,9 @@ const HistoryInform = ({ data, index, onPressReport }) => {
           신고하기
         </Text>
         <MaterialIcons name="report" size={24} color="red" />
+      </Pressable>
+      <Pressable onPress={() => {}}>
+        <Text>삭제</Text>
       </Pressable>
     </HistoryInformation>
   );

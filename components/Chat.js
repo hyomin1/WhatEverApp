@@ -43,7 +43,7 @@ const Chat = ({ navigation }) => {
   const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
   const setConversation = useSetRecoilState(conversationData);
   const myId = useRecoilValue(myIdData);
-  // console.log(chatRoomList[0].chatList);
+  console.log(chatRoomList);
 
   const goChatting = () => {
     navigation.navigate("Stack", { screen: "Chatting" });

@@ -97,6 +97,8 @@ const Order = ({
   const [context, setContext] = useState();
   const [longitude, setLongitude] = useState();
   const [latitude, setLatitude] = useState();
+  const [receiveLatitude, setReceiveLatitude] = useState();
+  const [receiveLongitude, setReceiveLongitude] = useState();
   const [deadLineTime, setDeadLineTime] = useState();
   const [reward, setReward] = useState();
 
@@ -132,6 +134,8 @@ const Order = ({
           deadLineTime,
           title,
           context,
+          receiveLatitude,
+          receiveLongitude,
         })
         .then((res) => {
           console.log("심부름 요청 성공", res.data);
@@ -284,7 +288,8 @@ const Order = ({
                           data.query
                         );
 
-                        setAddress2(data.address);
+                        setReceiveLatitude(location[0].latitude);
+                        setReceiveLongitude(location[0].longitude);
                         setReceiveAddress(!receiveAddress);
                       }}
                     />

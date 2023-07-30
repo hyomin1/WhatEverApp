@@ -8,9 +8,7 @@ const History = () => {
   const isAdmin = useRecoilValue(adminData);
 
   return (
-    <ScrollView
-      style={{ backgroundColor: "#dcdde1", flex: 1, paddingHorizontal: 20 }}
-    >
+    <ScrollView style={{ backgroundColor: "#dcdde1", flex: 1 }}>
       {isAdmin ? <AdminHistory /> : <UserHistory />}
     </ScrollView>
   );

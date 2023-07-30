@@ -160,8 +160,15 @@ const Chatting = () => {
     receiverName: receiverName,
     message: textInput,
   };
-  const card = {
+  const AcceptCard = {
     message: "Accept work",
+    senderName: myName,
+    receiverName: receiverName,
+  };
+  const CompleteCard = {
+    message: "Complete work",
+    senderName: myName,
+    receiverName: receiverName,
   };
 
   const sendMsg = () => {
@@ -208,8 +215,9 @@ const Chatting = () => {
     }, 10000);
   };
 
-  const onPressAccept = () => {
-    const work = JSON.parse(chatList.chatList[0].message);
+  const onPressAccept = (index) => {
+    const work = JSON.parse(chatList.chatList[index].message);
+    console.log(work);
     axios
       .put(`${BASE_URL}/api/work/matching`, {
         id: work.id,
@@ -225,10 +233,11 @@ const Chatting = () => {
         finished: work.finished,
       })
       .then((res) => {
-        console.log("수락");
+        console.log(res.data);
+
         client.publish({
           destination: `/pub/card/${conversation._id}`,
-          body: JSON.stringify(card),
+          body: JSON.stringify(AcceptCard),
         });
 
         if (work.deadLineTime === 1) {
@@ -243,8 +252,12 @@ const Chatting = () => {
     }
   };
   const onPressWorkComplete = () => {
-    console.log("일 완료");
+    client.publish({
+      destination: `/pub/card/${conversation._id}`,
+      body: JSON.stringify(CompleteCard),
+    });
   };
+  console.log(chatList);
   const onPressView = () => {
     console.log("진행 상황 보기");
     if (JSON.parse(chatList.chatList[0].message).deadLineTime === 1) {
@@ -324,7 +337,7 @@ const Chatting = () => {
                               flexDirection: "row",
                             }}
                           >
-                            <WorkBtn onPress={onPressAccept}>
+                            <WorkBtn onPress={() => onPressAccept(index)}>
                               <WorkAcceptText>수락</WorkAcceptText>
                             </WorkBtn>
                             <WorkBtn onPress={onPressDeny}>
@@ -375,21 +388,40 @@ const Chatting = () => {
                       )}
                     </View>
                   ) : data.messageType === "Card" ? (
-                    <CardWrapper key={index}>
-                      <CardTitleWrapper>
-                        <CardTitle>심부름이 수락되었습니다</CardTitle>
-                      </CardTitleWrapper>
-
-                      {myId === chatList.participantId ? (
-                        <CardBtn onPress={onPressWorkComplete}>
-                          <CardText>일 완료하기</CardText>
-                        </CardBtn>
+                    data.message === "Accept work" ? (
+                      <CardWrapper key={index}>
+                        <CardTitleWrapper>
+                          <CardTitle>심부름이 수락되었습니다</CardTitle>
+                        </CardTitleWrapper>
+                        {data.senderName === myName ? (
+                          <CardBtn style={{}} onPress={onPressWorkComplete}>
+                            <CardText>일 완료하기</CardText>
+                          </CardBtn>
+                        ) : (
+                          <CardBtn onPress={onPressView}>
+                            <CardText>진행상황 보기</CardText>
+                          </CardBtn>
+                        )}
+                      </CardWrapper>
+                    ) : data.message === "Complete work" ? (
+                      data.senderName === myName ? (
+                        <Pressable>
+                          <Text>대기중</Text>
+                        </Pressable>
                       ) : (
-                        <CardBtn onPress={onPressView}>
-                          <CardText>진행상황 보기</CardText>
-                        </CardBtn>
-                      )}
-                    </CardWrapper>
+                        <Pressable
+                          onPress={() => {
+                            axios
+                              .put(
+                                `${BASE_URL}/api/work/finish/${chatList.workId}`
+                              )
+                              .then((res) => console.log("afa", res.data));
+                          }}
+                        >
+                          <Text>확인하기</Text>
+                        </Pressable>
+                      )
+                    ) : null
                   ) : null
                 )
               : null}

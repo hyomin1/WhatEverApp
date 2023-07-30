@@ -304,6 +304,18 @@ const HelperProfile = ({ route }) => {
                     <WorkListText>
                       마감시간 : {data.deadLineTime}시간
                     </WorkListText>
+                    <Pressable
+                      onPress={() => {
+                        axios
+                          .delete(`${BASE_URL}/api/work/${data.id}`)
+                          .then((res) => {
+                            setWorkList(res.data);
+                            console.log(res.data);
+                          });
+                      }}
+                    >
+                      <Text>삭제</Text>
+                    </Pressable>
                   </View>
 
                   <Entypo
