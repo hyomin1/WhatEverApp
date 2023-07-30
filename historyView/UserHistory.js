@@ -34,8 +34,8 @@ const BtnText = styled.Text`
 
 const UserHistory = () => {
   const [workComplete, setWorkComplete] = useState(true); //이용 완료
-  const [working, setWorking] = useState(false);
-  const [beforeWork, setBeforeWork] = useState(false);
+  const [working, setWorking] = useState(false); //이용중
+  const [beforeWork, setBeforeWork] = useState(false); // 이용전
 
   const historyWork = useRecoilValue(historyWorkData);
 
@@ -44,11 +44,9 @@ const UserHistory = () => {
   const [isHelepr, setIsHelper] = useState(true);
 
   const onPressHelper = () => {
-    console.log("헬퍼 ");
     setIsHelper(true);
   };
   const onPressCustomer = () => {
-    console.log("고객");
     setIsHelper(false);
   };
 

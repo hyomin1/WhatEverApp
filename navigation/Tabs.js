@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Main from "../mainView/Main";
 import History from "../historyView/History";
-import Chat from "../components/Chat";
+import Chat from "../chatView/Chat";
 import { Ionicons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";

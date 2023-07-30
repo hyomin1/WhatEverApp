@@ -6,15 +6,15 @@ import Tabs from "./Tabs";
 import Fix from "../profile/ProfileFix";
 import HelperProfile from "../helperView/HelperProfile";
 import HelperList from "../helperView/HelperList";
-import Chatting from "../components/Chatting";
-import Chat from "../components/Chat";
-import { useRecoilValue } from "recoil";
-import { receiverNameData } from "../atom";
+import Chatting from "../chatView/Chatting";
+import Chat from "../chatView/Chat";
 import HelperLocation from "../helperView/HelperLocation";
 import History from "../historyView/History";
 import AdminLogin from "../login/AdminLogin";
 import AdminView from "../components/AdminView";
 import Map from "../mainView/Map";
+import { useRecoilValue } from "recoil";
+import { receiverNameData } from "../atom";
 
 const NativeStack = createNativeStackNavigator();
 

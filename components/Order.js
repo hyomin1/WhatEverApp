@@ -287,7 +287,7 @@ const Order = ({
                         const location = await Location.geocodeAsync(
                           data.query
                         );
-
+                        setAddress2(data.address);
                         setReceiveLatitude(location[0].latitude);
                         setReceiveLongitude(location[0].longitude);
                         setReceiveAddress(!receiveAddress);

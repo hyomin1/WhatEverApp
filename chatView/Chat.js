@@ -43,7 +43,6 @@ const Chat = ({ navigation }) => {
   const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
   const setConversation = useSetRecoilState(conversationData);
   const myId = useRecoilValue(myIdData);
-  console.log(chatRoomList);
 
   const goChatting = () => {
     navigation.navigate("Stack", { screen: "Chatting" });
@@ -58,7 +57,6 @@ const Chat = ({ navigation }) => {
             goChatting();
             setConversation(data);
             setChatList(data);
-            // console.log(data.chatList[0].messageType);
           }}
         >
           <ProfileImg>
