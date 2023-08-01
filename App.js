@@ -14,11 +14,7 @@ import { View } from "react-native";
 
 export default function App() {
   const queryClient = new QueryClient();
-  //const setFcmToken = useSetRecoilState(fcmTokenData);
-  // const getToken = async () => {
-  //   const token = await messaging().getToken();
-  //   setFcmToken(token);
-  // }
+
   messaging().setBackgroundMessageHandler(async (remoteMessage) => {
     //background
     console.log("Message handled in the background!", remoteMessage); //remoteMessage.body , remoteMessage.title

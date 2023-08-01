@@ -34,7 +34,7 @@ const Map = ({ location, distanceHelper, navigate, currentLocation }) => {
   return (
     <MapView
       onRegionChangeComplete={onRegionChange}
-      style={{ width: "100%", flex: 1 }}
+      style={{ width: "100%", flex: 23 }}
       region={{
         latitude: location.latitude,
         longitude: location.longitude,

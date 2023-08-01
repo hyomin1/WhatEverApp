@@ -25,6 +25,7 @@ import { BASE_URL } from "../api";
 import Map from "./Map";
 import RequestBtn from "./RequestBtn";
 import SearchBar from "./SearchBar";
+import NearWork from "./NearWork";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
@@ -38,6 +39,21 @@ const HelperView = styled.Pressable`
   background-color: white;
   justify-content: center;
   align-items: center;
+`;
+const SelectView = styled.View`
+  flex-direction: row;
+  //margin-bottom: 10px;
+`;
+const SelectBtn = styled.Pressable`
+  background-color: white;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+  border-bottom-width: 2px;
+`;
+const SelectText = styled.Text`
+  color: black;
 `;
 
 const Main = ({ navigation: { navigate }, route }) => {
@@ -63,6 +79,8 @@ const Main = ({ navigation: { navigate }, route }) => {
   const setHelperLocation = useSetRecoilState(helperLocationData);
 
   const isAdmin = useRecoilValue(adminData);
+
+  const [isMap, isSetMap] = useState(true);
 
   const getToken = async () => {
     const token = await messaging().getToken();
@@ -154,10 +172,10 @@ const Main = ({ navigation: { navigate }, route }) => {
     console.log("Additional details: " + frame.body);
   };
 
-  /*axios
+  axios
     .get(`${BASE_URL}/api/workList/nearBy`)
     .then((res) => console.log("nearby", res))
-    .catch((error) => console.log(error));*/
+    .catch((error) => console.log(error));
   useEffect(() => {
     getToken();
     getLocation();
@@ -204,31 +222,55 @@ const Main = ({ navigation: { navigate }, route }) => {
         </Loader>
       ) : (
         <View style={{ flex: 16, position: "relative", width: SCREEN_WIDTH }}>
-          <Map
-            location={location}
-            distanceHelper={distanceHelper}
-            navigate={navigate}
-            currentLocation={currentLocation}
-          />
-          <SearchBar />
-          <RequestBtn
-            setOrderVisible={setOrderVisible}
-            orderVisible={orderVisible}
-          />
-          <Order
-            setOrderVisible={setOrderVisible}
-            orderVisible={orderVisible}
-            titleName="심부름 요청서"
-            btnText="요청"
-            alertText="심부름 요청이 등록되었습니다."
-            divide="0"
-          />
+          <SelectView>
+            <SelectBtn
+              style={{ borderBottomWidth: isMap ? 2 : 0 }}
+              onPress={() => isSetMap(true)}
+            >
+              <SelectText>주변 보기</SelectText>
+            </SelectBtn>
+            <SelectBtn
+              style={{ borderBottomWidth: !isMap ? 2 : 0 }}
+              onPress={() => isSetMap(false)}
+            >
+              <SelectText>주변 심부름 보기</SelectText>
+            </SelectBtn>
+          </SelectView>
+          {isMap ? (
+            <View style={{ flex: 1 }}>
+              <Map
+                location={location}
+                distanceHelper={distanceHelper}
+                navigate={navigate}
+                currentLocation={currentLocation}
+              />
+              <SearchBar />
+              <RequestBtn
+                setOrderVisible={setOrderVisible}
+                orderVisible={orderVisible}
+              />
+              <Order
+                setOrderVisible={setOrderVisible}
+                orderVisible={orderVisible}
+                titleName="심부름 요청서"
+                btnText="요청"
+                alertText="심부름 요청이 등록되었습니다."
+                divide="0"
+              />
+              <HelperView onPress={() => navigate("HelperList")}>
+                <Text style={{ fontWeight: "600" }}>주변 헬퍼 보기</Text>
+                <MaterialIcons
+                  name="keyboard-arrow-up"
+                  size={24}
+                  color="black"
+                />
+              </HelperView>
+            </View>
+          ) : (
+            <NearWork />
+          )}
         </View>
       )}
-      <HelperView onPress={() => navigate("HelperList")}>
-        <Text style={{ fontWeight: "600" }}>주변 헬퍼 보기</Text>
-        <MaterialIcons name="keyboard-arrow-up" size={24} color="black" />
-      </HelperView>
     </View>
   );
 };

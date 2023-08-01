@@ -13,14 +13,16 @@ const SelectView = styled.View`
   margin-bottom: 10px;
 `;
 const SelectBtn = styled.Pressable`
-  background-color: blue;
+  background-color: white;
   flex: 1;
   justify-content: center;
   align-items: center;
   height: 40px;
-  border: 1px solid black;
+  border-bottom-width: 2px;
 `;
-const SelectText = styled.Text``;
+const SelectText = styled.Text`
+  color: black;
+`;
 
 const BtnView = styled.View`
   flex-direction: row;
@@ -53,15 +55,17 @@ const UserHistory = () => {
   return (
     <View>
       <SelectView>
-        <SelectBtn onPress={onPressHelper}>
-          <SelectText style={{ color: isHelepr ? "white" : "black" }}>
-            요청 받은 심부름
-          </SelectText>
+        <SelectBtn
+          style={{ borderBottomWidth: isHelepr ? 2 : 0 }}
+          onPress={onPressHelper}
+        >
+          <SelectText>요청 받은 심부름</SelectText>
         </SelectBtn>
-        <SelectBtn onPress={onPressCustomer}>
-          <SelectText style={{ color: !isHelepr ? "white" : "black" }}>
-            이용한 심부름
-          </SelectText>
+        <SelectBtn
+          style={{ borderBottomWidth: !isHelepr ? 2 : 0 }}
+          onPress={onPressCustomer}
+        >
+          <SelectText>이용한 심부름</SelectText>
         </SelectBtn>
       </SelectView>
       <View style={{ paddingHorizontal: 20 }}>

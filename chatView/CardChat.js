@@ -1,9 +1,9 @@
-import { View } from "react-native";
+import { View, Pressable, Text } from "react-native";
 import axios from "axios";
 import { BASE_URL } from "../api";
 import { client } from "../client";
 import { useRecoilValue } from "recoil";
-import { contentData } from "../atom";
+import { conversationData } from "../atom";
 import { useNavigation } from "@react-navigation/native";
 import styled from "styled-components/native";
 
@@ -30,6 +30,7 @@ const CardTitle = styled.Text`
   margin-left: 10px;
   font-size: 14px;
   font-weight: 800;
+  color: black;
 `;
 const CardBtn = styled.Pressable`
   flex: 2;
@@ -46,7 +47,7 @@ const CardText = styled.Text`
 
 const CardChat = ({ data, myName, chatList, receiverName }) => {
   const navigation = useNavigation();
-  const conversation = useRecoilValue(contentData);
+  const conversation = useRecoilValue(conversationData);
   const completeCard = {
     message: "Complete work",
     senderName: myName,
@@ -80,6 +81,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
     }
     //진행상황 보기
   };
+
   return (
     <View>
       {data.message === "Accept work" ? (
@@ -99,19 +101,27 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
         </CardWrapper>
       ) : data.message === "Complete work" ? (
         data.senderName === myName ? (
-          <Pressable>
-            <Text>대기중</Text>
-          </Pressable>
+          <CardWrapper>
+            <CardTitleWrapper>
+              <CardTitle>상대방의 수락 기다리는중</CardTitle>
+            </CardTitleWrapper>
+            <CardBtn></CardBtn>
+          </CardWrapper>
         ) : (
-          <Pressable
-            onPress={() => {
-              axios
-                .put(`${BASE_URL}/api/work/finish/${chatList.workId}`)
-                .then((res) => console.log("afa", res.data));
-            }}
-          >
-            <Text>확인하기</Text>
-          </Pressable>
+          <CardWrapper>
+            <CardTitleWrapper>
+              <CardTitle>심부름 확인</CardTitle>
+            </CardTitleWrapper>
+            <CardBtn
+              onPress={() => {
+                axios
+                  .put(`${BASE_URL}/api/work/finish/${chatList.workId}`)
+                  .then((res) => console.log("afa", res.data));
+              }}
+            >
+              <CardText>확인하기</CardText>
+            </CardBtn>
+          </CardWrapper>
         )
       ) : null}
     </View>

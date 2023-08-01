@@ -7,7 +7,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const BtnContainer = styled.View`
   position: absolute;
   width: 50%;
-  bottom: 4%;
+  bottom: 7%;
   left: 50%;
 `;
 const Button = styled.Pressable`

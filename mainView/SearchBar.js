@@ -11,7 +11,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const SearchContaienr = styled.View`
   position: absolute;
-  width: 70%;
+  width: 66%;
   left: 50%;
   top: 2%;
 `;
