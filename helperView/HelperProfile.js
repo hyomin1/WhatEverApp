@@ -286,16 +286,10 @@ const HelperProfile = ({ route }) => {
                     alignItems: "center",
                     paddingHorizontal: 30,
                     paddingVertical: 10,
-                    backgroundColor:
-                      selectColor && workList[index] === data
-                        ? "gray"
-                        : "white",
+                    backgroundColor: selectWork === data ? "gray" : "white",
                   }}
                   onPress={() => {
                     setSelectWork(data);
-                    setSelectColor(!selectColor);
-                    console.log(workList.indexOf(data, 0));
-                    console.log("wd", index);
                   }}
                 >
                   <View style={{ flex: 1 }}>

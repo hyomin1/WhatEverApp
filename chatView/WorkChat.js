@@ -93,7 +93,7 @@ const WorkChat = ({ data, myName, chatList, index, receiverName }) => {
           console.log("위치데이터", res.data);
         })
         .catch((error) => console.log(error));
-    }, 10000);
+    }, 10000); //isFinish true면 타이머 멈추고 아닐경우 타이머 하게하기
   };
   const onPressAccept = (index) => {
     setClick(true);

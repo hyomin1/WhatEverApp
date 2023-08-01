@@ -6,6 +6,8 @@ import { useRecoilValue } from "recoil";
 import { conversationData } from "../atom";
 import { useNavigation } from "@react-navigation/native";
 import styled from "styled-components/native";
+import { useState } from "react";
+import Rating from "./Rating";
 
 const CardWrapper = styled.View`
   height: 100px;
@@ -53,12 +55,15 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
     senderName: myName,
     receiverName: receiverName,
   };
+  const [isComplete, isSetComplete] = useState(false);
+  const [isFinish, setIsFinish] = useState(true);
 
   const onPressWorkComplete = () => {
     client.publish({
       destination: `/pub/card/${conversation._id}`,
       body: JSON.stringify(completeCard),
     });
+    isSetComplete(true);
   };
 
   const onPressView = () => {
@@ -84,6 +89,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
 
   return (
     <View>
+      <Rating />
       {data.message === "Accept work" ? (
         <CardWrapper>
           <CardTitleWrapper>
@@ -91,7 +97,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
           </CardTitleWrapper>
           {data.senderName === myName ? (
             <CardBtn style={{}} onPress={onPressWorkComplete}>
-              <CardText>일 완료하기</CardText>
+              <CardText>{isComplete ? "완료" : "일 완료하기"}</CardText>
             </CardBtn>
           ) : (
             <CardBtn onPress={onPressView}>
@@ -116,7 +122,10 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
               onPress={() => {
                 axios
                   .put(`${BASE_URL}/api/work/finish/${chatList.workId}`)
-                  .then((res) => console.log("afa", res.data));
+                  .then((res) => {
+                    console.log("finish", res.data);
+                    setIsFinish(true);
+                  });
               }}
             >
               <CardText>확인하기</CardText>

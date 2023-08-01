@@ -172,10 +172,10 @@ const Main = ({ navigation: { navigate }, route }) => {
     console.log("Additional details: " + frame.body);
   };
 
-  axios
-    .get(`${BASE_URL}/api/workList/nearBy`)
-    .then((res) => console.log("nearby", res))
-    .catch((error) => console.log(error));
+  // axios
+  //   .get(`${BASE_URL}/api/workList/nearBy`)
+  //   .then((res) => console.log("nearby", res))
+  //   .catch((error) => console.log(error));
   useEffect(() => {
     getToken();
     getLocation();
