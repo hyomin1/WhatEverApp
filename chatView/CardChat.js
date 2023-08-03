@@ -2,8 +2,8 @@ import { View, Pressable, Text } from "react-native";
 import axios from "axios";
 import { BASE_URL } from "../api";
 import { client } from "../client";
-import { useRecoilValue } from "recoil";
-import { conversationData } from "../atom";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { conversationData, historyWorkData, myIdData } from "../atom";
 import { useNavigation } from "@react-navigation/native";
 import styled from "styled-components/native";
 import { useState } from "react";
@@ -50,6 +50,8 @@ const CardText = styled.Text`
 const CardChat = ({ data, myName, chatList, receiverName }) => {
   const navigation = useNavigation();
   const conversation = useRecoilValue(conversationData);
+  const myId = useRecoilValue(myIdData);
+  const [historyWork, setHistoryWork] = useRecoilState(historyWorkData);
   const completeCard = {
     message: "Complete work",
     senderName: myName,
@@ -86,18 +88,19 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
     }
     //진행상황 보기
   };
-
+  console.log();
   return (
     <View>
-      <Rating />
       {data.message === "Accept work" ? (
         <CardWrapper>
           <CardTitleWrapper>
             <CardTitle>심부름이 수락되었습니다</CardTitle>
           </CardTitleWrapper>
-          {data.senderName === myName ? (
+          {myId !== JSON.parse(chatList.chatList[0].message).customerId ? (
             <CardBtn style={{}} onPress={onPressWorkComplete}>
-              <CardText>{isComplete ? "완료" : "일 완료하기"}</CardText>
+              <CardText>
+                {isComplete ? "완료되었습니다" : "일 완료하기"}
+              </CardText>
             </CardBtn>
           ) : (
             <CardBtn onPress={onPressView}>
@@ -116,15 +119,17 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
         ) : (
           <CardWrapper>
             <CardTitleWrapper>
-              <CardTitle>심부름 확인</CardTitle>
+              <CardTitle>심부름 완료 확인</CardTitle>
             </CardTitleWrapper>
             <CardBtn
               onPress={() => {
                 axios
                   .put(`${BASE_URL}/api/work/finish/${chatList.workId}`)
-                  .then((res) => {
-                    console.log("finish", res.data);
+                  .then(({ data }) => {
+                    console.log("finish", data);
                     setIsFinish(true);
+                    //setHistoryWork(data);
+                    //console.log(historyWork);
                   });
               }}
             >

@@ -8,6 +8,7 @@ import {
   chatRoomListData,
   conversationData,
   indexData,
+  accessData,
 } from "../atom";
 import axios from "axios";
 import { useState } from "react";
@@ -138,6 +139,8 @@ const HelperProfile = ({ route }) => {
   const [chatList, setChatList] = useRecoilState(chatListData);
   const [conversation, setConversation] = useRecoilState(conversationData);
 
+  const accessToken = useRecoilValue(accessData);
+
   const [workList, setWorkList] = useRecoilState(workListData);
   const [workListVisible, setWorkListVisible] = useState(false);
   const [selectWork, setSelectWork] = useState(); //내가 선택한 일 정보
@@ -164,20 +167,23 @@ const HelperProfile = ({ route }) => {
 
   const onPressOrderBtn = async () => {
     //심부름 목록 본 후 선택해서 신청
+    console.log("11111111");
     axios
       .post(`${BASE_URL}/api/conversation/${route.params.id}`, {
         id: selectWork.id,
       })
       .then(({ data }) => {
         console.log("workid", data);
+        console.log("2222222");
         setConversation(data);
         setChatRoomList([...chatRoomList, data]); //채팅방 목록 보여주기 위함
         setChatList(data);
         client.publish({
           destination: `/pub/work/${data._id}`,
           body: JSON.stringify(selectWork),
+          headers: { Authorization: `Bearer ${accessToken}` },
         });
-        console.log("선택한 심부름", selectWork);
+        console.log("33333333");
         goChat();
       })
       .catch((error) => console.log(error));

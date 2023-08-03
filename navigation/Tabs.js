@@ -124,6 +124,7 @@ const Tabs = ({ navigation: { navigate } }) => {
                 })
               : axios.get(`${BASE_URL}/api/workList/all`).then(({ data }) => {
                   setHistoryWork(data);
+                  console.log(data);
                 });
           },
         })}

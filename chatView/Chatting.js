@@ -87,10 +87,10 @@ const Chatting = () => {
 
   useEffect(() => {
     if (myId === conversation.creatorId) {
-      setMyName(conversation.creatorName);
+      setMyName(conversation.creatorName); //방만듦 고객
       setReceiverName(conversation.participatorName);
     } else {
-      setMyName(conversation.participatorName);
+      setMyName(conversation.participatorName); //헬퍼
       setReceiverName(conversation.creatorName);
     }
   }, []);
@@ -116,6 +116,7 @@ const Chatting = () => {
                       chatList={chatList}
                       index={index}
                       receiverName={receiverName}
+                      creatorId={chatList.creatorId}
                     />
                   ) : data.messageType === "Chat" ? (
                     <NormalChat

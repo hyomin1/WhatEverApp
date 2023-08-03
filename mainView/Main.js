@@ -81,6 +81,7 @@ const Main = ({ navigation: { navigate }, route }) => {
   const isAdmin = useRecoilValue(adminData);
 
   const [isMap, isSetMap] = useState(true);
+  const [nearWork, setNearWork] = useState();
 
   const getToken = async () => {
     const token = await messaging().getToken();
@@ -131,56 +132,50 @@ const Main = ({ navigation: { navigate }, route }) => {
     Authorization: `${grant}` + " " + `${access}`,
   };
 
-  client.onConnect = function (frame) {
-    //console.log("연결됨");
-
-    const subscription = client.subscribe(
-      `/queue/${myId}`,
-      function (message) {
-        console.log("로그인 웹소켓");
-        if (JSON.parse(message.body).messageType === "OpenChat") {
-          console.log("오픈챗");
-
-          const chatId = JSON.parse(message.body).data[
-            JSON.parse(message.body).data.length - 1
-          ]._id;
-          console.log("aaa");
-
-          console.log("bbb");
-          const sub = client.subscribe(
-            `/topic/chat/${chatId}`,
-            function (message) {
-              axios.get(`${BASE_URL}/api/conversations`).then(({ data }) => {
-                data.sort(function (a, b) {
-                  return (
-                    new Date(b.updatedAt).getTime() -
-                    new Date(a.updatedAt).getTime()
-                  );
-                });
-                setChatRoomList(data);
-              });
-              console.log("요청해서 들어간 채팅방 메시지", message.body);
-            }
-          );
-        }
-      },
-      headers
-    );
-  };
+  client.onConnect = function (frame) {};
   client.onStompError = function (frame) {
     console.log("Broker reported error: " + frame.headers["message"]);
     console.log("Additional details: " + frame.body);
   };
 
-  // axios
-  //   .get(`${BASE_URL}/api/workList/nearBy`)
-  //   .then((res) => console.log("nearby", res))
-  //   .catch((error) => console.log(error));
   useEffect(() => {
     getToken();
     getLocation();
     client.connectHeaders.Authorization = `${grant}` + " " + `${access}`;
     client.activate();
+    setTimeout(() => {
+      console.log("연결됨");
+      const subscription = client.subscribe(
+        `/queue/${myId}`,
+        function (message) {
+          console.log("로그인 웹소켓");
+          if (JSON.parse(message.body).messageType === "OpenChat") {
+            console.log("오픈챗");
+
+            const chatId = JSON.parse(message.body).data[
+              JSON.parse(message.body).data.length - 1
+            ]._id;
+            const sub = client.subscribe(
+              `/topic/chat/${chatId}`,
+              function (message) {
+                axios.get(`${BASE_URL}/api/conversations`).then(({ data }) => {
+                  data.sort(function (a, b) {
+                    return (
+                      new Date(b.updatedAt).getTime() -
+                      new Date(a.updatedAt).getTime()
+                    );
+                  });
+                  console.log("구독완료");
+                  setChatRoomList(data);
+                });
+                console.log("요청해서 들어간 채팅방 메시지", message.body);
+              }
+            );
+          }
+        },
+        headers
+      );
+    }, 1000);
     setTimeout(() => {
       axios
         .get(`${BASE_URL}/api/conversations`)
@@ -197,7 +192,7 @@ const Main = ({ navigation: { navigate }, route }) => {
 
           data.map((id) =>
             client.subscribe(`/topic/chat/${id._id}`, function (message) {
-              //console.log("채팅 목록에서 들어간 메시지", message.body);
+              console.log("채팅 목록에서 들어간 메시지", message.body);
               axios.get(`${BASE_URL}/api/conversations`).then(({ data }) => {
                 data.sort(function (a, b) {
                   return (
@@ -231,7 +226,13 @@ const Main = ({ navigation: { navigate }, route }) => {
             </SelectBtn>
             <SelectBtn
               style={{ borderBottomWidth: !isMap ? 2 : 0 }}
-              onPress={() => isSetMap(false)}
+              onPress={() => {
+                isSetMap(false);
+                axios
+                  .get(`${BASE_URL}/api/workList/nearBy`)
+                  .then((res) => setNearWork(res.data))
+                  .catch((error) => console.log(error));
+              }}
             >
               <SelectText>주변 심부름 보기</SelectText>
             </SelectBtn>
@@ -267,7 +268,7 @@ const Main = ({ navigation: { navigate }, route }) => {
               </HelperView>
             </View>
           ) : (
-            <NearWork />
+            <NearWork nearWork={nearWork} />
           )}
         </View>
       )}

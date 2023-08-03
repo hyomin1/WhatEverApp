@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { Pressable, View, Text } from "react-native";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components/native";
 import { conversationData, myIdData } from "../atom";
@@ -62,7 +62,14 @@ const WorkAcceptText = styled.Text`
   font-size: 19px;
 `;
 
-const WorkChat = ({ data, myName, chatList, index, receiverName }) => {
+const WorkChat = ({
+  data,
+  myName,
+  chatList,
+  index,
+  receiverName,
+  creatorId,
+}) => {
   const myId = useRecoilValue(myIdData);
   const conversation = useRecoilValue(conversationData);
   const AcceptCard = {
@@ -110,7 +117,10 @@ const WorkChat = ({ data, myName, chatList, index, receiverName }) => {
         longitude: work.longitude,
         proceeding: work.proceeding,
         customerId: work.customerId,
-        helperId: conversation.participantId,
+        helperId:
+          myId === conversation.participantId
+            ? conversation.creatorId
+            : conversation.participantId,
         finished: work.finished,
       })
       .then((res) => {
@@ -124,7 +134,9 @@ const WorkChat = ({ data, myName, chatList, index, receiverName }) => {
         } else {
         }
       })
-      .catch((error) => console.log("accept", error));
+      .catch((error) => {
+        console.log(error.response);
+      });
   };
   const onPressDeny = () => {
     setClick(true);
@@ -132,6 +144,40 @@ const WorkChat = ({ data, myName, chatList, index, receiverName }) => {
     if (chatList.participatorName === myName) {
       Alert.alert("거절되었습니다.");
     }
+  };
+
+  console.log(conversation.participantId);
+  const onPressCheck = () => {
+    const work = JSON.parse(chatList.chatList[index].message);
+    axios
+      .put(`${BASE_URL}/api/work/matching`, {
+        id: work.id,
+        title: work.title,
+        context: work.context,
+        deadLineTime: work.deadLineTime,
+        reward: work.reward,
+        latitude: work.latitude,
+        longitude: work.longitude,
+        proceeding: work.proceeding,
+        customerId: work.customerId,
+        helperId:
+          myId === conversation.participantId
+            ? conversation.creatorId
+            : conversation.participantId,
+        finished: work.finished,
+      })
+      .then((res) => {
+        client.publish({
+          destination: `/pub/card/${conversation._id}`,
+          body: JSON.stringify(AcceptCard),
+        });
+
+        if (work.deadLineTime === 1) {
+          intervalId(work.id);
+        } else {
+        }
+      })
+      .catch((error) => Alert.alert(error.response.data.message));
   };
 
   return (
@@ -143,19 +189,47 @@ const WorkChat = ({ data, myName, chatList, index, receiverName }) => {
       }}
     >
       {/*<Time>{data.sendTime.slice(0, 16)}</Time>*/}
-      <WorkWrapper>
-        <WorkTitleWrapper>
-          <WorkTitle>심부름 요청서</WorkTitle>
-        </WorkTitleWrapper>
-        <WorkTextView>
-          <WorkText>제목 : {JSON.parse(data.message).title}</WorkText>
-          <WorkText>내용 : {JSON.parse(data.message).context}</WorkText>
-          <WorkText>
-            마감시간 : {JSON.parse(data.message).deadLineTime}
-            시간
-          </WorkText>
-        </WorkTextView>
-        {myId === chatList.participantId ? (
+
+      {myId === JSON.parse(data.message).customerId ? (
+        myId === creatorId ? (
+          <WorkWrapper>
+            <WorkTitleWrapper>
+              <WorkTitle>심부름 요청서</WorkTitle>
+            </WorkTitleWrapper>
+            <WorkTextView>
+              <WorkText>제목 : {JSON.parse(data.message).title}</WorkText>
+              <WorkText>내용 : {JSON.parse(data.message).context}</WorkText>
+              <WorkText>
+                마감시간 : {JSON.parse(data.message).deadLineTime}시간
+              </WorkText>
+            </WorkTextView>
+          </WorkWrapper>
+        ) : (
+          <WorkWrapper>
+            <WorkTitleWrapper>
+              <WorkTitle>심부름 검증서</WorkTitle>
+            </WorkTitleWrapper>
+            <Pressable onPress={onPressCheck}>
+              <Text>수락</Text>
+            </Pressable>
+          </WorkWrapper>
+        )
+      ) : myId !== creatorId ? (
+        <WorkWrapper>
+          <WorkTitleWrapper>
+            <WorkTitle>심부름 요청서</WorkTitle>
+          </WorkTitleWrapper>
+
+          <WorkTextView>
+            <WorkText>제목 : {JSON.parse(data.message).title}</WorkText>
+
+            <WorkText>내용 : {JSON.parse(data.message).context}</WorkText>
+
+            <WorkText>
+              마감시간 : {JSON.parse(data.message).deadLineTime}
+              시간
+            </WorkText>
+          </WorkTextView>
           <View
             style={{
               flexDirection: "row",
@@ -178,8 +252,14 @@ const WorkChat = ({ data, myName, chatList, index, receiverName }) => {
               deny && <WorkAcceptText>거절한 심부름입니다</WorkAcceptText>
             )}
           </View>
-        ) : null}
-      </WorkWrapper>
+        </WorkWrapper>
+      ) : (
+        <WorkWrapper>
+          <WorkTitleWrapper>
+            <WorkTitle>심부름 검증서</WorkTitle>
+          </WorkTitleWrapper>
+        </WorkWrapper>
+      )}
     </View>
   );
 };

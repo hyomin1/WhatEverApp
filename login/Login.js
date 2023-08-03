@@ -118,7 +118,8 @@ function Login({ navigation: { navigate } }) {
         console.log("로그인 성공");
         setIsAdmin(false);
         goMain();
-      });
+      })
+      .catch((error) => console.log(error.response.data.message));
   };
   //유저 로그인
   const onPressLogin = () => {
@@ -132,26 +133,6 @@ function Login({ navigation: { navigate } }) {
   };
   //어드민 로그인
   const onPressAdmin = () => {
-    // axios
-    //   .post(`${BASE_URL}/loginAdmin`, {
-    //     userId: id,
-    //     password: password,
-    //   })
-    //   .then((res) => {
-    //     if (res.status === 200) {
-    //       axios.defaults.headers.common[
-    //         "Authorization"
-    //       ] = `Bearer ${res.data.accessToken}`;
-    //       apiClient.defaults.headers.common[
-    //         "Authorization"
-    //       ] = `Bearer ${res.data.accessToken}`;
-    //     }
-    //     setIsAdmin(true);
-    //     goMain();
-    //   })
-    //   .catch((error) => {
-    //     Alert.alert("관리자가 아닙니다.");
-    //   });
     setIsAdmin(true);
     goMain();
   };

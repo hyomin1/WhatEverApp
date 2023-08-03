@@ -24,7 +24,7 @@ export default function App() {
     //getToken();
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
       //foreground
-      Alert.alert("A new FCM message arrived!", JSON.stringify(remoteMessage));
+      Alert.alert("채팅알람", remoteMessage.notification.body);
     });
     return unsubscribe;
   }, []);

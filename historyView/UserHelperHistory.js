@@ -20,45 +20,51 @@ const UserHelperHistory = ({ workComplete, working, beforeWork }) => {
 
   return (
     <View>
-      {historyWork?.map((data, index) =>
-        myId !== data.customerId &&
-        workComplete &&
-        data.finished &&
-        !data.proceeding ? (
-          <HistoryInform
-            key={index}
-            data={data}
-            index={index}
-            onPressReport={onPressReport}
-          />
-        ) : null
-      )}
-      {historyWork?.map((data, index) =>
-        myId !== data.customerId &&
-        working &&
-        !data.finished &&
-        data.proceeding ? (
-          <HistoryInform
-            key={index}
-            data={data}
-            index={index}
-            onPressReport={onPressReport}
-          />
-        ) : null
-      )}
-      {historyWork?.map((data, index) =>
-        myId !== data.customerId &&
-        beforeWork &&
-        !data.finished &&
-        !data.proceeding ? (
-          <HistoryInform
-            key={index}
-            data={data}
-            index={index}
-            onPressReport={onPressReport}
-          />
-        ) : null
-      )}
+      {historyWork
+        ? historyWork?.map((data, index) =>
+            myId !== data.customerId &&
+            workComplete &&
+            data.finished &&
+            !data.proceeding ? (
+              <HistoryInform
+                key={index}
+                data={data}
+                index={index}
+                onPressReport={onPressReport}
+              />
+            ) : null
+          )
+        : null}
+      {historyWork
+        ? historyWork?.map((data, index) =>
+            myId !== data.customerId &&
+            working &&
+            !data.finished &&
+            data.proceeding ? (
+              <HistoryInform
+                key={index}
+                data={data}
+                index={index}
+                onPressReport={onPressReport}
+              />
+            ) : null
+          )
+        : null}
+      {historyWork
+        ? historyWork?.map((data, index) =>
+            myId !== data.customerId &&
+            beforeWork &&
+            !data.finished &&
+            !data.proceeding ? (
+              <HistoryInform
+                key={index}
+                data={data}
+                index={index}
+                onPressReport={onPressReport}
+              />
+            ) : null
+          )
+        : null}
 
       <Report
         reportVisible={reportVisible}
