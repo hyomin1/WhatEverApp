@@ -10,8 +10,6 @@ import Chatting from "../chatView/Chatting";
 import Chat from "../chatView/Chat";
 import HelperLocation from "../helperView/HelperLocation";
 import History from "../historyView/History";
-import AdminLogin from "../login/AdminLogin";
-import AdminView from "../components/AdminView";
 import Map from "../mainView/Map";
 import { useRecoilValue } from "recoil";
 import { receiverNameData } from "../atom";
@@ -98,8 +96,6 @@ const Stack = ({ navigation }) => {
       />
       <NativeStack.Screen name="HelperLocation" component={HelperLocation} />
       <NativeStack.Screen name="StackHistory" component={History} />
-      <NativeStack.Screen name="AdminLogin" component={AdminLogin} />
-      <NativeStack.Screen name="AdminView" component={AdminView} />
     </NativeStack.Navigator>
   );
 };

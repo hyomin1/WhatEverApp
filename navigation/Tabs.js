@@ -65,7 +65,7 @@ const Tabs = ({ navigation: { navigate } }) => {
               />
             );
           },
-          headerTitle: "심부름 요청",
+          headerTitle: "헬퍼 보기",
           headerTitleAlign: "center",
           headerTitleStyle: {
             fontWeight: "800",

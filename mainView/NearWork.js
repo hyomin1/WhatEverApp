@@ -11,8 +11,23 @@ import {
   chatListData,
   chatRoomListData,
   conversationData,
-  grantData,
 } from "../atom";
+import { MaterialIcons } from "@expo/vector-icons";
+
+const Wrapper = styled.View`
+  flex: 1;
+`;
+
+const HeaderView = styled.View`
+  flex: 1;
+  flex-direction: row;
+  padding: 10px 10px;
+`;
+const Title = styled.Text`
+  font-weight: 600;
+  font-size: 17px;
+  margin-bottom: 10px;
+`;
 
 const WorkInformation = styled.Pressable`
   margin-top: 15px;
@@ -23,10 +38,9 @@ const WorkInformation = styled.Pressable`
 `;
 
 const WorkText = styled.Text`
-  font-size: 17px;
-  margin-bottom: 10px;
+  font-size: 18px;
   font-weight: 600;
-  color: #7f8fa6;
+  color: black;
 `;
 
 const NearWork = ({ nearWork }) => {
@@ -62,31 +76,64 @@ const NearWork = ({ nearWork }) => {
       });
   };
   console.log(nearWork);
+
   return (
     <ScrollView>
-      {nearWork
-        ? nearWork.map((data, index) =>
-            !data.finished ? (
-              <View key={index}>
-                <WorkInformation onPress={onPressWork} key={index}>
-                  <WorkText>제목 : {data.title}</WorkText>
-                </WorkInformation>
-                <Modal
-                  style={{ flex: 1 }}
-                  animationType="slide"
-                  visible={visible}
-                >
+      {nearWork && nearWork.length > 0 ? (
+        nearWork.map((data, index) =>
+          !data.finished ? (
+            <View key={index} style={{ paddingHorizontal: 10 }}>
+              <WorkInformation onPress={onPressWork} key={index}>
+                <WorkText>제목 : {data.title}</WorkText>
+              </WorkInformation>
+              <Modal animationType="slide" visible={visible}>
+                <Wrapper>
+                  <HeaderView>
+                    <View style={{ flex: 1 }}>
+                      <MaterialIcons
+                        onPress={() => {
+                          setVisible((cur) => !cur);
+                        }}
+                        name="cancel"
+                        size={24}
+                        color="black"
+                      />
+                    </View>
+
+                    <View
+                      style={{
+                        flex: 1,
+
+                        alignItems: "center",
+                      }}
+                    >
+                      <Title>상세보기</Title>
+                    </View>
+                    <View style={{ flex: 1 }}></View>
+                  </HeaderView>
                   <Pressable onPress={() => setVisible((cur) => !cur)}>
                     <WorkText>{data.context}</WorkText>
                   </Pressable>
                   <Pressable onPress={() => onPressProgress(data)}>
                     <WorkText>진행 요청</WorkText>
                   </Pressable>
-                </Modal>
-              </View>
-            ) : null
-          )
-        : null}
+                </Wrapper>
+              </Modal>
+            </View>
+          ) : null
+        )
+      ) : (
+        <View
+          style={{
+            flex: 1,
+            marginTop: 20,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Text>주변에 심부름이 없습니다</Text>
+        </View>
+      )}
     </ScrollView>
   );
 };

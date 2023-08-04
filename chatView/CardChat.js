@@ -1,4 +1,4 @@
-import { View, Pressable, Text, Modal } from "react-native";
+import { View, Modal } from "react-native";
 import axios from "axios";
 import { BASE_URL } from "../api";
 import { client } from "../client";

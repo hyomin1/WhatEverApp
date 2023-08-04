@@ -253,9 +253,9 @@ const Main = ({ navigation: { navigate }, route }) => {
               <Order
                 setOrderVisible={setOrderVisible}
                 orderVisible={orderVisible}
-                titleName="심부름 요청서"
-                btnText="요청"
-                alertText="심부름 요청이 등록되었습니다."
+                titleName="심부름 등록"
+                btnText="등록하기"
+                alertText="심부름이 등록되었습니다."
                 divide="0"
               />
               <HelperView onPress={() => navigate("HelperList")}>

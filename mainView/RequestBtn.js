@@ -37,7 +37,7 @@ const RequestBtn = ({ setOrderVisible, orderVisible }) => {
             style={{ marginRight: 5 }}
           />
           <Text style={{ color: "white", fontWeight: "800", fontSize: 15 }}>
-            심부름 요청하기
+            심부름 등록하기
           </Text>
         </View>
       </Button>
