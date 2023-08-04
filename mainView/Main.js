@@ -168,7 +168,7 @@ const Main = ({ navigation: { navigate }, route }) => {
                   console.log("구독완료");
                   setChatRoomList(data);
                 });
-                console.log("요청해서 들어간 채팅방 메시지", message.body);
+                // console.log("요청해서 들어간 채팅방 메시지", message.body);
               }
             );
           }
@@ -192,7 +192,7 @@ const Main = ({ navigation: { navigate }, route }) => {
 
           data.map((id) =>
             client.subscribe(`/topic/chat/${id._id}`, function (message) {
-              console.log("채팅 목록에서 들어간 메시지", message.body);
+              //  console.log("채팅 목록에서 들어간 메시지", message.body);
               axios.get(`${BASE_URL}/api/conversations`).then(({ data }) => {
                 data.sort(function (a, b) {
                   return (
@@ -200,7 +200,7 @@ const Main = ({ navigation: { navigate }, route }) => {
                     new Date(a.updatedAt).getTime()
                   );
                 });
-                console.log("wf", data);
+
                 setChatRoomList(data);
               });
             })

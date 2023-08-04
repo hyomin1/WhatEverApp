@@ -1,9 +1,14 @@
-import { View, Pressable, Text } from "react-native";
+import { View, Pressable, Text, Modal } from "react-native";
 import axios from "axios";
 import { BASE_URL } from "../api";
 import { client } from "../client";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { conversationData, historyWorkData, myIdData } from "../atom";
+import {
+  conversationData,
+  historyWorkData,
+  isTimerData,
+  myIdData,
+} from "../atom";
 import { useNavigation } from "@react-navigation/native";
 import styled from "styled-components/native";
 import { useState } from "react";
@@ -52,13 +57,20 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
   const conversation = useRecoilValue(conversationData);
   const myId = useRecoilValue(myIdData);
   const [historyWork, setHistoryWork] = useRecoilState(historyWorkData);
+  const [isStarRating, isSetStarRating] = useState(false);
   const completeCard = {
     message: "Complete work",
     senderName: myName,
     receiverName: receiverName,
   };
+  const finishCard = {
+    message: "Finish Work",
+    senderName: myName,
+    receiverName: receiverName,
+  };
   const [isComplete, isSetComplete] = useState(false);
   const [isFinish, setIsFinish] = useState(true);
+  const [isTimer, isSetTimer] = useRecoilState(isTimerData);
 
   const onPressWorkComplete = () => {
     client.publish({
@@ -66,6 +78,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
       body: JSON.stringify(completeCard),
     });
     isSetComplete(true);
+    isSetTimer(false);
   };
 
   const onPressView = () => {
@@ -88,7 +101,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
     }
     //진행상황 보기
   };
-  console.log();
+
   return (
     <View>
       {data.message === "Accept work" ? (
@@ -97,7 +110,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
             <CardTitle>심부름이 수락되었습니다</CardTitle>
           </CardTitleWrapper>
           {myId !== JSON.parse(chatList.chatList[0].message).customerId ? (
-            <CardBtn style={{}} onPress={onPressWorkComplete}>
+            <CardBtn onPress={onPressWorkComplete}>
               <CardText>
                 {isComplete ? "완료되었습니다" : "일 완료하기"}
               </CardText>
@@ -109,7 +122,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
           )}
         </CardWrapper>
       ) : data.message === "Complete work" ? (
-        data.senderName === myName ? (
+        myId !== JSON.parse(chatList.chatList[0].message).customerId ? (
           <CardWrapper>
             <CardTitleWrapper>
               <CardTitle>상대방의 수락 기다리는중</CardTitle>
@@ -126,10 +139,13 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
                 axios
                   .put(`${BASE_URL}/api/work/finish/${chatList.workId}`)
                   .then(({ data }) => {
-                    console.log("finish", data);
-                    setIsFinish(true);
-                    //setHistoryWork(data);
-                    //console.log(historyWork);
+                    //console.log("finish", data);
+                    client.publish({
+                      destination: `/pub/card/${conversation._id}`,
+                      body: JSON.stringify(finishCard),
+                    });
+                    isSetTimer(false);
+                    setHistoryWork([...historyWork, data]);
                   });
               }}
             >
@@ -137,6 +153,26 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
             </CardBtn>
           </CardWrapper>
         )
+      ) : data.message === "Finish Work" ? (
+        <CardWrapper>
+          <CardTitleWrapper>
+            <CardTitle>심부름이 종료되었습니다</CardTitle>
+          </CardTitleWrapper>
+          {myId !== JSON.parse(chatList.chatList[0].message).customerId ? (
+            <CardBtn>
+              <CardText>헬퍼입장 종료</CardText>
+            </CardBtn>
+          ) : (
+            <View>
+              <CardBtn onPress={() => isSetStarRating((cur) => !cur)}>
+                <CardText>별점 평가</CardText>
+              </CardBtn>
+              <Modal animationType="slide" visible={isStarRating}>
+                <Rating isSetStarRating={isSetStarRating} />
+              </Modal>
+            </View>
+          )}
+        </CardWrapper>
       ) : null}
     </View>
   );

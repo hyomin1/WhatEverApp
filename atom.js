@@ -155,3 +155,8 @@ export const reportData = atom({
   key: "report",
   default: null,
 });
+
+export const isTimerData = atom({
+  key: "isTimer",
+  default: null,
+});

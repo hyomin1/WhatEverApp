@@ -1,7 +1,7 @@
 import { Pressable, View, Text } from "react-native";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components/native";
-import { conversationData, myIdData } from "../atom";
+import { conversationData, isTimerData, myIdData } from "../atom";
 import axios from "axios";
 import { BASE_URL } from "../api";
 import { client } from "../client";
@@ -80,31 +80,33 @@ const WorkChat = ({
   const [click, setClick] = useState(false);
   const [accept, setAccept] = useState(false);
   const [deny, setDeny] = useState(false);
+  const [isTimer, isSetTimer] = useRecoilState(isTimerData);
 
   const intervalId = (id) => {
-    BackgroundTimer.setInterval(async () => {
-      const { granted } = await Location.requestForegroundPermissionsAsync();
-      if (!granted) {
-        setOk("error");
-      }
-      const {
-        coords: { latitude, longitude },
-      } = await Location.getCurrentPositionAsync({ accuracy: 5 });
-      console.log(latitude, longitude);
-      axios
-        .post(`${BASE_URL}/api/location/helperLocation/${id}`, {
-          latitude: latitude,
-          longitude: longitude,
-        })
-        .then((res) => {
-          console.log("위치데이터", res.data);
-        })
-        .catch((error) => console.log(error));
-    }, 10000); //isFinish true면 타이머 멈추고 아닐경우 타이머 하게하기
+    if (isTimer) {
+      BackgroundTimer.setInterval(async () => {
+        const { granted } = await Location.requestForegroundPermissionsAsync();
+        if (!granted) {
+          setOk("error");
+        }
+        const {
+          coords: { latitude, longitude },
+        } = await Location.getCurrentPositionAsync({ accuracy: 5 });
+        console.log(latitude, longitude);
+        axios
+          .post(`${BASE_URL}/api/location/helperLocation/${id}`, {
+            latitude,
+            longitude,
+          })
+          .then((res) => {
+            console.log("위치데이터", res.data);
+          })
+          .catch((error) => console.log(error));
+      }, 10000); //isFinish true면 타이머 멈추고 아닐경우 타이머 하게하기
+    }
   };
   const onPressAccept = (index) => {
-    setClick(true);
-    setAccept(true);
+    //헬퍼가 심부름 수락시
     const work = JSON.parse(chatList.chatList[index].message);
     axios
       .put(`${BASE_URL}/api/work/matching`, {
@@ -132,21 +134,19 @@ const WorkChat = ({
         if (work.deadLineTime === 1) {
           intervalId(work.id);
         } else {
+          console.log("마감시간 1시간 초과");
         }
       })
       .catch((error) => {
-        console.log(error.response);
+        Alert.alert(error.response.data.message);
       });
   };
   const onPressDeny = () => {
-    setClick(true);
-    setDeny(true);
     if (chatList.participatorName === myName) {
       Alert.alert("거절되었습니다.");
     }
   };
 
-  console.log(conversation.participantId);
   const onPressCheck = () => {
     const work = JSON.parse(chatList.chatList[index].message);
     axios
@@ -235,22 +235,13 @@ const WorkChat = ({
               flexDirection: "row",
             }}
           >
-            {!click && !accept ? (
-              <WorkBtn onPress={() => onPressAccept(index)}>
-                <WorkAcceptText>수락</WorkAcceptText>
-              </WorkBtn>
-            ) : (
-              click &&
-              accept && <WorkAcceptText>수락한 심부름입니다</WorkAcceptText>
-            )}
-            {!click && !deny ? (
-              <WorkBtn onPress={onPressDeny}>
-                <WorkAcceptText>거절</WorkAcceptText>
-              </WorkBtn>
-            ) : (
-              click &&
-              deny && <WorkAcceptText>거절한 심부름입니다</WorkAcceptText>
-            )}
+            <WorkBtn onPress={() => onPressAccept(index)}>
+              <WorkAcceptText>수락</WorkAcceptText>
+            </WorkBtn>
+
+            <WorkBtn onPress={onPressDeny}>
+              <WorkAcceptText>거절</WorkAcceptText>
+            </WorkBtn>
           </View>
         </WorkWrapper>
       ) : (

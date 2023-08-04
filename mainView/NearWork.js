@@ -61,28 +61,31 @@ const NearWork = ({ nearWork }) => {
         goChat();
       });
   };
+  console.log(nearWork);
   return (
     <ScrollView>
       {nearWork
-        ? nearWork.map((data, index) => (
-            <View key={index}>
-              <WorkInformation onPress={onPressWork} key={index}>
-                <WorkText>제목 : {data.title}</WorkText>
-              </WorkInformation>
-              <Modal
-                style={{ flex: 1 }}
-                animationType="slide"
-                visible={visible}
-              >
-                <Pressable onPress={() => setVisible((cur) => !cur)}>
-                  <WorkText>{data.context}</WorkText>
-                </Pressable>
-                <Pressable onPress={() => onPressProgress(data)}>
-                  <WorkText>진행 요청</WorkText>
-                </Pressable>
-              </Modal>
-            </View>
-          ))
+        ? nearWork.map((data, index) =>
+            !data.finished ? (
+              <View key={index}>
+                <WorkInformation onPress={onPressWork} key={index}>
+                  <WorkText>제목 : {data.title}</WorkText>
+                </WorkInformation>
+                <Modal
+                  style={{ flex: 1 }}
+                  animationType="slide"
+                  visible={visible}
+                >
+                  <Pressable onPress={() => setVisible((cur) => !cur)}>
+                    <WorkText>{data.context}</WorkText>
+                  </Pressable>
+                  <Pressable onPress={() => onPressProgress(data)}>
+                    <WorkText>진행 요청</WorkText>
+                  </Pressable>
+                </Modal>
+              </View>
+            ) : null
+          )
         : null}
     </ScrollView>
   );
