@@ -179,6 +179,7 @@ const WorkChat = ({
       })
       .catch((error) => Alert.alert(error.response.data.message));
   };
+  const customerId = JSON.parse(data.message).customerId;
 
   return (
     <View
@@ -190,7 +191,7 @@ const WorkChat = ({
     >
       {/*<Time>{data.sendTime.slice(0, 16)}</Time>*/}
 
-      {myId === JSON.parse(data.message).customerId ? (
+      {myId === customerId ? (
         myId === creatorId ? (
           <WorkWrapper>
             <WorkTitleWrapper>
@@ -205,12 +206,32 @@ const WorkChat = ({
             </WorkTextView>
           </WorkWrapper>
         ) : (
-          <WorkWrapper>
+          <WorkWrapper style={{ width: 200 }}>
             <WorkTitleWrapper>
               <WorkTitle>심부름 검증서</WorkTitle>
             </WorkTitleWrapper>
-            <Pressable onPress={onPressCheck}>
-              <Text>수락</Text>
+
+            <Pressable
+              style={{
+                flex: 2,
+                justifyContent: "center",
+                alignItems: "center",
+                paddingVertical: 25,
+              }}
+              onPress={onPressCheck}
+            >
+              <Text
+                style={{
+                  backgroundColor: "#7f8fa6",
+                  width: 100,
+
+                  textAlign: "center",
+                  borderRadius: 10,
+                  color: "#dcdde1",
+                }}
+              >
+                수락
+              </Text>
             </Pressable>
           </WorkWrapper>
         )
@@ -230,11 +251,7 @@ const WorkChat = ({
               시간
             </WorkText>
           </WorkTextView>
-          <View
-            style={{
-              flexDirection: "row",
-            }}
-          >
+          <View style={{ flexDirection: "row" }}>
             <WorkBtn onPress={() => onPressAccept(index)}>
               <WorkAcceptText>수락</WorkAcceptText>
             </WorkBtn>
@@ -245,10 +262,18 @@ const WorkChat = ({
           </View>
         </WorkWrapper>
       ) : (
-        <WorkWrapper>
+        <WorkWrapper style={{ width: 200 }}>
           <WorkTitleWrapper>
             <WorkTitle>심부름 검증서</WorkTitle>
           </WorkTitleWrapper>
+          <View
+            style={{
+              flex: 2,
+              justifyContent: "center",
+              alignItems: "center",
+              paddingVertical: 25,
+            }}
+          ></View>
         </WorkWrapper>
       )}
     </View>

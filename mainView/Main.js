@@ -112,15 +112,11 @@ const Main = ({ navigation: { navigate }, route }) => {
         setDistanceHelper(data); //거리순 데이터
 
         const rating = data.concat(); //평점 순 정렬
-        rating.sort(function (a, b) {
-          return b.rating - a.rating;
-        });
+        rating.sort((a, b) => b.rating - a.rating);
         setRatingHelper(rating);
 
         const response = data.concat(); //응답시간 순 정렬
-        response.sort(function (a, b) {
-          return a.avgReactTime - b.avgReactTime;
-        });
+        response.sort((a, b) => a.avgReactTime - b.avgReactTime);
         setResponseHelper(response);
       });
 
@@ -206,7 +202,7 @@ const Main = ({ navigation: { navigate }, route }) => {
             })
           );
         })
-        .catch(() => console.log("에러"));
+        .catch(() => console.log("cc에러"));
     }, 1000);
   }, []);
   return (

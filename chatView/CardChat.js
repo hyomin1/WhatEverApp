@@ -92,6 +92,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
           }`
         )
         .then((res) => {
+          //console.log(res.data);
           navigation.navigate("HelperLocation", {
             location: res.data,
           });

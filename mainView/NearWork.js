@@ -1,10 +1,8 @@
-import axios from "axios";
-import { useState } from "react";
-import { Alert, Modal, Pressable, ScrollView, Text, View } from "react-native";
+import React, { useState } from "react";
+import { View, Text, Modal, Pressable, ScrollView } from "react-native";
 import styled from "styled-components/native";
-import { BASE_URL } from "../api";
 import { useNavigation } from "@react-navigation/native";
-import { client } from "../client";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
   accessData,
@@ -12,53 +10,99 @@ import {
   chatRoomListData,
   conversationData,
 } from "../atom";
-import { MaterialIcons } from "@expo/vector-icons";
+import axios from "axios";
+import { BASE_URL } from "../api";
+import { client } from "../client";
 
 const Wrapper = styled.View`
   flex: 1;
 `;
 
 const HeaderView = styled.View`
-  flex: 1;
   flex-direction: row;
-  padding: 10px 10px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #f9f9f9;
 `;
+
 const Title = styled.Text`
   font-weight: 600;
-  font-size: 17px;
-  margin-bottom: 10px;
+  font-size: 18px;
 `;
 
 const WorkInformation = styled.Pressable`
-  margin-top: 15px;
-  flex: 1;
-  background-color: white;
-  border-radius: 20px;
-  padding: 20px 20px;
+  margin: 15px;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
 `;
 
-const WorkText = styled.Text`
+const WorkTitle = styled.Text`
   font-size: 18px;
   font-weight: 600;
-  color: black;
+  color: #333333;
+`;
+
+const WorkSubtitle = styled.Text`
+  font-size: 14px;
+  color: #999999;
+  margin-top: 5px;
+`;
+
+const WorkDetail = styled.View`
+  margin: 20px;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+`;
+
+const WorkDetailTitle = styled.Text`
+  font-size: 16px;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 10px;
+`;
+
+const WorkDetailContent = styled.Text`
+  font-size: 14px;
+  color: #555555;
+`;
+
+const ProgressButton = styled.Pressable`
+  background-color: #1e90ff;
+  border-radius: 8px;
+  padding: 12px 20px;
+  margin-top: 20px;
+`;
+
+const ProgressButtonText = styled.Text`
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: center;
 `;
 
 const NearWork = ({ nearWork }) => {
   const [visible, setVisible] = useState(false);
+  const [selectedWork, setSelectedWork] = useState(null);
   const navigation = useNavigation();
   const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
   const [chatList, setChatList] = useRecoilState(chatListData);
   const [conversation, setConversation] = useRecoilState(conversationData);
   const accessToken = useRecoilValue(accessData);
-  const onPressWork = () => {
-    setVisible((cur) => !cur);
-  };
-  const goChat = () => {
-    navigation.navigate("Chatting");
+
+  const onPressWork = (work) => {
+    setSelectedWork(work);
+    setVisible(true);
   };
 
+  const goChat = () => navigation.navigate("Chatting");
+
   const onPressProgress = (data) => {
-    console.log("진행요청");
+    console.log("진행 요청");
     axios
       .post(`${BASE_URL}/api/conversation/${data.customerId}`, {
         id: data.id,
@@ -74,51 +118,20 @@ const NearWork = ({ nearWork }) => {
         });
         goChat();
       });
+    // 진행 요청 로직
   };
-  console.log(nearWork);
 
   return (
     <ScrollView>
       {nearWork && nearWork.length > 0 ? (
         nearWork.map((data, index) =>
           !data.finished ? (
-            <View key={index} style={{ paddingHorizontal: 10 }}>
-              <WorkInformation onPress={onPressWork} key={index}>
-                <WorkText>제목 : {data.title}</WorkText>
+            <View key={index}>
+              <WorkInformation onPress={() => onPressWork(data)} key={index}>
+                <WorkTitle>{data.title}</WorkTitle>
+                <WorkSubtitle>작성자: {data.author}</WorkSubtitle>
+                <WorkSubtitle>작성일: {data.date}</WorkSubtitle>
               </WorkInformation>
-              <Modal animationType="slide" visible={visible}>
-                <Wrapper>
-                  <HeaderView>
-                    <View style={{ flex: 1 }}>
-                      <MaterialIcons
-                        onPress={() => {
-                          setVisible((cur) => !cur);
-                        }}
-                        name="cancel"
-                        size={24}
-                        color="black"
-                      />
-                    </View>
-
-                    <View
-                      style={{
-                        flex: 1,
-
-                        alignItems: "center",
-                      }}
-                    >
-                      <Title>상세보기</Title>
-                    </View>
-                    <View style={{ flex: 1 }}></View>
-                  </HeaderView>
-                  <Pressable onPress={() => setVisible((cur) => !cur)}>
-                    <WorkText>{data.context}</WorkText>
-                  </Pressable>
-                  <Pressable onPress={() => onPressProgress(data)}>
-                    <WorkText>진행 요청</WorkText>
-                  </Pressable>
-                </Wrapper>
-              </Modal>
             </View>
           ) : null
         )
@@ -134,6 +147,33 @@ const NearWork = ({ nearWork }) => {
           <Text>주변에 심부름이 없습니다</Text>
         </View>
       )}
+
+      <Modal animationType="slide" visible={visible}>
+        <Wrapper>
+          <HeaderView>
+            <Pressable onPress={() => setVisible(false)}>
+              <MaterialIcons name="cancel" size={24} color="black" />
+            </Pressable>
+            <Title>상세보기</Title>
+            <View />
+          </HeaderView>
+          {selectedWork && (
+            <WorkDetail>
+              <WorkDetailTitle>제목</WorkDetailTitle>
+              <WorkDetailContent>{selectedWork.title}</WorkDetailContent>
+              <WorkDetailTitle>작성자</WorkDetailTitle>
+              <WorkDetailContent>{selectedWork.author}</WorkDetailContent>
+              <WorkDetailTitle>작성일</WorkDetailTitle>
+              <WorkDetailContent>{selectedWork.date}</WorkDetailContent>
+              <WorkDetailTitle>상세 내용</WorkDetailTitle>
+              <WorkDetailContent>{selectedWork.context}</WorkDetailContent>
+              <ProgressButton onPress={() => onPressProgress(selectedWork)}>
+                <ProgressButtonText>진행 요청</ProgressButtonText>
+              </ProgressButton>
+            </WorkDetail>
+          )}
+        </Wrapper>
+      </Modal>
     </ScrollView>
   );
 };
