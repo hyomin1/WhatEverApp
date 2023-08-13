@@ -1,8 +1,8 @@
-import { View, Alert, ScrollView } from "react-native";
-import styled from "styled-components/native";
+import React, { useState, useEffect } from "react";
+import { View, ScrollView, TextInput, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import styled from "styled-components/native";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   chatListData,
   myIdData,
@@ -12,48 +12,62 @@ import {
   accessData,
   grantData,
 } from "../atom";
-import { useEffect } from "react";
 import { client } from "../client";
 import axios from "axios";
 import WorkChat from "./WorkChat";
 import NormalChat from "./NormalChat";
 import CardChat from "./CardChat";
 
-const ChatView = styled.View`
-  flex: 9;
-  padding-top: 20px;
-  margin: 0px 5px;
-`;
-const ChatInputView = styled.View`
+const Container = styled.View`
   flex: 1;
+  background-color: white;
+`;
+
+const ChatView = styled.ScrollView`
+  flex: 1;
+  padding: 20px 5px;
+`;
+
+const ChatInputView = styled.View`
   flex-direction: row;
   align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
+  justify-content: space-between;
+  padding: 20px;
+  background-color: #f2f3f6;
 `;
+
 const ChatInput = styled.TextInput`
+  flex: 1;
   height: 45px;
   border-radius: 15px;
   padding: 0px 15px;
-  width: 80%;
-  margin-right: 20px;
-  background-color: #f2f3f6;
+  background-color: #fff;
   font-size: 15px;
   font-weight: 600;
-  bottom: 0;
-  flex: 1;
+  margin-right: 10px;
+`;
+
+const SendButton = styled.TouchableOpacity`
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background-color: #2196f3;
+  align-items: center;
+  justify-content: center;
+`;
+
+const SendIcon = styled(Ionicons)`
+  color: white;
 `;
 
 const Chatting = () => {
-  const [textInput, setTextInput] = useState();
+  const [textInput, setTextInput] = useState("");
   const conversation = useRecoilValue(conversationData);
   const myId = useRecoilValue(myIdData);
-  const [myName, setMyName] = useState();
+  const [myName, setMyName] = useState("");
   const [receiverName, setReceiverName] = useRecoilState(receiverNameData);
   const [chatList, setChatList] = useRecoilState(chatListData);
   const chatRoomList = useRecoilValue(chatRoomListData);
-  const [ok, setOk] = useState();
-
   const access = useRecoilValue(accessData);
   const grant = useRecoilValue(grantData);
 
@@ -71,7 +85,7 @@ const Chatting = () => {
       client.publish({
         destination: `/pub/chat/${conversation._id}`,
         body: JSON.stringify(chat),
-        headers: { Authorization: `${grant}` + " " + `${access}` },
+        headers: { Authorization: `${grant} ${access}` },
       });
       axios
         .post(`http://10.0.2.2:8080/api/fcm/${conversation._id}`)
@@ -81,75 +95,77 @@ const Chatting = () => {
         .catch((error) => console.log("fcmerr", error));
     }
   };
+
   const onChangeMyMsg = (payload) => {
     setTextInput(payload);
   };
 
   useEffect(() => {
     if (myId === conversation.creatorId) {
-      setMyName(conversation.creatorName); //방만듦 고객
+      setMyName(conversation.creatorName);
       setReceiverName(conversation.participatorName);
     } else {
-      setMyName(conversation.participatorName); //헬퍼
+      setMyName(conversation.participatorName);
       setReceiverName(conversation.creatorName);
     }
   }, []);
 
   useEffect(() => {
-    chatRoomList.map((data) => {
-      data._id === chatList._id ? setChatList(data) : null;
-    });
-  }, [chatRoomList]); //chatRoomList 업데이트 마다 chatList 데이터 새롭게 저장
+    const updatedChatList = chatRoomList.find(
+      (room) => room._id === chatList._id
+    );
+    if (updatedChatList) {
+      setChatList(updatedChatList);
+    }
+  }, [chatRoomList]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: "white" }}>
-      <View style={{ flex: 20 }}>
-        <ScrollView style={{ paddingHorizontal: 3 }}>
-          <ChatView>
-            {chatList
-              ? chatList.chatList.map((data, index) =>
-                  data.messageType === "Work" ? (
-                    <WorkChat
-                      key={index}
-                      data={data}
-                      myName={myName}
-                      chatList={chatList}
-                      index={index}
-                      receiverName={receiverName}
-                      creatorId={chatList.creatorId}
-                    />
-                  ) : data.messageType === "Chat" ? (
-                    <NormalChat
-                      key={index}
-                      myName={myName}
-                      data={data}
-                      chatList={chatList}
-                    />
-                  ) : data.messageType === "Card" ? (
-                    <CardChat
-                      key={index}
-                      data={data}
-                      myName={myName}
-                      chatList={chatList}
-                      receiverName={receiverName}
-                    />
-                  ) : null
-                )
-              : null}
-          </ChatView>
-        </ScrollView>
-      </View>
+    <Container>
+      <ScrollView>
+        <ChatView>
+          {chatList?.chatList.map((data, index) =>
+            data.messageType === "Work" ? (
+              <WorkChat
+                key={index}
+                data={data}
+                myName={myName}
+                chatList={chatList}
+                index={index}
+                receiverName={receiverName}
+                creatorId={chatList.creatorId}
+              />
+            ) : data.messageType === "Chat" ? (
+              <NormalChat
+                key={index}
+                myName={myName}
+                data={data}
+                chatList={chatList}
+              />
+            ) : data.messageType === "Card" ? (
+              <CardChat
+                key={index}
+                data={data}
+                myName={myName}
+                chatList={chatList}
+                receiverName={receiverName}
+              />
+            ) : null
+          )}
+        </ChatView>
+      </ScrollView>
       <ChatInputView>
         <ChatInput
           value={textInput}
           onChangeText={onChangeMyMsg}
           placeholder="메시지 보내기"
-          r
           placeholderTextColor="#D0D3D7"
         />
-        <Ionicons onPress={sendMsg} name="md-send" size={24} color="#D0D3D7" />
+        <SendButton onPress={sendMsg}>
+          <SendIcon name="md-send" size={24} />
+        </SendButton>
       </ChatInputView>
-    </View>
+    </Container>
   );
 };
+
 export default Chatting;

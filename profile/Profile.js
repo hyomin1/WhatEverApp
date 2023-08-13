@@ -15,85 +15,115 @@ import {
 import Postcode from "@actbase/react-daum-postcode";
 import * as Location from "expo-location";
 import axios from "axios";
+import { BASE_URL } from "../api";
 
 const Container = styled.ScrollView`
   flex: 1;
+  background-color: #f5f5f5;
+`;
+
+const ProfileView = styled.View`
   background-color: white;
+  padding: 20px;
+  margin: 20px;
+  border-radius: 10px;
+  /* shadow-color: #000;
+  shadow-opacity: 0.2;
+  shadow-radius: 4px;
+  elevation: 5; */
 `;
-const Box = styled.View`
-  flex: 3;
-  margin-bottom: 100px;
-`;
-const MyProfile = styled.View`
+
+const ProfileHeader = styled.View`
   flex-direction: row;
-  margin: 20px 15px;
+  align-items: center;
+  margin-bottom: 20px;
 `;
+
 const ProfileImg = styled.Image`
   width: 80px;
   height: 80px;
   border-radius: 40px;
   margin-right: 20px;
 `;
+
+const ProfileInfo = styled.View``;
+
 const Name = styled.Text`
-  margin-bottom: 5px;
-  font-size: 23px;
-  font-weight: 800;
+  font-size: 24px;
+  font-weight: 700;
 `;
-const ProfileBtn = styled.Pressable`
-  padding: 0 15px;
-  height: 40px;
-  margin: 5px 20px;
-  align-items: center;
-  justify-content: center;
-  background-color: #2196f3;
-  border-radius: 5px;
+
+const RatingText = styled.Text`
+  font-size: 16px;
+  color: #666;
 `;
-const ProfileText = styled.Text`
-  color: white;
-  font-weight: 600;
-  font-size: 15px;
-`;
-const Line = styled.View`
-  border-bottom-color: gray;
-  border-bottom-width: 0.5px;
+
+const EditButton = styled.TouchableOpacity`
+  background-color: #3498db;
+  padding: 10px 20px;
+  border-radius: 8px;
+  align-self: flex-start;
   margin-top: 10px;
 `;
-const ContentBox = styled.View`
+
+const EditButtonText = styled.Text`
+  color: white;
+  font-weight: 600;
+`;
+
+const Section = styled.View`
+  background-color: white;
+  margin: 0 20px 20px;
+  padding: 20px;
+  border-radius: 10px;
+`;
+
+const SectionHeader = styled.Text`
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 15px;
+`;
+
+const ButtonContainer = styled.View`
+  margin-top: 20px;
   flex-direction: row;
   justify-content: space-between;
-  margin: 20px 20px;
+`;
+
+const Button = styled.TouchableOpacity`
+  width: 100%;
+  background-color: #3498db;
+  padding: 12px 20px;
+  border-radius: 8px;
+  align-items: center;
+`;
+
+const ButtonText = styled.Text`
+  color: white;
+  font-weight: 600;
 `;
 const CountBox = styled.View`
   padding: 0 20px;
+  margin-top: 20px;
 `;
-const ContentText = styled.Text`
-  font-size: 17px;
-  font-weight: 600;
-`;
-const Count = styled.View`
-  padding: 0px 20px;
-  width: 100%;
+
+const CountContainer = styled.View`
+  border-radius: 10px;
+  background-color: #f5f5f5;
+  padding: 15px 20px;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  height: 50px;
-  border: 2px solid rgba(0, 0, 0, 0.5);
-`;
-const Count1 = styled(Count)`
-  border-radius: 10px;
   margin-bottom: 10px;
 `;
-const Count2 = styled(Count)`
-  border-radius: 10px;
-`;
+
 const CountText = styled.Text`
   font-size: 16px;
   font-weight: 800;
 `;
-const BlankBox = styled.View`
-  background-color: #dcdde1;
-  width: 100%;
-  height: 6px;
+
+const CountValue = styled.Text`
+  font-size: 16px;
 `;
 
 const Profile = () => {
@@ -109,17 +139,25 @@ const Profile = () => {
   const myImg = useRecoilValue(myImgData);
   const rating = useRecoilValue(ratingData);
   const setHelperLocation = useSetRecoilState(helperLocationData);
+  const name = useRecoilValue(nameData);
+  const introduce = useRecoilValue(IntroduceData);
 
   const goProfileFix = () => {
     setModalVisible(!modalVisible);
   };
+  const onPressReview = () => {
+    axios
+      .get(`${BASE_URL}/api/review`)
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((e) => console.log(e));
+  };
 
-  const name = useRecoilValue(nameData);
-  const introduce = useRecoilValue(IntroduceData);
   return (
     <Container>
-      <View>
-        <MyProfile>
+      <ProfileView>
+        <ProfileHeader>
           <ProfileImg
             source={
               myImg
@@ -127,54 +165,56 @@ const Profile = () => {
                 : require("../images/profile.jpg")
             }
           />
-          <View style={{ paddingVertical: 20 }}>
+          <ProfileInfo style={{ paddingVertical: 20 }}>
             <Name>{name}</Name>
             {rating ? <Text>⭐ {rating.toFixed(1)}/5</Text> : <Text>⭐</Text>}
-          </View>
-        </MyProfile>
+          </ProfileInfo>
+        </ProfileHeader>
         {/**프로필 수정 UI*/}
         <ProfileFix
           setModalVisible={setModalVisible}
           modalVisible={modalVisible}
           myImg={myImg}
         />
-        <ProfileBtn onPress={goProfileFix}>
-          <ProfileText>회원정보 수정</ProfileText>
-        </ProfileBtn>
-        <Line />
-      </View>
-      <Box>
-        <ContentBox>
-          <ContentText>자기소개</ContentText>
-        </ContentBox>
+
+        <ButtonContainer>
+          <EditButton onPress={goProfileFix}>
+            <EditButtonText>회원정보 수정</EditButtonText>
+          </EditButton>
+          <EditButton onPress={onPressReview}>
+            <EditButtonText>리뷰 보기</EditButtonText>
+          </EditButton>
+        </ButtonContainer>
+      </ProfileView>
+
+      <Section>
+        <SectionHeader>자기소개</SectionHeader>
         <View style={{ paddingHorizontal: 20 }}>
           <Text style={{ fontSize: 16, fontWeight: "400" }}>{introduce}</Text>
         </View>
-      </Box>
-      <BlankBox></BlankBox>
-      <Box>
-        <ContentBox>
-          <ContentText>요청정보</ContentText>
-        </ContentBox>
+      </Section>
+
+      <Section>
+        <SectionHeader>요청 정보</SectionHeader>
         <CountBox>
-          <Count1>
-            <CountText>총 심부름수</CountText>
-            <Text>0</Text>
-          </Count1>
-          <Count2>
+          <CountContainer>
+            <CountText>총 심부름 수</CountText>
+            <CountValue>0</CountValue>
+          </CountContainer>
+          <CountContainer>
             <CountText>요청한 심부름 수</CountText>
-            <Text>0</Text>
-          </Count2>
+            <CountValue>0</CountValue>
+          </CountContainer>
         </CountBox>
-      </Box>
-      <BlankBox></BlankBox>
-      <Box>
-        <ContentBox>
-          <ContentText>헬퍼 등록</ContentText>
-        </ContentBox>
-        <ProfileBtn onPress={() => setRegisterVisible(!registerVisible)}>
-          <ProfileText>내 위치 등록하기</ProfileText>
-        </ProfileBtn>
+      </Section>
+
+      <Section>
+        <SectionHeader>헬퍼 등록</SectionHeader>
+        <ButtonContainer>
+          <Button onPress={() => setRegisterVisible(!registerVisible)}>
+            <ButtonText>내 위치 등록하기</ButtonText>
+          </Button>
+        </ButtonContainer>
 
         <Modal animationType="slide" visible={registerVisible}>
           <Postcode
@@ -193,17 +233,13 @@ const Profile = () => {
                   longitude: location[0].longitude,
                 })
                 .then(({ data: { latitude, longitude } }) => {
-                  //console.log("등록 데이터", res.data);
-                  //setHelperLocation(res.data);
-                  //setLocation({ latitude, longitude });
-
                   setLocation({ latitude, longitude });
                   setCurrentLocation({ latitude, longitude });
                 });
             }}
           />
         </Modal>
-      </Box>
+      </Section>
     </Container>
   );
 };

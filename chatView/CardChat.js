@@ -1,4 +1,4 @@
-import { View, Modal } from "react-native";
+import { View, Modal, Alert } from "react-native";
 import axios from "axios";
 import { BASE_URL } from "../api";
 import { client } from "../client";
@@ -13,6 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 import styled from "styled-components/native";
 import { useState } from "react";
 import Rating from "./Rating";
+import * as Location from "expo-location";
 
 const CardWrapper = styled.View`
   height: 100px;
@@ -68,19 +69,37 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
     senderName: myName,
     receiverName: receiverName,
   };
-  const [isComplete, isSetComplete] = useState(false);
+
   const [isFinish, setIsFinish] = useState(true);
   const [isTimer, isSetTimer] = useRecoilState(isTimerData);
 
-  const onPressWorkComplete = () => {
-    client.publish({
-      destination: `/pub/card/${conversation._id}`,
-      body: JSON.stringify(completeCard),
-    });
-    isSetComplete(true);
+  const onPressWorkComplete = async () => {
+    const { granted } = await Location.requestForegroundPermissionsAsync();
+    if (!granted) {
+      setOk("error");
+    }
+    const {
+      coords: { latitude, longitude },
+    } = await Location.getCurrentPositionAsync({ accuracy: 5 });
+
+    await axios
+      .put(`${BASE_URL}/api/work/success/${chatList.workId}`, {
+        latitude,
+        longitude,
+      })
+      .then((res) => {
+        client.publish({
+          destination: `/pub/card/${conversation._id}`,
+          body: JSON.stringify(completeCard),
+        });
+      })
+      .catch((error) => {
+        Alert.alert(error.response.data.message);
+        console.log(error);
+      });
+
     isSetTimer(false);
   };
-
   const onPressView = () => {
     console.log("진행 상황 보기");
     if (JSON.parse(chatList.chatList[0].message).deadLineTime === 1) {
@@ -112,9 +131,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
           </CardTitleWrapper>
           {myId !== JSON.parse(chatList.chatList[0].message).customerId ? (
             <CardBtn onPress={onPressWorkComplete}>
-              <CardText>
-                {isComplete ? "완료되었습니다" : "일 완료하기"}
-              </CardText>
+              <CardText>일 완료하기</CardText>
             </CardBtn>
           ) : (
             <CardBtn onPress={onPressView}>
@@ -169,7 +186,10 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
                 <CardText>별점 평가</CardText>
               </CardBtn>
               <Modal animationType="slide" visible={isStarRating}>
-                <Rating isSetStarRating={isSetStarRating} />
+                <Rating
+                  workId={chatList.workId}
+                  isSetStarRating={isSetStarRating}
+                />
               </Modal>
             </View>
           )}

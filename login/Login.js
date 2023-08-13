@@ -97,7 +97,7 @@ function Login({ navigation: { navigate } }) {
     axios
       .post(`${BASE_URL}/login`, {
         userId: id,
-        password: password,
+        password,
       })
       .then((res) => {
         setAccess(res.data.accessToken);

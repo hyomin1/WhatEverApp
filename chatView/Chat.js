@@ -1,5 +1,5 @@
+import React from "react";
 import { Text, View, Pressable, ScrollView } from "react-native";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components/native";
 import {
   chatListData,
@@ -7,82 +7,99 @@ import {
   conversationData,
   myIdData,
 } from "../atom";
-import { useEffect } from "react";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { useNavigation } from "@react-navigation/native";
 
-const ChatList = styled.Pressable`
-  height: 80px;
-  align-items: center;
-  flex-direction: row;
-
-  flex-direction: row;
+const Container = styled.View`
   flex: 1;
-  background-color: white;
+  background-color: #f5f5f5;
 `;
-const ProfileImg = styled.View`
-  flex: 1;
+
+const ChatList = styled.TouchableOpacity`
+  background-color: white;
+  margin: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  flex-direction: row;
+  align-items: center;
+  shadow-color: #000;
+  shadow-opacity: 0.1;
+  shadow-radius: 5px;
+  elevation: 3;
+`;
+
+const ProfileImage = styled.View`
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  background-color: #ddd;
   justify-content: center;
   align-items: center;
 `;
-const ProfileView = styled.View`
-  flex: 4;
-  height: 80px;
-`;
-const ProfileName = styled.View`
-  margin-top: 10px;
+
+const ProfileInfo = styled.View`
+  flex: 1;
+  margin-left: 10px;
 `;
 
-const ProfileText = styled.Text`
-  font-size: 17px;
-`;
-const LastChat = styled.Text`
-  color: gray;
+const Username = styled.Text`
+  font-size: 18px;
+  font-weight: bold;
 `;
 
-const Chat = ({ navigation }) => {
+const LastMessage = styled.Text`
+  font-size: 14px;
+  color: #777;
+  margin-top: 5px;
+`;
+
+const Chat = () => {
+  const navigation = useNavigation();
   const [chatList, setChatList] = useRecoilState(chatListData);
   const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
   const setConversation = useSetRecoilState(conversationData);
   const myId = useRecoilValue(myIdData);
 
-  const goChatting = () => {
-    navigation.navigate("Stack", { screen: "Chatting" });
+  const goToChatting = (chatRoom) => {
+    navigation.navigate("Chatting", { chatRoom });
+    setConversation(chatRoom);
+    setChatList(chatRoom);
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: "lightgray" }}>
-      {chatRoomList.map((data, index) => (
-        <ChatList
-          key={index}
-          onPress={() => {
-            goChatting();
-            setConversation(data);
-            setChatList(data);
-          }}
-        >
-          <ProfileImg>
-            {/**사진 데이터 어디서? aws서버에서 */}
-            <Text>사진</Text>
-          </ProfileImg>
-          <ProfileView>
-            <ProfileName>
-              {myId === data.creatorId ? (
-                <ProfileText>{data.participatorName}</ProfileText>
-              ) : (
-                <ProfileText>{data.creatorName}</ProfileText>
-              )}
-            </ProfileName>
-            <LastChat>
-              {data.chatList[data.chatList.length - 1]?.messageType === "Work"
-                ? "심부름 요청서 입니다..."
-                : data.chatList[data.chatList.length - 1]?.messageType ===
-                  "Card"
-                ? "심부름이 수락되었습니다..."
-                : data.chatList[data.chatList.length - 1]?.message}
-            </LastChat>
-          </ProfileView>
-        </ChatList>
-      ))}
-    </ScrollView>
+    <Container>
+      <ScrollView>
+        {chatRoomList.map((chatRoom, index) => (
+          <ChatList
+            key={index}
+            activeOpacity={0.8}
+            onPress={() => goToChatting(chatRoom)}
+          >
+            <ProfileImage>
+              {/* 사진 데이터 어디서? aws서버에서 */}
+              <Text>사진</Text>
+            </ProfileImage>
+            <ProfileInfo>
+              <Username>
+                {myId === chatRoom.creatorId
+                  ? chatRoom.participatorName
+                  : chatRoom.creatorName}
+              </Username>
+              <LastMessage>
+                {chatRoom.chatList[chatRoom.chatList.length - 1]
+                  ?.messageType === "Work"
+                  ? "심부름 요청서 입니다..."
+                  : chatRoom.chatList[chatRoom.chatList.length - 1]
+                      ?.messageType === "Card"
+                  ? "심부름이 수락되었습니다..."
+                  : chatRoom.chatList[chatRoom.chatList.length - 1]?.message}
+              </LastMessage>
+            </ProfileInfo>
+          </ChatList>
+        ))}
+      </ScrollView>
+    </Container>
   );
 };
+
 export default Chat;

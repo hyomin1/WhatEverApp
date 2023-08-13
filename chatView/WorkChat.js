@@ -106,6 +106,7 @@ const WorkChat = ({
     }
   };
   const onPressAccept = (index) => {
+    console.log("press 111111");
     //헬퍼가 심부름 수락시
     const work = JSON.parse(chatList.chatList[index].message);
     axios
@@ -148,6 +149,7 @@ const WorkChat = ({
   };
 
   const onPressCheck = () => {
+    console.log("press 222222");
     const work = JSON.parse(chatList.chatList[index].message);
     axios
       .put(`${BASE_URL}/api/work/matching`, {

@@ -167,7 +167,7 @@ const HelperProfile = ({ route }) => {
 
   const onPressOrderBtn = async () => {
     //심부름 목록 본 후 선택해서 신청
-    console.log("11111111");
+
     axios
       .post(`${BASE_URL}/api/conversation/${route.params.id}`, {
         id: selectWork.id,
@@ -183,11 +183,17 @@ const HelperProfile = ({ route }) => {
           body: JSON.stringify(selectWork),
           headers: { Authorization: `Bearer ${accessToken}` },
         });
-        console.log("33333333");
+
         goChat();
       })
       .catch((error) => console.log(error));
     setWorkListVisible(!workListVisible);
+  };
+  const onPressReview = () => {
+    axios
+      .get(`${BASE_URL}/api/review/${route.params.id}`)
+      .then((res) => console.log(res.data))
+      .catch((error) => console.log(error));
   };
   return (
     <Container>
@@ -235,6 +241,9 @@ const HelperProfile = ({ route }) => {
             <CountText>요청한 심부름 수</CountText>
             <Text>0</Text>
           </Count>
+          <Pressable onPress={onPressReview}>
+            <Text>리뷰가져오기</Text>
+          </Pressable>
         </CountWrapper>
 
         <View style={{ justifyContent: "center", alignItems: "center" }}>

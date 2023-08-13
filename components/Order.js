@@ -82,6 +82,9 @@ const AddressText = styled.Text`
   font-size: 17px;
   font-weight: 600;
 `;
+const DropdownContainer = styled.View`
+  width: 200px;
+`;
 
 const Order = ({
   orderVisible,
@@ -91,7 +94,7 @@ const Order = ({
   alertText,
   divide,
 }) => {
-  const hours = [1, 2, 3, 4];
+  const hours = ["1시간", "2시간", "3시간", "4시간"];
 
   const [title, setTitle] = useState();
   const [context, setContext] = useState();
@@ -138,7 +141,6 @@ const Order = ({
           receiveLongitude,
         })
         .then((res) => {
-          console.log("심부름 요청 성공", res.data);
           Alert.alert(alertText);
           setAddress("");
           setAddress2("");
@@ -147,7 +149,6 @@ const Order = ({
         })
         .catch((error) => console.log(error));
     } else {
-      console.log("수정 완료");
       setOrderVisible(!orderVisible);
       const copiedWorkList = [...workList];
       //console.log("wl", workList);
@@ -184,6 +185,7 @@ const Order = ({
           console.log("수정전송");
         });
     }
+    setDeadLineTime("");
   };
 
   return (
@@ -298,31 +300,37 @@ const Order = ({
                 <ErrandPlace>
                   <ErrandBox>
                     <MainText style={{ marginBottom: 0 }}>마감시간</MainText>
-                    <SelectDropdown
-                      buttonStyle={{
-                        //backgroundColor: "#2196f3",
-                        width: 70,
-                        height: 40,
-                        border: "none",
-                        backgroundColor: "lightgray",
-                      }}
-                      buttonTextStyle={{
-                        color: "blue",
-                        fontWeight: "600",
-                        fontSize: 14,
-                      }}
-                      data={hours}
-                      onSelect={(hour) => setDeadLineTime(hour)}
-                      defaultButtonText="시간"
-                    />
+                    <DropdownContainer>
+                      <SelectDropdown
+                        buttonStyle={{
+                          width: 200,
+                          height: 40,
+                          borderWidth: 0, // "border" 대신 "borderWidth" 사용
+                          backgroundColor: "lightgray",
+                        }}
+                        data={hours}
+                        onSelect={(hour) => {
+                          const numberHour = parseInt(hour.charAt(0));
+
+                          setDeadLineTime(numberHour);
+                        }}
+                        renderDropdownIcon={() => (
+                          <Text style={{ fontSize: 14, paddingHorizontal: 5 }}>
+                            ▼
+                          </Text>
+                        )}
+                        defaultButtonText="시간 선택"
+                        rowStyle={{
+                          paddingVertical: 10,
+                          paddingHorizontal: 20,
+                        }}
+                        rowTextStyle={{
+                          fontSize: 14,
+                          color: "black",
+                        }}
+                      />
+                    </DropdownContainer>
                   </ErrandBox>
-                  <Address>
-                    {deadLineTime ? (
-                      <AddressText>{deadLineTime}시간</AddressText>
-                    ) : (
-                      <AddressText></AddressText>
-                    )}
-                  </Address>
                 </ErrandPlace>
 
                 <MainText style={{ marginTop: 20 }}>심부름비</MainText>
