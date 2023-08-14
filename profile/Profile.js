@@ -16,6 +16,7 @@ import Postcode from "@actbase/react-daum-postcode";
 import * as Location from "expo-location";
 import axios from "axios";
 import { BASE_URL } from "../api";
+import ReviewModal from "../components/ReviewModal";
 
 const Container = styled.ScrollView`
   flex: 1;
@@ -27,10 +28,6 @@ const ProfileView = styled.View`
   padding: 20px;
   margin: 20px;
   border-radius: 10px;
-  /* shadow-color: #000;
-  shadow-opacity: 0.2;
-  shadow-radius: 4px;
-  elevation: 5; */
 `;
 
 const ProfileHeader = styled.View`
@@ -141,18 +138,30 @@ const Profile = () => {
   const setHelperLocation = useSetRecoilState(helperLocationData);
   const name = useRecoilValue(nameData);
   const introduce = useRecoilValue(IntroduceData);
+  const [visible, setVisible] = useState(false);
 
   const goProfileFix = () => {
     setModalVisible(!modalVisible);
   };
   const onPressReview = () => {
-    axios
-      .get(`${BASE_URL}/api/review`)
-      .then((res) => {
-        console.log(res.data);
-      })
-      .catch((e) => console.log(e));
+    setVisible(true);
+    // axios
+    //   .get(`${BASE_URL}/api/review`)
+    //   .then((res) => {
+    //     console.log(res.data);
+    //   })
+    //   .catch((e) => console.log(e));
   };
+  const reviews = [
+    {
+      text: "good",
+      date: "1.5",
+    },
+    {
+      text: "bad",
+      date: "2.5",
+    },
+  ];
 
   return (
     <Container>
@@ -186,6 +195,11 @@ const Profile = () => {
           </EditButton>
         </ButtonContainer>
       </ProfileView>
+      <ReviewModal
+        visible={visible}
+        setVisible={setVisible}
+        reviews={reviews}
+      />
 
       <Section>
         <SectionHeader>자기소개</SectionHeader>

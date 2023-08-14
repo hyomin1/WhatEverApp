@@ -17,72 +17,96 @@ import { useNavigation } from "@react-navigation/native";
 import { MaterialIcons, Entypo } from "@expo/vector-icons";
 import Order from "../components/Order";
 import { BASE_URL } from "../api";
+import ReviewModal from "../components/ReviewModal";
 
 const Container = styled.View`
   flex: 1;
-  background-color: white;
+  background-color: #f5f5f5;
 `;
-const Box = styled.View`
-  flex: 1;
-`;
-const MyProfile = styled.View`
-  flex-direction: row;
 
-  padding: 20px 20px;
+const ProfileView = styled.View`
+  background-color: white;
+  padding: 20px;
+  margin: 20px;
+  border-radius: 10px;
+  /* shadow-color: #000;
+  shadow-opacity: 0.2;
+  shadow-radius: 4px;
+  elevation: 5; */
 `;
+
+const ProfileHeader = styled.View`
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 20px;
+`;
+
 const ProfileImg = styled.Image`
   width: 80px;
   height: 80px;
   border-radius: 40px;
-  margin-right: 25px;
+  margin-right: 20px;
 `;
+
+const ProfileInfo = styled.View``;
+
 const Name = styled.Text`
-  margin-bottom: 5px;
-  font-size: 20px;
-  font-weight: 800;
+  font-size: 24px;
+  font-weight: 700;
 `;
-const ContentWrapper = styled.View`
-  margin-bottom: 20px;
-`;
-const ContentBox = styled.View`
+const ButtonContainer = styled.View`
+  margin-top: 20px;
   flex-direction: row;
   justify-content: space-between;
-  margin: 20px 20px;
-  margin-bottom: 20px;
 `;
-const ContentText = styled.Text`
-  font-size: 18px;
+const EditButton = styled.TouchableOpacity`
+  background-color: #3498db;
+  padding: 10px 20px;
+  border-radius: 8px;
+  align-self: flex-start;
+  margin-top: 10px;
+`;
+
+const EditButtonText = styled.Text`
+  color: white;
   font-weight: 600;
 `;
-const CountWrapper = styled.View`
-  padding: 10px 20px;
-  width: 100%;
-  justify-content: center;
-  align-items: center;
+const Section = styled.View`
+  background-color: white;
+  margin: 0 20px 20px;
+  padding: 20px;
+  border-radius: 10px;
 `;
-const Count = styled.View`
-  padding: 0px 20px;
-  width: 100%;
+
+const SectionHeader = styled.Text`
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 15px;
+`;
+const CountBox = styled.View`
+  padding: 0 20px;
+  margin-top: 20px;
+`;
+
+const CountContainer = styled.View`
+  border-radius: 10px;
+  background-color: #f5f5f5;
+  padding: 15px 20px;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  height: 50px;
-  border: 2px solid rgba(0, 0, 0, 0.7);
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
 `;
-const BlankBox = styled.View`
-  background-color: #dcdde1;
-  width: 100%;
-  height: 6px;
-`;
+
 const CountText = styled.Text`
   font-size: 16px;
   font-weight: 800;
 `;
+
+const CountValue = styled.Text`
+  font-size: 16px;
+`;
+
 const Button = styled.Pressable`
   padding: 0 15px;
   height: 40px;
@@ -149,9 +173,8 @@ const HelperProfile = ({ route }) => {
 
   const [indexValue, setIndexValue] = useRecoilState(indexData);
 
-  const [selectColor, setSelectColor] = useState(false);
-
   const navigation = useNavigation();
+  const [visible, setVisible] = useState(false);
 
   const goChat = () => {
     navigation.navigate("Chatting");
@@ -161,20 +184,16 @@ const HelperProfile = ({ route }) => {
     axios.get(`${BASE_URL}/api/workList`).then(({ data }) => {
       setWorkList(data);
     });
-    console.log("내 심부름 목록", workList);
     setWorkListVisible(!workListVisible);
   };
 
   const onPressOrderBtn = async () => {
     //심부름 목록 본 후 선택해서 신청
-
     axios
       .post(`${BASE_URL}/api/conversation/${route.params.id}`, {
         id: selectWork.id,
       })
       .then(({ data }) => {
-        console.log("workid", data);
-        console.log("2222222");
         setConversation(data);
         setChatRoomList([...chatRoomList, data]); //채팅방 목록 보여주기 위함
         setChatList(data);
@@ -190,15 +209,26 @@ const HelperProfile = ({ route }) => {
     setWorkListVisible(!workListVisible);
   };
   const onPressReview = () => {
+    setVisible(true);
     axios
       .get(`${BASE_URL}/api/review/${route.params.id}`)
       .then((res) => console.log(res.data))
       .catch((error) => console.log(error));
   };
+  const reviews = [
+    {
+      text: "good",
+      date: "1.33",
+    },
+    {
+      text: "bad",
+      date: "2.57",
+    },
+  ];
   return (
     <Container>
-      <Box>
-        <MyProfile>
+      <ProfileView>
+        <ProfileHeader>
           <ProfileImg
             source={
               route.params.image
@@ -206,151 +236,150 @@ const HelperProfile = ({ route }) => {
                 : require("../images/profile.jpg")
             }
           />
-          <View style={{ paddingVertical: 20 }}>
+          <ProfileInfo>
             <Name>{route.params.name}</Name>
             {route.params.rating ? (
               <Text>⭐ {route.params.rating.toFixed(1)}/5</Text>
             ) : (
               <Text>⭐ 0/5</Text>
             )}
-          </View>
-        </MyProfile>
-        <Line />
-        <ContentWrapper>
-          <ContentBox>
-            <ContentText>헬퍼소개</ContentText>
-          </ContentBox>
-          <View style={{ paddingHorizontal: 20 }}>
-            <Text style={{ fontSize: 16, fontWeight: "600" }}>
-              {route.params.introduce}
-            </Text>
-          </View>
-        </ContentWrapper>
-        <BlankBox></BlankBox>
+          </ProfileInfo>
+        </ProfileHeader>
 
-        <ContentBox>
-          <ContentText>요청정보</ContentText>
-        </ContentBox>
+        <ButtonContainer>
+          <EditButton onPress={onPressBtn}>
+            <EditButtonText>내 심부름 목록</EditButtonText>
+          </EditButton>
+          <EditButton onPress={onPressReview}>
+            <EditButtonText>리뷰 보기</EditButtonText>
+          </EditButton>
+        </ButtonContainer>
+        <ReviewModal
+          visible={visible}
+          setVisible={setVisible}
+          reviews={reviews}
+        />
+      </ProfileView>
 
-        <CountWrapper>
-          <Count>
-            <CountText>총 심부름수</CountText>
-            <Text>0</Text>
-          </Count>
-          <Count>
-            <CountText>요청한 심부름 수</CountText>
-            <Text>0</Text>
-          </Count>
-          <Pressable onPress={onPressReview}>
-            <Text>리뷰가져오기</Text>
-          </Pressable>
-        </CountWrapper>
-
-        <View style={{ justifyContent: "center", alignItems: "center" }}>
-          <Button onPress={onPressBtn}>
-            <Text style={{ color: "white", fontWeight: "600", fontSize: 15 }}>
-              내 심부름 목록보기
-            </Text>
-          </Button>
+      <Section>
+        <SectionHeader>헬퍼소개</SectionHeader>
+        <View style={{ paddingHorizontal: 20 }}>
+          <Text style={{ fontSize: 16, fontWeight: "600" }}>
+            {route.params.introduce}
+          </Text>
         </View>
-        <Modal animationType="slide" visible={workListVisible}>
-          <View style={{ flex: 1 }}>
-            <TitleBar>
-              <View
-                style={{
-                  flex: 1,
-                  paddingHorizontal: 10,
-                }}
-              >
-                <MaterialIcons
-                  onPress={() => {
-                    setWorkListVisible(!workListVisible);
-                  }}
-                  name="cancel"
-                  size={24}
-                  color="black"
-                />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Title>나의 심부름 목록</Title>
-              </View>
-              <View style={{ flex: 1 }}></View>
-            </TitleBar>
-            <Line />
+      </Section>
 
-            <Order
-              orderVisible={orderVisible}
-              setOrderVisible={setOrderVisible}
-              titleName="심부름 수정"
-              btnText="수정 완료"
-              alertText="심부름 수정이 완료되었습니다."
-            />
+      <Section>
+        <SectionHeader>요청정보</SectionHeader>
+        <CountBox>
+          <CountContainer>
+            <CountText>총 심부름 수</CountText>
+            <CountValue>0</CountValue>
+          </CountContainer>
+          <CountContainer>
+            <CountText>요청한 심부름 수</CountText>
+            <CountValue>0</CountValue>
+          </CountContainer>
+        </CountBox>
+      </Section>
+
+      {/* 심부름 목록 Modal */}
+      <Modal animationType="slide" visible={workListVisible}>
+        <View style={{ flex: 1 }}>
+          <TitleBar>
             <View
               style={{
-                flex: 10,
-                backgroundColor: "#dcdde1",
-                paddingHorizontal: 15,
+                flex: 1,
+                paddingHorizontal: 10,
               }}
             >
-              {workList.map((data, index) => (
-                <ErrandList
-                  key={data.id}
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    paddingHorizontal: 30,
-                    paddingVertical: 10,
-                    backgroundColor: selectWork === data ? "gray" : "white",
-                  }}
-                  onPress={() => {
-                    setSelectWork(data);
-                  }}
-                >
-                  <View style={{ flex: 1 }}>
-                    <WorkListText>제목 : {data.title} </WorkListText>
-                    <WorkListText>내용 : {data.context} </WorkListText>
-                    <WorkListText>
-                      마감시간 : {data.deadLineTime}시간
-                    </WorkListText>
-                    <Pressable
-                      onPress={() => {
-                        axios
-                          .delete(`${BASE_URL}/api/work/${data.id}`)
-                          .then((res) => {
-                            setWorkList(res.data);
-                            console.log(res.data);
-                          });
-                      }}
-                    >
-                      <Text>삭제</Text>
-                    </Pressable>
-                  </View>
-
-                  <Entypo
-                    name="pencil"
-                    size={24}
-                    color="black"
-                    onPress={() => {
-                      //console.log("수정", data);
-                      setOrderVisible(!orderVisible);
-                      //console.log(index);
-                      setIndexValue(index);
-                    }}
-                  />
-                </ErrandList>
-              ))}
-              <OrderButton onPress={onPressOrderBtn}>
-                <Text
-                  style={{ color: "white", fontWeight: "600", fontSize: 15 }}
-                >
-                  신청하기
-                </Text>
-              </OrderButton>
+              <MaterialIcons
+                onPress={() => {
+                  setWorkListVisible(!workListVisible);
+                }}
+                name="cancel"
+                size={24}
+                color="black"
+              />
             </View>
+            <View style={{ flex: 1 }}>
+              <Title>나의 심부름 목록</Title>
+            </View>
+            <View style={{ flex: 1 }}></View>
+          </TitleBar>
+          <Line />
+
+          <Order
+            orderVisible={orderVisible}
+            setOrderVisible={setOrderVisible}
+            titleName="심부름 수정"
+            btnText="수정 완료"
+            alertText="심부름 수정이 완료되었습니다."
+          />
+          <View
+            style={{
+              flex: 10,
+              backgroundColor: "#dcdde1",
+              paddingHorizontal: 15,
+            }}
+          >
+            {workList.map((data, index) => (
+              <ErrandList
+                key={data.id}
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  paddingHorizontal: 30,
+                  paddingVertical: 10,
+                  backgroundColor: selectWork === data ? "gray" : "white",
+                }}
+                onPress={() => {
+                  setSelectWork(data);
+                }}
+              >
+                <View style={{ flex: 1 }}>
+                  <WorkListText>제목 : {data.title} </WorkListText>
+                  <WorkListText>내용 : {data.context} </WorkListText>
+                  <WorkListText>
+                    마감시간 : {data.deadLineTime}시간
+                  </WorkListText>
+                  <Pressable
+                    onPress={() => {
+                      axios
+                        .delete(`${BASE_URL}/api/work/${data.id}`)
+                        .then((res) => {
+                          setWorkList(res.data);
+                          console.log(res.data);
+                        });
+                    }}
+                  >
+                    <Text>삭제</Text>
+                  </Pressable>
+                </View>
+
+                <Entypo
+                  name="pencil"
+                  size={24}
+                  color="black"
+                  onPress={() => {
+                    //console.log("수정", data);
+                    setOrderVisible(!orderVisible);
+                    //console.log(index);
+                    setIndexValue(index);
+                  }}
+                />
+              </ErrandList>
+            ))}
+            <OrderButton onPress={onPressOrderBtn}>
+              <Text style={{ color: "white", fontWeight: "600", fontSize: 15 }}>
+                신청하기
+              </Text>
+            </OrderButton>
           </View>
-        </Modal>
-      </Box>
+        </View>
+      </Modal>
     </Container>
   );
 };

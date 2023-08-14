@@ -1,6 +1,7 @@
 import { Text, View, Modal, ScrollView, Alert } from "react-native";
 import styled from "styled-components/native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
 import {
@@ -17,110 +18,114 @@ import {
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { Entypo } from "@expo/vector-icons";
 import axios from "axios";
+import { Button } from "react-native-web";
 
-const Center = styled.View`
+const Background = styled.View`
   flex: 1;
-`;
-const Container = styled.View`
-  flex: 1;
-  background-color: white;
-  width: 100%;
-  //padding: 0px 10px;
+  background-color: white; /* 불투명한 배경색 */
 `;
 const TitleBar = styled.View`
   flex-direction: row;
-  justify-content: space-between;
-  margin-top: 10px;
-  background-color: white;
-  padding: 0px 10px;
-`;
-const Title = styled.Text`
-  font-weight: 600;
-  font-size: 18px;
-  margin-bottom: 10px;
+  align-items: center;
+  padding: 10px;
+  border-bottom-width: 1px;
+  border-bottom-color: #ccc;
 `;
 
-const MainBar = styled.View`
+const CloseIcon = styled(Ionicons)`
   flex: 1;
+  color: black;
 `;
-const ImgView = styled.View`
-  flex: 0.8;
-  justify-content: center;
+
+const Title = styled.Text`
+  flex: 1;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+`;
+
+const Line = styled.View`
+  height: 1px;
+  background-color: #ccc;
+  //margin-vertical: 10px;
+`;
+
+const MainContent = styled.View`
+  padding: 20px;
+`;
+
+const ProfileImageContainer = styled.View`
   align-items: center;
-  margin-bottom: 10px;
 `;
-const ProfileImg = styled.Image`
+
+const ProfileImage = styled.Image`
   width: 100px;
   height: 100px;
   border-radius: 50px;
 `;
-const AddPhoto = styled.Pressable`
-  width: 26px;
-  height: 26px;
-  border-radius: 13px;
-  background-color: black;
-  justify-content: center;
-  align-items: center;
+
+const CameraButton = styled.TouchableOpacity`
   position: absolute;
-  left: 23px;
-  bottom: 1px;
+  bottom: 0px;
+  right: 125px;
+  background-color: #3498db;
+  padding: 5px;
+  border-radius: 15px;
 `;
-const Line = styled.View`
-  border-bottom-color: gray;
-  border-bottom-width: 0.8px;
-  margin-bottom: 20px;
+
+const CameraIcon = styled(Entypo)`
+  color: white;
 `;
-const FixView = styled.View`
-  flex: 2;
+
+const SaveButton = styled.TouchableOpacity`
+  width: 50%;
+  background-color: #3498db;
+  padding: 10px;
+  align-items: center;
+  border-radius: 5px;
   margin-top: 20px;
+  align-self: center;
+`;
+
+const ButtonText = styled.Text`
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
 `;
 const InputView = styled.View`
   margin-bottom: 20px;
 `;
+
 const Inform = styled.Text`
-  font-size: 18px;
-  font-weight: 800;
-  margin: 0 20px;
-`;
-const Input = styled.TextInput`
-  height: 40px;
-  border-width: 1px;
-  padding: 10px;
-  margin: 10px 20px;
-  border-radius: 5px;
-`;
-const IntroduceInput = styled.TextInput`
-  height: 160px;
-  border-width: 1px;
-  border-radius: 10px;
-  padding: 10px;
-  margin: 10px 20px;
-`;
-const Button = styled.Pressable`
-  padding: 0 15px;
-  height: 40px;
-  border-radius: 10px;
-  margin: 5px 0;
-  align-items: center;
-  justify-content: center;
-  background-color: #2196f3;
-`;
-const CheckBtn = styled.Pressable`
-  padding: 0 15px;
-  height: 40px;
-  width: 60px;
-  border-radius: 10px;
-  align-items: center;
-  justify-content: center;
-  background-color: #2196f3;
-`;
-const BlankBox = styled.View`
-  background-color: #dcdde1;
-  width: 100%;
-  height: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
 `;
 
-const Fix = ({ modalVisible, setModalVisible, myImg }) => {
+const PasswordContainer = styled.View`
+  //margin: 10px 0;
+`;
+
+const PasswordText = styled.Text`
+  margin: 5px 0;
+`;
+
+const CheckBtn = styled.TouchableOpacity`
+  align-self: flex-end;
+  padding: 10px 20px;
+  background-color: #3498db;
+  border-radius: 5px;
+  margin-top: 15px;
+`;
+
+const Input = styled.TextInput`
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+`;
+
+const ProfileFix = ({ modalVisible, setModalVisible, myImg }) => {
   const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions(); //권한 요청을 위한 hooks
   const [img, setImg] = useRecoilState(imgData);
 
@@ -155,7 +160,7 @@ const Fix = ({ modalVisible, setModalVisible, myImg }) => {
       return;
     }
     setImg(result.uri);
-    console.log(result.uri);
+
     const localUri = result.uri;
     const fileName = localUri.split("/").pop();
     const match = /\.(\w+)$/.exec(fileName ?? "");
@@ -227,114 +232,86 @@ const Fix = ({ modalVisible, setModalVisible, myImg }) => {
         setModalVisible(!modalVisible);
       }}
     >
-      <Center>
-        <View
-          style={{ flex: 0.07, opacity: 0.8, backgroundColor: "gray" }}
-        ></View>
-        <ScrollView style={{ flex: 13 }}>
-          <Container>
-            <TitleBar>
-              <View style={{ flex: 1 }}>
-                <MaterialIcons
-                  onPress={() => {
-                    setModalVisible(!modalVisible);
-                  }}
-                  name="cancel"
-                  size={24}
-                  color="black"
+      <Background>
+        <ScrollView>
+          <TitleBar>
+            <CloseIcon
+              onPress={() => {
+                setModalVisible(!modalVisible);
+              }}
+              name="arrow-back"
+              size={24}
+              color="black"
+            />
+
+            <Title>프로필 수정</Title>
+            <View style={{ flex: 1, backgroundColor: "white" }}></View>
+          </TitleBar>
+          <Line />
+          <MainContent>
+            <ProfileImageContainer>
+              <ProfileImage
+                source={
+                  myImg
+                    ? { uri: `data:image/png;base64,${myImg}` }
+                    : require("../images/profile.jpg")
+                }
+              />
+
+              <CameraButton onPress={pickImage}>
+                <CameraIcon name="camera" size={15} color="white" />
+              </CameraButton>
+            </ProfileImageContainer>
+
+            <InputView>
+              <Inform>이름</Inform>
+              <Input
+                value={name}
+                placeholder="이름을 입력해주세요..."
+                onChangeText={onChangeName}
+              />
+            </InputView>
+            <InputView>
+              <Inform>자기소개</Inform>
+              <Input
+                value={introduce}
+                placeholder="자기소개..."
+                onChangeText={onChangeIntroduce}
+              />
+            </InputView>
+            <InputView>
+              <Inform>비밀번호 변경</Inform>
+              <PasswordContainer>
+                <PasswordText>비밀번호 입력</PasswordText>
+                <Input
+                  value={changePw}
+                  onChangeText={onChangePw1}
+                  secureTextEntry
+                  placeholder="새 비밀번호 입력"
                 />
-              </View>
-              <Title>프로필 수정</Title>
-              <View style={{ flex: 1, backgroundColor: "white" }}></View>
-            </TitleBar>
-            <Line />
-            <MainBar>
-              <ImgView>
-                <ProfileImg
-                  source={
-                    myImg
-                      ? { uri: `data:image/png;base64,${myImg}` }
-                      : require("../images/profile.jpg")
-                  }
+              </PasswordContainer>
+              <PasswordContainer>
+                <PasswordText>한번 더 입력</PasswordText>
+                <Input
+                  value={changePw2}
+                  onChangeText={onChangePw2}
+                  secureTextEntry
+                  placeholder="새 비밀번호 확인"
                 />
-                <View style={{ position: "relative" }}>
-                  <AddPhoto onPress={pickImage}>
-                    <Entypo name="camera" size={15} color="white" />
-                  </AddPhoto>
-                </View>
-              </ImgView>
-              <BlankBox></BlankBox>
-              <FixView>
-                <InputView>
-                  <Inform>이름</Inform>
-                  <Input
-                    value={name}
-                    placeholder="이름을 입력해주세요..."
-                    onChangeText={onChangeName}
-                  />
-                </InputView>
-                <InputView>
-                  <Inform>자기소개</Inform>
-                  <IntroduceInput
-                    value={introduce}
-                    placeholder="자기소개..."
-                    onChangeText={onChangeIntroduce}
-                  />
-                </InputView>
-                <InputView>
-                  <Inform style={{ marginBottom: 10 }}>비밀번호 변경</Inform>
-                  <Text style={{ marginHorizontal: 20 }}>비밀번호 입력</Text>
-                  <Input
-                    value={changePw}
-                    onChangeText={onChangePw1}
-                    secureTextEntry
-                  />
-                  <Text style={{ marginHorizontal: 20 }}>한번 더 입력</Text>
-                  <Input
-                    value={changePw2}
-                    onChangeText={onChangePw2}
-                    secureTextEntry
-                  />
-                  <View
-                    style={{
-                      alignItems: "flex-end",
-                      marginHorizontal: 20,
-                      marginBottom: 30,
-                    }}
-                  >
-                    <CheckBtn onPress={changePassword}>
-                      <Text
-                        style={{
-                          color: "white",
-                          fontWeight: "600",
-                          fontSize: 15,
-                        }}
-                      >
-                        확인
-                      </Text>
-                    </CheckBtn>
-                  </View>
-                </InputView>
-                <View style={{ paddingHorizontal: 30 }}>
-                  <Button onPress={onPressBtn}>
-                    <Text
-                      style={{
-                        color: "white",
-                        fontWeight: "600",
-                        fontSize: 15,
-                      }}
-                    >
-                      완료
-                    </Text>
-                  </Button>
-                </View>
-              </FixView>
-            </MainBar>
-          </Container>
+              </PasswordContainer>
+              <CheckBtn onPress={changePassword}>
+                <ButtonText>비밀번호 변경</ButtonText>
+              </CheckBtn>
+            </InputView>
+          </MainContent>
+
+          <SaveButton onPress={onPressBtn}>
+            <ButtonText>프로필 수정 완료</ButtonText>
+          </SaveButton>
         </ScrollView>
-      </Center>
+      </Background>
     </Modal>
   );
 };
 
-export default Fix;
+export default ProfileFix;
