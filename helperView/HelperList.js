@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, View } from "react-native";
+import { Pressable, ScrollView, View, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
 import { useRecoilValue } from "recoil";
 import { contentData, ratingHelperData, responseHelperData } from "../atom";
@@ -50,7 +50,7 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
                 flexDirection: "row",
               }}
             >
-              <Pressable
+              <TouchableOpacity
                 onPress={() => {
                   setIsDistance(true);
                   setIsRating(false);
@@ -60,8 +60,8 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
                 <ChooseText style={{ color: isDistance ? "black" : "gray" }}>
                   거리
                 </ChooseText>
-              </Pressable>
-              <Pressable
+              </TouchableOpacity>
+              <TouchableOpacity
                 onPress={() => {
                   setIsDistance(false);
                   setIsRating(true);
@@ -71,8 +71,8 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
                 <ChooseText style={{ color: isRating ? "black" : "gray" }}>
                   평점
                 </ChooseText>
-              </Pressable>
-              <Pressable
+              </TouchableOpacity>
+              <TouchableOpacity
                 onPress={() => {
                   setIsDistance(false);
                   setIsRating(false);
@@ -82,7 +82,7 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
                 <ChooseText style={{ color: isResponse ? "black" : "gray" }}>
                   응답시간
                 </ChooseText>
-              </Pressable>
+              </TouchableOpacity>
             </View>
           </TitleBar>
 

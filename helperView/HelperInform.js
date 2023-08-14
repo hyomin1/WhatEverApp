@@ -19,7 +19,7 @@ const Response = styled.Text`
   color: rgba(0, 0, 0, 0.6);
   font-size: 13px;
 `;
-const HelperInformation = styled.Pressable`
+const HelperInformation = styled.TouchableOpacity`
   margin-top: 15px;
   flex-direction: row;
   flex: 1;
