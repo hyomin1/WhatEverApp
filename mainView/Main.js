@@ -44,7 +44,7 @@ const SelectView = styled.View`
   flex-direction: row;
   //margin-bottom: 10px;
 `;
-const SelectBtn = styled.Pressable`
+const SelectBtn = styled.TouchableOpacity`
   background-color: white;
   flex: 1;
   justify-content: center;

@@ -9,6 +9,7 @@ import { Alert } from "react-native";
 import * as Location from "expo-location";
 import BackgroundTimer from "react-native-background-timer";
 import { useState } from "react";
+import { Button } from "react-native-web";
 
 const WorkBubble = styled.View`
   background-color: #e4eaf2;
@@ -210,33 +211,17 @@ const WorkChat = ({
             </DeadlineText>
           </WorkBubble>
         ) : (
-          <WorkBubble style={{ width: 200 }}>
-            <WorkTitleWrapper>
-              <WorkTitle>심부름 검증서</WorkTitle>
-            </WorkTitleWrapper>
-
-            <Pressable
-              style={{
-                flex: 2,
-                justifyContent: "center",
-                alignItems: "center",
-                paddingVertical: 25,
-              }}
-              onPress={onPressCheck}
-            >
-              <Text
-                style={{
-                  backgroundColor: "#7f8fa6",
-                  width: 100,
-
-                  textAlign: "center",
-                  borderRadius: 10,
-                  color: "#dcdde1",
-                }}
+          <WorkBubble>
+            <WorkTitle>심부름 검증서</WorkTitle>
+            <Divider />
+            <ButtonContainer style={{ justifyContent: "center" }}>
+              <WorkBtn
+                style={{ backgroundColor: "#3498db" }}
+                onPress={onPressCheck}
               >
-                수락
-              </Text>
-            </Pressable>
+                <WorkBtnText>승낙</WorkBtnText>
+              </WorkBtn>
+            </ButtonContainer>
           </WorkBubble>
         )
       ) : myId !== creatorId ? (
@@ -259,18 +244,10 @@ const WorkChat = ({
           </ButtonContainer>
         </WorkBubble>
       ) : (
-        <WorkBubble style={{ width: 200 }}>
-          <WorkTitleWrapper>
-            <WorkTitle>심부름 검증서</WorkTitle>
-          </WorkTitleWrapper>
-          <View
-            style={{
-              flex: 2,
-              justifyContent: "center",
-              alignItems: "center",
-              paddingVertical: 25,
-            }}
-          ></View>
+        <WorkBubble>
+          <WorkTitle>심부름 검증서</WorkTitle>
+          <Divider />
+          <WorkText style={{ textAlign: "center" }}>검증 대기중...</WorkText>
         </WorkBubble>
       )}
     </View>

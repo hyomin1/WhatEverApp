@@ -98,11 +98,8 @@ const NearWork = ({ nearWork }) => {
     setSelectedWork(work);
     setVisible(true);
   };
-
-  const goChat = () => navigation.navigate("Chatting");
-
+  //console.log(nearWork);
   const onPressProgress = (data) => {
-    console.log("진행 요청");
     axios
       .post(`${BASE_URL}/api/conversation/${data.customerId}`, {
         id: data.id,
@@ -116,7 +113,7 @@ const NearWork = ({ nearWork }) => {
           body: JSON.stringify(data),
           headers: { Authorization: `Bearer ${accessToken}` },
         });
-        goChat();
+        navigation.navigate("Chatting");
       });
     // 진행 요청 로직
   };

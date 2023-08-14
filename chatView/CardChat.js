@@ -15,42 +15,64 @@ import { useState } from "react";
 import Rating from "./Rating";
 import * as Location from "expo-location";
 
-const CardWrapper = styled.View`
-  height: 100px;
-  width: 200px;
-  background-color: #dcdde1;
-  border-radius: 15px;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 10px;
-`;
 const CardTitleWrapper = styled.View`
-  background-color: #7f8fa6;
-  width: 100%;
-  flex: 1;
-  justify-content: center;
-  align-items: flex-start;
+  background-color: #ffcd02;
+  padding: 10px;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
-  height: 30px;
-`;
-const CardTitle = styled.Text`
-  margin-left: 10px;
-  font-size: 14px;
-  font-weight: 800;
-  color: black;
-`;
-const CardBtn = styled.Pressable`
-  flex: 2;
-  justify-content: center;
   align-items: center;
 `;
+
+const CardBtn = styled.TouchableOpacity`
+  background-color: #ffcd02;
+  padding: 10px;
+  border-radius: 5px;
+  align-items: center;
+  margin-top: 16px;
+`;
 const CardText = styled.Text`
-  background-color: #7f8fa6;
-  width: 100px;
-  text-align: center;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+`;
+const CardContainer = styled.View`
+  background-color: #e4eaf2;
   border-radius: 10px;
-  color: #dcdde1;
+  padding: 16px;
+  margin-bottom: 16px;
+  width: 50%;
+`;
+const CardTitle = styled.Text`
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  margin-bottom: 4px;
+`;
+const Divider = styled.View`
+  border-bottom-width: 1px;
+  border-bottom-color: #ccc;
+  margin: 8px 0;
+`;
+
+const ButtonContainer = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
+const ActionButton = styled.TouchableOpacity`
+  background-color: #3498db;
+  padding: 12px;
+  border-radius: 5px;
+  align-items: center;
+  flex: 1;
+  margin: 0 4px;
+`;
+
+const ButtonText = styled.Text`
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
 `;
 
 const CardChat = ({ data, myName, chatList, receiverName }) => {
@@ -72,6 +94,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
 
   const [isFinish, setIsFinish] = useState(true);
   const [isTimer, isSetTimer] = useRecoilState(isTimerData);
+  const messageData = JSON.parse(chatList.chatList[0].message);
 
   const onPressWorkComplete = async () => {
     const { granted } = await Location.requestForegroundPermissionsAsync();
@@ -84,8 +107,8 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
 
     await axios
       .put(`${BASE_URL}/api/work/success/${chatList.workId}`, {
-        latitude,
-        longitude,
+        //latitude,
+        //longitude,
       })
       .then((res) => {
         client.publish({
@@ -101,54 +124,48 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
     isSetTimer(false);
   };
   const onPressView = () => {
-    console.log("진행 상황 보기");
-    if (JSON.parse(chatList.chatList[0].message).deadLineTime === 1) {
-      console.log("마감시간 한시간");
+    if (messageData.deadLineTime === 1) {
       axios
-        .get(
-          `${BASE_URL}/api/location/helperLocation/${
-            JSON.parse(chatList.chatList[0].message).id
-          }`
-        )
+        .get(`${BASE_URL}/api/location/helperLocation/${messageData.id}`)
         .then((res) => {
-          //console.log(res.data);
-          navigation.navigate("HelperLocation", {
-            location: res.data,
-          });
+          console.log(res.data);
+          console.log(messageData.id);
+          // navigation.navigate("HelperLocation", {
+          //   location: res.data,
+          // });
         });
     } else {
       console.log("마감시간 한시간 초과");
     }
     //진행상황 보기
   };
-
+  const isCustomer = myId === messageData.customerId;
   return (
-    <View>
+    <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
       {data.message === "Accept work" ? (
-        <CardWrapper>
-          <CardTitleWrapper>
-            <CardTitle>심부름이 수락되었습니다</CardTitle>
-          </CardTitleWrapper>
-          {myId !== JSON.parse(chatList.chatList[0].message).customerId ? (
-            <CardBtn onPress={onPressWorkComplete}>
-              <CardText>일 완료하기</CardText>
-            </CardBtn>
-          ) : (
-            <CardBtn onPress={onPressView}>
-              <CardText>진행상황 보기</CardText>
-            </CardBtn>
-          )}
-        </CardWrapper>
+        <CardContainer>
+          <CardTitle>심부름 매칭 성공</CardTitle>
+          <Divider />
+          <ButtonContainer>
+            <ActionButton
+              onPress={isCustomer ? onPressView : onPressWorkComplete}
+            >
+              <ButtonText>
+                {isCustomer ? "진행상황 보기" : "심부름 완료하기"}
+              </ButtonText>
+            </ActionButton>
+          </ButtonContainer>
+        </CardContainer>
       ) : data.message === "Complete work" ? (
-        myId !== JSON.parse(chatList.chatList[0].message).customerId ? (
-          <CardWrapper>
+        myId !== messageData.customerId ? (
+          <CardContainer>
             <CardTitleWrapper>
               <CardTitle>상대방의 수락 기다리는중</CardTitle>
             </CardTitleWrapper>
             <CardBtn></CardBtn>
-          </CardWrapper>
+          </CardContainer>
         ) : (
-          <CardWrapper>
+          <CardContainer>
             <CardTitleWrapper>
               <CardTitle>심부름 완료 확인</CardTitle>
             </CardTitleWrapper>
@@ -169,14 +186,14 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
             >
               <CardText>확인하기</CardText>
             </CardBtn>
-          </CardWrapper>
+          </CardContainer>
         )
       ) : data.message === "Finish Work" ? (
-        <CardWrapper>
+        <CardContainer>
           <CardTitleWrapper>
             <CardTitle>심부름이 종료되었습니다</CardTitle>
           </CardTitleWrapper>
-          {myId !== JSON.parse(chatList.chatList[0].message).customerId ? (
+          {myId !== messageData.customerId ? (
             <CardBtn>
               <CardText>헬퍼입장 종료</CardText>
             </CardBtn>
@@ -193,7 +210,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
               </Modal>
             </View>
           )}
-        </CardWrapper>
+        </CardContainer>
       ) : null}
     </View>
   );
