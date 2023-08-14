@@ -10,14 +10,36 @@ import * as Location from "expo-location";
 import BackgroundTimer from "react-native-background-timer";
 import { useState } from "react";
 
-const WorkWrapper = styled.View`
-  background-color: #dcdde1;
-  border-radius: 15px;
-  justify-content: center;
-  align-items: center;
-  width: 250px;
+const WorkBubble = styled.View`
+  background-color: #e4eaf2;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 5px;
+  width: 50%;
   margin-bottom: 10px;
 `;
+const Divider = styled.View`
+  border-bottom-width: 1px;
+  border-bottom-color: #ccc;
+  margin: 8px 0;
+`;
+const WorkTitle = styled.Text`
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  text-align: center;
+  color: #333;
+`;
+const WorkText = styled.Text`
+  color: #555;
+  font-size: 14px;
+  margin-bottom: 6px;
+`;
+const DeadlineText = styled.Text`
+  font-size: 12px;
+  color: #777;
+`;
+
 const WorkTitleWrapper = styled.View`
   background-color: #7f8fa6;
   width: 100%;
@@ -28,38 +50,26 @@ const WorkTitleWrapper = styled.View`
   border-top-right-radius: 10px;
   height: 30px;
 `;
-const WorkTextView = styled.View`
-  flex: 5;
-  padding-top: 10px;
-  margin-left: 20px;
-  width: 250px;
+const ButtonContainer = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 10px;
 `;
-const WorkTitle = styled.Text`
-  margin-left: 10px;
-  font-size: 14px;
-  font-weight: 800;
+const Spacer = styled.View`
+  width: 2%;
 `;
 const WorkBtn = styled.Pressable`
-  background-color: #2196f3;
-  width: 30%;
+  background-color: ${(props) => (props.accept ? "#3498db" : "#e74c3c")};
+  width: 80px;
+  height: 30px;
   justify-content: center;
   align-items: center;
-  border: 2px solid white;
-  border-radius: 10px;
-  margin-right: 2px;
-  margin-left: 2px;
-  margin-bottom: 5px;
+  border-radius: 5px;
 `;
-const WorkText = styled.Text`
-  color: black;
+
+const WorkBtnText = styled.Text`
+  color: white;
   font-weight: 600;
-  font-size: 18px;
-  margin-bottom: 5px;
-`;
-const WorkAcceptText = styled.Text`
-  color: black;
-  font-weight: 600;
-  font-size: 19px;
 `;
 
 const WorkChat = ({
@@ -70,6 +80,7 @@ const WorkChat = ({
   receiverName,
   creatorId,
 }) => {
+  const messageData = JSON.parse(data.message);
   const myId = useRecoilValue(myIdData);
   const conversation = useRecoilValue(conversationData);
   const AcceptCard = {
@@ -77,9 +88,7 @@ const WorkChat = ({
     senderName: myName,
     receiverName: receiverName,
   };
-  const [click, setClick] = useState(false);
-  const [accept, setAccept] = useState(false);
-  const [deny, setDeny] = useState(false);
+
   const [isTimer, isSetTimer] = useRecoilState(isTimerData);
 
   const intervalId = (id) => {
@@ -106,7 +115,6 @@ const WorkChat = ({
     }
   };
   const onPressAccept = (index) => {
-    console.log("press 111111");
     //헬퍼가 심부름 수락시
     const work = JSON.parse(chatList.chatList[index].message);
     axios
@@ -149,7 +157,6 @@ const WorkChat = ({
   };
 
   const onPressCheck = () => {
-    console.log("press 222222");
     const work = JSON.parse(chatList.chatList[index].message);
     axios
       .put(`${BASE_URL}/api/work/matching`, {
@@ -191,24 +198,19 @@ const WorkChat = ({
         justifyContent: data.senderName === myName ? "flex-end" : "flex-start",
       }}
     >
-      {/*<Time>{data.sendTime.slice(0, 16)}</Time>*/}
-
       {myId === customerId ? (
         myId === creatorId ? (
-          <WorkWrapper>
-            <WorkTitleWrapper>
-              <WorkTitle>심부름 요청서</WorkTitle>
-            </WorkTitleWrapper>
-            <WorkTextView>
-              <WorkText>제목 : {JSON.parse(data.message).title}</WorkText>
-              <WorkText>내용 : {JSON.parse(data.message).context}</WorkText>
-              <WorkText>
-                마감시간 : {JSON.parse(data.message).deadLineTime}시간
-              </WorkText>
-            </WorkTextView>
-          </WorkWrapper>
+          <WorkBubble>
+            <WorkTitle>심부름 요청서</WorkTitle>
+            <Divider />
+            <WorkText>제목 : {messageData.title}</WorkText>
+            <WorkText>내용 : {messageData.context}</WorkText>
+            <DeadlineText>
+              마감시간 : {messageData.deadLineTime}시간
+            </DeadlineText>
+          </WorkBubble>
         ) : (
-          <WorkWrapper style={{ width: 200 }}>
+          <WorkBubble style={{ width: 200 }}>
             <WorkTitleWrapper>
               <WorkTitle>심부름 검증서</WorkTitle>
             </WorkTitleWrapper>
@@ -235,36 +237,29 @@ const WorkChat = ({
                 수락
               </Text>
             </Pressable>
-          </WorkWrapper>
+          </WorkBubble>
         )
       ) : myId !== creatorId ? (
-        <WorkWrapper>
-          <WorkTitleWrapper>
-            <WorkTitle>심부름 요청서</WorkTitle>
-          </WorkTitleWrapper>
-
-          <WorkTextView>
-            <WorkText>제목 : {JSON.parse(data.message).title}</WorkText>
-
-            <WorkText>내용 : {JSON.parse(data.message).context}</WorkText>
-
-            <WorkText>
-              마감시간 : {JSON.parse(data.message).deadLineTime}
-              시간
-            </WorkText>
-          </WorkTextView>
-          <View style={{ flexDirection: "row" }}>
-            <WorkBtn onPress={() => onPressAccept(index)}>
-              <WorkAcceptText>수락</WorkAcceptText>
+        <WorkBubble>
+          <WorkTitle>심부름 요청서</WorkTitle>
+          <WorkText>제목 : {messageData.title}</WorkText>
+          <WorkText>내용 : {messageData.context}</WorkText>
+          <DeadlineText>
+            마감시간 : {messageData.deadLineTime}
+            시간
+          </DeadlineText>
+          <ButtonContainer>
+            <WorkBtn accept={true} onPress={() => onPressAccept(index)}>
+              <WorkBtnText>수락</WorkBtnText>
             </WorkBtn>
-
-            <WorkBtn onPress={onPressDeny}>
-              <WorkAcceptText>거절</WorkAcceptText>
+            <Spacer />
+            <WorkBtn accept={false} onPress={onPressDeny}>
+              <WorkBtnText>거절</WorkBtnText>
             </WorkBtn>
-          </View>
-        </WorkWrapper>
+          </ButtonContainer>
+        </WorkBubble>
       ) : (
-        <WorkWrapper style={{ width: 200 }}>
+        <WorkBubble style={{ width: 200 }}>
           <WorkTitleWrapper>
             <WorkTitle>심부름 검증서</WorkTitle>
           </WorkTitleWrapper>
@@ -276,7 +271,7 @@ const WorkChat = ({
               paddingVertical: 25,
             }}
           ></View>
-        </WorkWrapper>
+        </WorkBubble>
       )}
     </View>
   );
