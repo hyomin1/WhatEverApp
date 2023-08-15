@@ -14,26 +14,12 @@ import styled from "styled-components/native";
 import { useState } from "react";
 import Rating from "./Rating";
 import * as Location from "expo-location";
-
-const CardTitleWrapper = styled.View`
-  background-color: #ffcd02;
-  padding: 10px;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  align-items: center;
-`;
-
 const CardBtn = styled.TouchableOpacity`
   background-color: #ffcd02;
   padding: 10px;
   border-radius: 5px;
   align-items: center;
   margin-top: 16px;
-`;
-const CardText = styled.Text`
-  color: white;
-  font-size: 14px;
-  font-weight: bold;
 `;
 const CardContainer = styled.View`
   background-color: #e4eaf2;
@@ -107,8 +93,8 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
 
     await axios
       .put(`${BASE_URL}/api/work/success/${chatList.workId}`, {
-        //latitude,
-        //longitude,
+        latitude,
+        longitude,
       })
       .then((res) => {
         client.publish({
@@ -159,56 +145,56 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
       ) : data.message === "Complete work" ? (
         myId !== messageData.customerId ? (
           <CardContainer>
-            <CardTitleWrapper>
-              <CardTitle>상대방의 수락 기다리는중</CardTitle>
-            </CardTitleWrapper>
+            <CardTitle>상대방의 수락 기다리는중</CardTitle>
+            <Divider />
             <CardBtn></CardBtn>
           </CardContainer>
         ) : (
           <CardContainer>
-            <CardTitleWrapper>
-              <CardTitle>심부름 완료 확인</CardTitle>
-            </CardTitleWrapper>
-            <CardBtn
-              onPress={() => {
-                axios
-                  .put(`${BASE_URL}/api/work/finish/${chatList.workId}`)
-                  .then(({ data }) => {
-                    //console.log("finish", data);
-                    client.publish({
-                      destination: `/pub/card/${conversation._id}`,
-                      body: JSON.stringify(finishCard),
+            <CardTitle>심부름 완료 확인</CardTitle>
+            <Divider />
+            <ButtonContainer>
+              <ActionButton
+                onPress={() => {
+                  axios
+                    .put(`${BASE_URL}/api/work/finish/${chatList.workId}`)
+                    .then(({ data }) => {
+                      client.publish({
+                        destination: `/pub/card/${conversation._id}`,
+                        body: JSON.stringify(finishCard),
+                      });
+                      isSetTimer(false);
+                      setHistoryWork([...historyWork, data]);
                     });
-                    isSetTimer(false);
-                    setHistoryWork([...historyWork, data]);
-                  });
-              }}
-            >
-              <CardText>확인하기</CardText>
-            </CardBtn>
+                }}
+              >
+                <ButtonText>확인하기</ButtonText>
+              </ActionButton>
+            </ButtonContainer>
           </CardContainer>
         )
       ) : data.message === "Finish Work" ? (
         <CardContainer>
-          <CardTitleWrapper>
-            <CardTitle>심부름이 종료되었습니다</CardTitle>
-          </CardTitleWrapper>
+          <CardTitle>심부름 종료</CardTitle>
+          <Divider />
           {myId !== messageData.customerId ? (
-            <CardBtn>
-              <CardText>헬퍼입장 종료</CardText>
-            </CardBtn>
+            <ButtonContainer>
+              <ActionButton>
+                <ButtonText>헬퍼 입장 종료</ButtonText>
+              </ActionButton>
+            </ButtonContainer>
           ) : (
-            <View>
-              <CardBtn onPress={() => isSetStarRating((cur) => !cur)}>
-                <CardText>별점 평가</CardText>
-              </CardBtn>
+            <ButtonContainer>
+              <ActionButton onPress={() => isSetStarRating((cur) => !cur)}>
+                <ButtonText>후기 작성</ButtonText>
+              </ActionButton>
               <Modal animationType="slide" visible={isStarRating}>
                 <Rating
                   workId={chatList.workId}
                   isSetStarRating={isSetStarRating}
                 />
               </Modal>
-            </View>
+            </ButtonContainer>
           )}
         </CardContainer>
       ) : null}

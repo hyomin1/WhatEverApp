@@ -85,7 +85,6 @@ const Tabs = ({ navigation: { navigate } }) => {
                   axios
                     .get("http://10.0.2.2:8080/api/userInfo")
                     .then((res) => {
-                      console.log("유저 데이터 받아오기 성공");
                       setPw(res.data.password);
                       setDistance(res.data.distance);
                       setResponse(res.data.avgReactTime);

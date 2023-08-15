@@ -1,6 +1,6 @@
 import styled from "styled-components/native";
 import { Modal, View, ScrollView, Text, Pressable, Alert } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { indexData, workData, workListData } from "../atom";
 import SelectDropdown from "react-native-select-dropdown";
@@ -12,78 +12,76 @@ import { BASE_URL } from "../api";
 
 const Container = styled.View`
   flex: 1;
+  background-color: white;
+  padding: 20px;
 `;
 
 const TitleBar = styled.View`
   flex-direction: row;
-  margin-top: 10px;
-  background-color: white;
+  align-items: center;
+
+  margin-bottom: 20px;
 `;
 const Title = styled.Text`
-  font-weight: 600;
-  font-size: 17px;
-  margin-bottom: 10px;
+  flex: 2;
+  font-weight: bold;
+  font-size: 20px;
+  text-align: center;
 `;
 const Line = styled.View`
-  border-bottom-color: gray;
-  border-bottom-width: 0.5px;
-  margin-top: 3px;
+  height: 1px;
+  background-color: #ccc;
+  margin: 10px 0;
 `;
-const MainBar = styled.View`
-  padding: 0px 20px;
-  margin-top: 20px;
-`;
+
 const MainText = styled.Text`
-  font-weight: 600;
-  font-size: 17px;
-  margin-bottom: 10px;
+  font-weight: bold;
+  font-size: 16px;
+  margin-top: 15px;
 `;
-const TitleInput = styled.TextInput`
-  height: 50px;
-  border-width: 0.9px;
+const Input = styled.TextInput`
+  border: 1px solid #ccc;
   padding: 10px;
   border-radius: 5px;
-  margin-bottom: 40px;
+  margin-top: 5px;
 `;
-const Button = styled.Pressable`
-  padding: 0 15px;
-  height: 40px;
-  border-radius: 10px;
-  margin: 5px 0;
+const Button = styled.TouchableOpacity`
+  border-radius: 5px;
   align-items: center;
   justify-content: center;
   background-color: #2196f3;
+  padding: 10px 20px;
 `;
-const ErrandPlace = styled.View`
-  border: 2px solid lightgray;
-  border-radius: 5px;
-  margin-bottom: 50px;
-`;
-const ErrandBox = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-  background-color: lightgray;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-  align-items: center;
-  height: 40px;
-  padding: 0px 5px;
-`;
-const AddressInputText = styled.Text`
-  color: blue;
-  font-size: 12px;
-`;
-const Address = styled.View`
-  align-items: center;
-  justify-content: center;
-  height: 40px;
+const AddressBox = styled.View`
+  margin-top: 20px;
 `;
 const AddressText = styled.Text`
-  font-size: 17px;
-  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+  margin-top: 10px;
 `;
+
+const AddressInputButton = styled.TouchableOpacity`
+  background-color: #2196f3;
+  padding: 10px;
+  border-radius: 5px;
+  align-items: center;
+  margin-top: 10px;
+`;
+
+const AddressInputButtonText = styled.Text`
+  color: white;
+  font-weight: bold;
+`;
+
 const DropdownContainer = styled.View`
   width: 200px;
+  height: 40px;
+  border: 1px solid lightgray;
+  border-radius: 5px;
+  margin-top: 10px;
+  background-color: #f5f5f5;
+  justify-content: center;
 `;
 
 const Order = ({
@@ -94,7 +92,7 @@ const Order = ({
   alertText,
   divide,
 }) => {
-  const hours = ["1시간", "2시간", "3시간", "4시간"];
+  const hours = [1, 2, 3, 4];
 
   const [title, setTitle] = useState();
   const [context, setContext] = useState();
@@ -128,6 +126,7 @@ const Order = ({
   };
 
   const onPressBtn = async () => {
+    console.log(deadLineTime);
     if (divide === "0") {
       await axios
         .post(`${BASE_URL}/api/work`, {
@@ -195,161 +194,122 @@ const Order = ({
       visible={orderVisible}
       onRequestClose={() => setOrderVisible(!orderVisible)}
     >
-      <View style={{ flex: 1 }}>
-        <View style={{ flex: 1, opacity: 0.8, backgroundColor: "gray" }}></View>
-        <ScrollView style={{ backgroundColor: "white" }}>
-          <Container>
-            <TitleBar>
-              <View
-                style={{
-                  flex: 1,
-                  paddingHorizontal: 10,
+      <Container>
+        <TitleBar>
+          <Ionicons
+            style={{ flex: 1 }}
+            onPress={() => {
+              setOrderVisible(!orderVisible);
+              setDeadLineTime(0);
+            }}
+            name="arrow-back"
+            size={24}
+            color="black"
+          />
+          <Title>{titleName}</Title>
+          <View style={{ flex: 1 }}></View>
+        </TitleBar>
+        <Line />
+        <ScrollView>
+          <MainText>제목</MainText>
+          <Input
+            onChangeText={onChangeTitle}
+            placeholder="제목을 입력해주세요..."
+          />
+          <MainText>내용</MainText>
+          <Input
+            onChangeText={onChangeContext}
+            placeholder="내용을 입력해주세요..."
+            multiline
+          />
+          <AddressBox>
+            <MainText>심부름 시킬장소</MainText>
+            <AddressInputButton onPress={() => setOrderAddress(!orderAddress)}>
+              <AddressInputButtonText>주소 입력</AddressInputButtonText>
+            </AddressInputButton>
+            <AddressText>{address}</AddressText>
+            <Modal animationType="slide" visible={orderAddress}>
+              <Postcode
+                style={{ flex: 1, height: 250, marginBottom: 40 }}
+                jsOptions={{ animation: true }}
+                onSelected={async (data) => {
+                  const location = await Location.geocodeAsync(data.query);
+                  setAddress(data.address);
+                  setLatitude(location[0].latitude);
+                  setLongitude(location[0].longitude);
+                  setOrderAddress(!orderAddress);
                 }}
-              >
-                <MaterialIcons
-                  onPress={() => {
-                    setOrderVisible(!orderVisible);
-                    setDeadLineTime(0);
-                  }}
-                  name="cancel"
-                  size={24}
-                  color="black"
-                />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Title>{titleName}</Title>
-              </View>
+              />
+            </Modal>
+          </AddressBox>
 
-              <View style={{ flex: 1 }}></View>
-            </TitleBar>
-            <Line />
-            <MainBar>
-              <View>
-                <MainText>제목</MainText>
-                <TitleInput
-                  onChangeText={onChangeTitle}
-                  placeholder="제목을 입력해주세요..."
-                />
-                <MainText>내용</MainText>
-                <TitleInput
-                  onChangeText={onChangeContext}
-                  placeholder="내용을 입력해주세요..."
-                />
-                <ErrandPlace>
-                  <ErrandBox>
-                    <MainText style={{ marginBottom: 0 }}>
-                      심부름 시킬장소
-                    </MainText>
-                    <Pressable onPress={() => setOrderAddress(!orderAddress)}>
-                      <AddressInputText>주소 입력</AddressInputText>
-                    </Pressable>
-                  </ErrandBox>
+          <AddressBox>
+            <MainText>심부름 받을장소</MainText>
+            <AddressInputButton
+              onPress={() => setReceiveAddress(!receiveAddress)}
+            >
+              <AddressInputButtonText>주소 입력</AddressInputButtonText>
+            </AddressInputButton>
+            <AddressText>{address2}</AddressText>
+            <Modal animationType="slide" visible={receiveAddress}>
+              <Postcode
+                style={{ flex: 1, height: 250, marginBottom: 40 }}
+                jsOptions={{ animation: true }}
+                onSelected={async (data) => {
+                  const location = await Location.geocodeAsync(data.query);
+                  setAddress2(data.address);
+                  setReceiveLatitude(location[0].latitude);
+                  setReceiveLongitude(location[0].longitude);
+                  setReceiveAddress(!receiveAddress);
+                }}
+              />
+            </Modal>
+          </AddressBox>
 
-                  <Address>
-                    <AddressText>{address}</AddressText>
-                  </Address>
+          <AddressBox>
+            <MainText style={{ marginBottom: 0 }}>마감시간</MainText>
+            <DropdownContainer>
+              <SelectDropdown
+                buttonStyle={{
+                  width: 200,
+                  height: 40,
+                  borderWidth: 0, // "border" 대신 "borderWidth" 사용
+                  backgroundColor: "lightgray",
+                }}
+                data={hours}
+                onSelect={(hour) => {
+                  //const numberHour = parseInt(hour.charAt(0));
+                  //console.log(typeof numberHour);
+                  setDeadLineTime(hour);
+                }}
+                renderDropdownIcon={() => (
+                  <Text style={{ fontSize: 14, paddingHorizontal: 5 }}>▼</Text>
+                )}
+                defaultButtonText="시간 선택"
+                rowStyle={{
+                  paddingVertical: 10,
+                  paddingHorizontal: 20,
+                }}
+                rowTextStyle={{
+                  fontSize: 14,
+                  color: "black",
+                }}
+              />
+            </DropdownContainer>
+          </AddressBox>
 
-                  <Modal animationType="slide" visible={orderAddress}>
-                    <Postcode
-                      style={{ flex: 1, height: 250, marginBottom: 40 }}
-                      jsOptions={{ animation: true }}
-                      onSelected={async (data) => {
-                        const location = await Location.geocodeAsync(
-                          data.query
-                        );
-                        setAddress(data.address);
-                        setLatitude(location[0].latitude);
-                        setLongitude(location[0].longitude);
-                        setOrderAddress(!orderAddress);
-                      }}
-                    />
-                  </Modal>
-                </ErrandPlace>
-
-                <ErrandPlace>
-                  <ErrandBox>
-                    <MainText style={{ marginBottom: 0 }}>
-                      심부름 받을장소
-                    </MainText>
-                    <Pressable
-                      onPress={() => setReceiveAddress(!receiveAddress)}
-                    >
-                      <AddressInputText>주소 입력</AddressInputText>
-                    </Pressable>
-                  </ErrandBox>
-                  <Address>
-                    <AddressText>{address2}</AddressText>
-                  </Address>
-
-                  <Modal animationType="slide" visible={receiveAddress}>
-                    <Postcode
-                      style={{ flex: 1, height: 250, marginBottom: 40 }}
-                      jsOptions={{ animation: true }}
-                      onSelected={async (data) => {
-                        const location = await Location.geocodeAsync(
-                          data.query
-                        );
-                        setAddress2(data.address);
-                        setReceiveLatitude(location[0].latitude);
-                        setReceiveLongitude(location[0].longitude);
-                        setReceiveAddress(!receiveAddress);
-                      }}
-                    />
-                  </Modal>
-                </ErrandPlace>
-                <ErrandPlace>
-                  <ErrandBox>
-                    <MainText style={{ marginBottom: 0 }}>마감시간</MainText>
-                    <DropdownContainer>
-                      <SelectDropdown
-                        buttonStyle={{
-                          width: 200,
-                          height: 40,
-                          borderWidth: 0, // "border" 대신 "borderWidth" 사용
-                          backgroundColor: "lightgray",
-                        }}
-                        data={hours}
-                        onSelect={(hour) => {
-                          const numberHour = parseInt(hour.charAt(0));
-
-                          setDeadLineTime(numberHour);
-                        }}
-                        renderDropdownIcon={() => (
-                          <Text style={{ fontSize: 14, paddingHorizontal: 5 }}>
-                            ▼
-                          </Text>
-                        )}
-                        defaultButtonText="시간 선택"
-                        rowStyle={{
-                          paddingVertical: 10,
-                          paddingHorizontal: 20,
-                        }}
-                        rowTextStyle={{
-                          fontSize: 14,
-                          color: "black",
-                        }}
-                      />
-                    </DropdownContainer>
-                  </ErrandBox>
-                </ErrandPlace>
-
-                <MainText style={{ marginTop: 20 }}>심부름비</MainText>
-                <TitleInput
-                  onChangeText={onChangeReward}
-                  placeholder="금액을 입력하세요..."
-                />
-              </View>
-              <Button onPress={onPressBtn}>
-                <Text
-                  style={{ color: "white", fontWeight: "600", fontSize: 15 }}
-                >
-                  {btnText}
-                </Text>
-              </Button>
-            </MainBar>
-          </Container>
+          <MainText>심부름비</MainText>
+          <Input
+            onChangeText={onChangeReward}
+            placeholder="금액을 입력하세요..."
+          />
         </ScrollView>
-      </View>
+        <Button onPress={onPressBtn}>
+          <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>
+            {btnText}
+          </Text>
+        </Button>
+      </Container>
     </Modal>
   );
 };

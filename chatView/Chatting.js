@@ -89,9 +89,7 @@ const Chatting = () => {
       });
       axios
         .post(`http://10.0.2.2:8080/api/fcm/${conversation._id}`)
-        .then((res) => {
-          console.log("fcm alarm", res.data);
-        })
+        .then((res) => {})
         .catch((error) => console.log("fcmerr", error));
     }
   };
