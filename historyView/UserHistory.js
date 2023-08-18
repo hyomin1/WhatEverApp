@@ -92,17 +92,19 @@ const UserHistory = () => {
               심부름 중
             </BtnText>
           </Pressable>
-          <Pressable
-            onPress={() => {
-              setWorkComplete(false);
-              setWorking(false);
-              setBeforeWork(true);
-            }}
-          >
-            <BtnText style={{ color: beforeWork ? "black" : "gray" }}>
-              심부름 전
-            </BtnText>
-          </Pressable>
+          {isHelepr ? null : (
+            <Pressable
+              onPress={() => {
+                setWorkComplete(false);
+                setWorking(false);
+                setBeforeWork(true);
+              }}
+            >
+              <BtnText style={{ color: beforeWork ? "black" : "gray" }}>
+                심부름 전
+              </BtnText>
+            </Pressable>
+          )}
         </BtnView>
         {isHelepr ? (
           <UserHelperHistory

@@ -50,7 +50,7 @@ const UserHelperHistory = ({ workComplete, working, beforeWork }) => {
             ) : null
           )
         : null}
-      {historyWork
+      {/* {historyWork
         ? historyWork?.map((data, index) =>
             myId !== data.customerId &&
             beforeWork &&
@@ -64,7 +64,7 @@ const UserHelperHistory = ({ workComplete, working, beforeWork }) => {
               />
             ) : null
           )
-        : null}
+        : null} */}
 
       <Report
         reportVisible={reportVisible}

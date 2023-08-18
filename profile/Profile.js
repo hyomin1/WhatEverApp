@@ -208,7 +208,7 @@ const Profile = () => {
         </View>
       </Section>
 
-      <Section>
+      {/* <Section>
         <SectionHeader>요청 정보</SectionHeader>
         <CountBox>
           <CountContainer>
@@ -220,7 +220,7 @@ const Profile = () => {
             <CountValue>0</CountValue>
           </CountContainer>
         </CountBox>
-      </Section>
+      </Section> */}
 
       <Section>
         <SectionHeader>헬퍼 등록</SectionHeader>

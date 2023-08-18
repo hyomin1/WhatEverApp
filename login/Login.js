@@ -114,12 +114,10 @@ function Login({ navigation: { navigate } }) {
           ] = `Bearer ${res.data.accessToken}`;
         }
 
-        Alert.alert("로그인 완료");
-        console.log("로그인 성공");
         setIsAdmin(false);
         goMain();
       })
-      .catch((error) => console.log(error.response.data.message));
+      .catch((error) => Alert.alert(error.response.data.message));
   };
   //유저 로그인
   const onPressLogin = () => {

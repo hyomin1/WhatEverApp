@@ -9,6 +9,7 @@ import Postcode from "@actbase/react-daum-postcode";
 import * as Location from "expo-location";
 import axios from "axios";
 import { BASE_URL } from "../api";
+import IMP from "iamport-react-native";
 
 const Container = styled.View`
   flex: 1;
@@ -91,6 +92,7 @@ const Order = ({
   btnText,
   alertText,
   divide,
+  navigation,
 }) => {
   const hours = [1, 2, 3, 4];
 
@@ -185,6 +187,28 @@ const Order = ({
         });
     }
     setDeadLineTime("");
+  };
+  const data = {
+    pg: "html5_inicis",
+    pay_method: "card",
+    name: "결제 테스트",
+    merchant_uid: `mid_${new Date().getTime()}`,
+    amount: "1",
+    buyer_name: "홍길동",
+    buyer_tel: "01012345678",
+    buyer_email: "example@naver.com",
+    buyer_addr: "서울시 강남구 신사동 661-16",
+    buyer_postcode: "06018",
+    app_scheme: "example",
+    // [Deprecated v1.0.3]: m_redirect_url
+  };
+  const [payVisible, setPayVisible] = useState(false);
+  const onPayment = (res) => {
+    setPayVisible(true);
+    console.log(res);
+    // IMP.request_pay(data, () => {
+    //   console.log("g?");
+    // });
   };
 
   return (
@@ -303,7 +327,23 @@ const Order = ({
             onChangeText={onChangeReward}
             placeholder="금액을 입력하세요..."
           />
+          <MainText>결제</MainText>
+          <Pressable onPress={onPayment}>
+            <Text>결제하기</Text>
+          </Pressable>
+          <Modal visible={payVisible}>
+            <IMP.Payment
+              style={{ flex: 1, height: 250, marginBottom: 40 }}
+              userCode={"imp26520641"}
+              data={data}
+              callback={onPayment}
+            />
+            <Pressable onPress={() => setPayVisible(false)}>
+              <Text>닫기</Text>
+            </Pressable>
+          </Modal>
         </ScrollView>
+
         <Button onPress={onPressBtn}>
           <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>
             {btnText}

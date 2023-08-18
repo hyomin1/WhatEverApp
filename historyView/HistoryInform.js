@@ -1,5 +1,11 @@
 import styled from "styled-components/native";
-import { Text, Pressable, ScrollView, View } from "react-native";
+import {
+  Text,
+  Pressable,
+  ScrollView,
+  View,
+  TouchableOpacity,
+} from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
 const HistoryInformation = styled.View`
@@ -17,33 +23,36 @@ const HistoryText = styled.Text`
   color: #7f8fa6;
 `;
 
-const HistoryInform = ({ data, index, onPressReport }) => {
-  console.log("d", data);
+const HistoryInform = ({ data, index, onPressReport, isReport }) => {
   return (
     <HistoryInformation>
       <HistoryText>제목 : {data.title} </HistoryText>
       <HistoryText>내용 : {data.context} </HistoryText>
       <HistoryText>마감시간 : {data.deadLineTime}시간 </HistoryText>
-      <Pressable
-        style={{
-          flex: 1,
-          flexDirection: "row",
-          marginTop: 50,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-        onPress={() => {
-          onPressReport(index);
-        }}
-      >
-        <Text style={{ color: "red", fontSize: 18, fontWeight: "600" }}>
-          신고하기
-        </Text>
-        <MaterialIcons name="report" size={24} color="red" />
-      </Pressable>
-      <Pressable onPress={() => {}}>
-        <Text>삭제</Text>
-      </Pressable>
+      {isReport ? (
+        <TouchableOpacity
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            marginTop: 50,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          onPress={() => {
+            onPressReport(index);
+          }}
+        >
+          <Text style={{ color: "red", fontSize: 18, fontWeight: "600" }}>
+            신고하기
+          </Text>
+          <MaterialIcons name="report" size={24} color="red" />
+        </TouchableOpacity>
+      ) : null}
+      {!isReport ? (
+        <Pressable onPress={() => {}}>
+          <Text>삭제</Text>
+        </Pressable>
+      ) : null}
     </HistoryInformation>
   );
 };

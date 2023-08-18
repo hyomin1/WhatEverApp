@@ -14,7 +14,7 @@ import axios from "axios";
 import { useState } from "react";
 import { client } from "../client";
 import { useNavigation } from "@react-navigation/native";
-import { MaterialIcons, Entypo } from "@expo/vector-icons";
+import { MaterialIcons, Entypo, Ionicons } from "@expo/vector-icons";
 import Order from "../components/Order";
 import { BASE_URL } from "../api";
 import ReviewModal from "../components/ReviewModal";
@@ -294,11 +294,11 @@ const HelperProfile = ({ route }) => {
                 paddingHorizontal: 10,
               }}
             >
-              <MaterialIcons
+              <Ionicons
                 onPress={() => {
                   setWorkListVisible(!workListVisible);
                 }}
-                name="cancel"
+                name="arrow-back"
                 size={24}
                 color="black"
               />
@@ -333,7 +333,9 @@ const HelperProfile = ({ route }) => {
                   alignItems: "center",
                   paddingHorizontal: 30,
                   paddingVertical: 10,
-                  backgroundColor: selectWork === data ? "gray" : "white",
+                  backgroundColor: "white",
+                  // backgroundColor: selectWork === data ? "gray" : "white",
+                  borderColor: selectWork === data ? "blue" : "white",
                 }}
                 onPress={() => {
                   setSelectWork(data);

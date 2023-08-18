@@ -5,7 +5,7 @@ import axios from "axios";
 import { BASE_URL } from "../api";
 import { useRecoilValue } from "recoil";
 import { sendWorkData } from "../atom";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 
 const ModalContainer = styled.View`
   flex: 1;
@@ -91,11 +91,11 @@ const Report = ({ reportVisible, setReportVisible }) => {
         <ModalContent>
           <TitleBar>
             <TouchableOpacity>
-              <MaterialIcons
+              <Ionicons
                 onPress={() => {
                   setReportVisible(!reportVisible);
                 }}
-                name="cancel"
+                name="arrow-back"
                 size={24}
                 color="black"
               />
@@ -108,6 +108,7 @@ const Report = ({ reportVisible, setReportVisible }) => {
             <ReportInput
               onChangeText={onChangeReport}
               placeholder="신고 사유..."
+              multiline
             />
 
             <ReportBtn onPress={onPressReportComplete}>

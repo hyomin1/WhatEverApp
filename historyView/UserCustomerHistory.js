@@ -31,6 +31,7 @@ const UserCustomerHistory = ({ workComplete, working, beforeWork }) => {
                 data={data}
                 index={index}
                 onPressReport={onPressReport}
+                isReport={true}
               />
             ) : null
           )
@@ -46,6 +47,7 @@ const UserCustomerHistory = ({ workComplete, working, beforeWork }) => {
                 data={data}
                 index={index}
                 onPressReport={onPressReport}
+                isReport={true}
               />
             ) : null
           )
@@ -61,6 +63,7 @@ const UserCustomerHistory = ({ workComplete, working, beforeWork }) => {
                 data={data}
                 index={index}
                 onPressReport={onPressReport}
+                isReport={false}
               />
             ) : null
           )

@@ -8,10 +8,18 @@ import HelperInform from "./HelperInform";
 const Container = styled.View`
   flex: 1;
 `;
-const TitleBar = styled.View`
+const SelectView = styled.View`
+  flex: 1;
   flex-direction: row;
-  justify-content: space-between;
-  margin-top: 10px;
+  margin-bottom: 10px;
+`;
+const SelectBtn = styled.TouchableOpacity`
+  background-color: white;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+  border-bottom-width: 2px;
 `;
 
 const MainBar = styled.View`
@@ -36,55 +44,38 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
     <View style={{ flex: 1, backgroundColor: "#dcdde1" }}>
       <ScrollView>
         <Container>
-          <TitleBar>
-            <View style={{ flex: 1, paddingHorizontal: 10 }}></View>
-            <View
-              style={{
-                flex: 1,
-              }}
-            ></View>
-
-            <View
-              style={{
-                flex: 1,
-                flexDirection: "row",
+          <SelectView>
+            <SelectBtn
+              style={{ borderBottomWidth: isDistance ? 2 : 0 }}
+              onPress={() => {
+                setIsDistance(true);
+                setIsRating(false);
+                setIsResponse(false);
               }}
             >
-              <TouchableOpacity
-                onPress={() => {
-                  setIsDistance(true);
-                  setIsRating(false);
-                  setIsResponse(false);
-                }}
-              >
-                <ChooseText style={{ color: isDistance ? "black" : "gray" }}>
-                  거리
-                </ChooseText>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  setIsDistance(false);
-                  setIsRating(true);
-                  setIsResponse(false);
-                }}
-              >
-                <ChooseText style={{ color: isRating ? "black" : "gray" }}>
-                  평점
-                </ChooseText>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  setIsDistance(false);
-                  setIsRating(false);
-                  setIsResponse(true);
-                }}
-              >
-                <ChooseText style={{ color: isResponse ? "black" : "gray" }}>
-                  응답시간
-                </ChooseText>
-              </TouchableOpacity>
-            </View>
-          </TitleBar>
+              <ChooseText>거리</ChooseText>
+            </SelectBtn>
+            <SelectBtn
+              style={{ borderBottomWidth: isRating ? 2 : 0 }}
+              onPress={() => {
+                setIsDistance(false);
+                setIsRating(true);
+                setIsResponse(false);
+              }}
+            >
+              <ChooseText>평점</ChooseText>
+            </SelectBtn>
+            <SelectBtn
+              style={{ borderBottomWidth: isResponse ? 2 : 0 }}
+              onPress={() => {
+                setIsDistance(false);
+                setIsRating(false);
+                setIsResponse(true);
+              }}
+            >
+              <ChooseText>평균 응답시간</ChooseText>
+            </SelectBtn>
+          </SelectView>
 
           <MainBar>
             <View style={{ flex: 2, paddingHorizontal: 10 }}>
