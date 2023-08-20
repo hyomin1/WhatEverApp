@@ -33,27 +33,32 @@ const Loader = styled.View`
   justify-content: center;
   align-items: center;
 `;
-const HelperView = styled.Pressable`
+const HelperView = styled.TouchableOpacity`
   flex-direction: row;
   flex: 1;
   background-color: white;
   justify-content: center;
   align-items: center;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
 `;
 const SelectView = styled.View`
   flex-direction: row;
-  //margin-bottom: 10px;
 `;
 const SelectBtn = styled.TouchableOpacity`
-  background-color: white;
   flex: 1;
   justify-content: center;
   align-items: center;
   height: 40px;
-  border-bottom-width: 2px;
+  border-color: black;
+  background-color: #0fbcf9;
+  border-radius: 2px;
+  border-color: white;
+  border-width: 1px;
 `;
 const SelectText = styled.Text`
-  color: black;
+  color: white;
+  font-weight: bold;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
 `;
 
 const Main = ({ navigation: { navigate }, route }) => {
@@ -88,9 +93,7 @@ const Main = ({ navigation: { navigate }, route }) => {
     //console.log(token);
     axios
       .put(`${BASE_URL}/api/fcm/${token}`)
-      .then((res) => {
-        //console.log("fcm", res.data);
-      })
+      .then((res) => {})
       .catch((error) => console.log(error));
   };
 
@@ -215,13 +218,17 @@ const Main = ({ navigation: { navigate }, route }) => {
         <View style={{ flex: 16, position: "relative", width: SCREEN_WIDTH }}>
           <SelectView>
             <SelectBtn
-              style={{ borderBottomWidth: isMap ? 2 : 0 }}
+              style={{
+                borderBottomWidth: isMap ? 2 : 0,
+              }}
               onPress={() => isSetMap(true)}
             >
               <SelectText>주변 보기</SelectText>
             </SelectBtn>
             <SelectBtn
-              style={{ borderBottomWidth: !isMap ? 2 : 0 }}
+              style={{
+                borderBottomWidth: !isMap ? 2 : 0,
+              }}
               onPress={() => {
                 isSetMap(false);
                 axios

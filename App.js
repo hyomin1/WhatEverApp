@@ -11,20 +11,39 @@ import axios from "axios";
 import { fcmTokenData } from "./atom";
 import { createGlobalStyle } from "styled-components/native";
 import { View } from "react-native";
+import { Platform } from "react-native";
 
 export default function App() {
   const queryClient = new QueryClient();
 
   messaging().setBackgroundMessageHandler(async (remoteMessage) => {
     //background
-    console.log("Message handled in the background!", remoteMessage); //remoteMessage.body , remoteMessage.title
+    console.log("Message handled in the background!", remoteMessage); //remoteMessage.body , remoteMessage.title\
+    if (remoteMessage.notification)
+      console.log("채팅알람", remoteMessage.notification.body);
+    else
+      console.log(
+        "background title : " +
+          remoteMessage.data.title +
+          "\n body : " +
+          remoteMessage.data.body
+      );
   });
 
   useEffect(() => {
     //getToken();
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
       //foreground
-      Alert.alert("채팅알람", remoteMessage.notification.body);
+      console.log("Message handled in the foreground!", remoteMessage); //remoteMessage.body , remoteMessage.title\
+      if (remoteMessage.notification)
+        console.log("채팅알람", remoteMessage.notification.body);
+      else
+        console.log(
+          "foretitle : " +
+            remoteMessage.data.title +
+            "\n body : " +
+            remoteMessage.data.body
+        );
     });
     return unsubscribe;
   }, []);

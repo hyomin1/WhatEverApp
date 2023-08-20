@@ -1,7 +1,7 @@
 import { Pressable, View, Text } from "react-native";
 import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components/native";
-import { conversationData, isTimerData, myIdData } from "../atom";
+import { accessData, conversationData, isTimerData, myIdData } from "../atom";
 import axios from "axios";
 import { BASE_URL } from "../api";
 import { client } from "../client";
@@ -84,6 +84,7 @@ const WorkChat = ({
   const messageData = JSON.parse(data.message);
   const myId = useRecoilValue(myIdData);
   const conversation = useRecoilValue(conversationData);
+  const accessToken = useRecoilValue(accessData);
   const AcceptCard = {
     message: "Accept work",
     senderName: myName,
@@ -93,33 +94,32 @@ const WorkChat = ({
   const [isTimer, isSetTimer] = useRecoilState(isTimerData);
 
   const intervalId = (id) => {
-    if (isTimer) {
-      BackgroundTimer.setInterval(async () => {
-        const { granted } = await Location.requestForegroundPermissionsAsync();
-        if (!granted) {
-          setOk("error");
-        }
-        const {
-          coords: { latitude, longitude },
-        } = await Location.getCurrentPositionAsync({ accuracy: 5 });
-        console.log(latitude, longitude);
-        axios
-          .post(`${BASE_URL}/api/location/helperLocation/${id}`, {
-            latitude,
-            longitude,
-          })
-          .then((res) => {
-            console.log("위치데이터", res.data);
-          })
-          .catch((error) => console.log(error));
-      }, 10000); //isFinish true면 타이머 멈추고 아닐경우 타이머 하게하기
-    }
+    BackgroundTimer.setInterval(async () => {
+      const { granted } = await Location.requestForegroundPermissionsAsync();
+      if (!granted) {
+        setOk("error");
+      }
+      const {
+        coords: { latitude, longitude },
+      } = await Location.getCurrentPositionAsync({ accuracy: 5 });
+      console.log(latitude, longitude);
+      axios
+        .post(`${BASE_URL}/api/location/helperLocation/${id}`, {
+          latitude,
+          longitude,
+        })
+        .then((res) => {
+          console.log("위치데이터", res.data);
+        })
+        .catch((error) => console.log(error));
+    }, 10000); //isFinish true면 타이머 멈추고 아닐경우 타이머 하게하기
   };
   const onPressAccept = (index) => {
     //헬퍼가 심부름 수락시
     const work = JSON.parse(chatList.chatList[index].message);
+    console.log(work.id);
     axios
-      .put(`${BASE_URL}/api/work/matching`, {
+      .put(`${BASE_URL}/api/work/matching/${chatList._id}`, {
         id: work.id,
         title: work.title,
         context: work.context,
@@ -130,7 +130,7 @@ const WorkChat = ({
         proceeding: work.proceeding,
         customerId: work.customerId,
         helperId:
-          myId === conversation.participantId
+          work.customerId === conversation.participantId
             ? conversation.creatorId
             : conversation.participantId,
         finished: work.finished,
@@ -139,6 +139,7 @@ const WorkChat = ({
         client.publish({
           destination: `/pub/card/${conversation._id}`,
           body: JSON.stringify(AcceptCard),
+          headers: { Authorization: `Bearer ${accessToken}` },
         });
 
         if (work.deadLineTime === 1) {
@@ -160,7 +161,7 @@ const WorkChat = ({
   const onPressCheck = () => {
     const work = JSON.parse(chatList.chatList[index].message);
     axios
-      .put(`${BASE_URL}/api/work/matching`, {
+      .put(`${BASE_URL}/api/work/matching/${chatList._id}`, {
         id: work.id,
         title: work.title,
         context: work.context,
@@ -171,7 +172,7 @@ const WorkChat = ({
         proceeding: work.proceeding,
         customerId: work.customerId,
         helperId:
-          myId === conversation.participantId
+          work.customerId === conversation.participantId
             ? conversation.creatorId
             : conversation.participantId,
         finished: work.finished,
@@ -180,6 +181,7 @@ const WorkChat = ({
         client.publish({
           destination: `/pub/card/${conversation._id}`,
           body: JSON.stringify(AcceptCard),
+          headers: { Authorization: `Bearer ${accessToken}` },
         });
 
         if (work.deadLineTime === 1) {

@@ -4,6 +4,7 @@ import { BASE_URL } from "../api";
 import { client } from "../client";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
+  accessData,
   conversationData,
   historyWorkData,
   isTimerData,
@@ -67,6 +68,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
   const myId = useRecoilValue(myIdData);
   const [historyWork, setHistoryWork] = useRecoilState(historyWorkData);
   const [isStarRating, isSetStarRating] = useState(false);
+  const accessToken = useRecoilValue(accessData);
   const completeCard = {
     message: "Complete work",
     senderName: myName,
@@ -80,7 +82,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
 
   const [isFinish, setIsFinish] = useState(true);
   const [isTimer, isSetTimer] = useRecoilState(isTimerData);
-  const messageData = JSON.parse(chatList.chatList[0].message);
+  const messageData = JSON.parse(chatList.chatList[0].message); //workId찾아서 그 workId로 일 보이게
 
   const onPressWorkComplete = async () => {
     const { granted } = await Location.requestForegroundPermissionsAsync();
@@ -100,6 +102,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
         client.publish({
           destination: `/pub/card/${conversation._id}`,
           body: JSON.stringify(completeCard),
+          headers: { Authorization: `Bearer ${accessToken}` },
         });
       })
       .catch((error) => {
@@ -110,15 +113,14 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
     isSetTimer(false);
   };
   const onPressView = () => {
+    console.log(messageData.deadLineTime);
     if (messageData.deadLineTime === 1) {
       axios
         .get(`${BASE_URL}/api/location/helperLocation/${messageData.id}`)
         .then((res) => {
-          console.log(res.data);
-          console.log(messageData.id);
-          // navigation.navigate("HelperLocation", {
-          //   location: res.data,
-          // });
+          navigation.navigate("HelperLocation", {
+            location: res.data,
+          });
         });
     } else {
       console.log("마감시간 한시간 초과");
@@ -162,6 +164,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
                       client.publish({
                         destination: `/pub/card/${conversation._id}`,
                         body: JSON.stringify(finishCard),
+                        headers: { Authorization: `Bearer ${accessToken}` },
                       });
                       isSetTimer(false);
                       setHistoryWork([...historyWork, data]);
