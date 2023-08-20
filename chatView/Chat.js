@@ -22,10 +22,6 @@ const ChatList = styled.TouchableOpacity`
   border-radius: 10px;
   flex-direction: row;
   align-items: center;
-  shadow-color: #000;
-  shadow-opacity: 0.1;
-  shadow-radius: 5px;
-  elevation: 3;
 `;
 
 const ProfileImage = styled.View`

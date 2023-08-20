@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import styled from "styled-components/native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ProfileFix from "./ProfileFix";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
@@ -24,8 +24,8 @@ import * as Location from "expo-location";
 import axios from "axios";
 import { BASE_URL } from "../api";
 import ReviewModal from "../components/ReviewModal";
-import { Ionicons } from "@expo/vector-icons";
-import { useEffect } from "react";
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
+import Config from "react-native-config";
 
 const Container = styled.ScrollView`
   flex: 1;
@@ -97,11 +97,14 @@ const Button = styled.TouchableOpacity`
   padding: 12px 20px;
   border-radius: 8px;
   align-items: center;
+  flex-direction: row;
+  justify-content: center;
 `;
 
 const ButtonText = styled.Text`
   color: white;
   font-weight: 600;
+  margin-left: 5px;
 `;
 const PostView = styled.View`
   flex-direction: row;
@@ -117,8 +120,10 @@ const EmptyView = styled.View`
 `;
 const LocationInfo = styled.Text`
   font-size: 16px;
-  font-weight: 400;
+  font-weight: bold;
   margin-top: 10px;
+  color: #666;
+  text-align: center;
 `;
 
 const Profile = () => {
@@ -137,7 +142,14 @@ const Profile = () => {
   const name = useRecoilValue(nameData);
   const introduce = useRecoilValue(IntroduceData);
   const [visible, setVisible] = useState(false);
+  const [address, setAddress] = useState({
+    city: "",
+    borough: "",
+    quarter: "",
+    road: "",
+  });
 
+  const API_KEY = Config.GOOGLE_MAPS_API_KEY;
   const goProfileFix = () => {
     setModalVisible(!modalVisible);
   };
@@ -160,6 +172,43 @@ const Profile = () => {
       date: "2.5",
     },
   ];
+  const getLocation = async () => {
+    const { granted } = await Location.requestForegroundPermissionsAsync();
+    if (!granted) console.log("내 정보 현 위치 에러");
+    const {
+      coords: { latitude, longitude },
+    } = await Location.getCurrentPositionAsync({ accuracy: 5 });
+
+    try {
+      const res = await axios.get(
+        `https://nominatim.openstreetmap.org/reverse`,
+        {
+          params: {
+            format: "json",
+            lat: latitude,
+            lon: longitude,
+            "accept-language": "ko",
+          },
+        }
+      );
+      const { city, borough, quarter, road } = res.data.address;
+
+      setAddress({
+        city,
+        borough,
+        quarter,
+        road,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
+    setLatitude(latitude);
+    setLongitude(longitude);
+  };
+  useEffect(() => {
+    getLocation();
+  }, []);
 
   return (
     <Container>
@@ -210,9 +259,9 @@ const Profile = () => {
         <SectionHeader>헬퍼 등록</SectionHeader>
         <ButtonContainer style={{ flexDirection: "column" }}>
           <Button onPress={() => setRegisterVisible(!registerVisible)}>
+            <FontAwesome name="map-marker" size={24} color="red" />
             <ButtonText>내 위치 등록하기</ButtonText>
           </Button>
-          <LocationInfo>현재 위치</LocationInfo>
         </ButtonContainer>
 
         <Modal animationType="slide" visible={registerVisible}>
@@ -243,21 +292,43 @@ const Profile = () => {
               const location = await Location.geocodeAsync(data.query);
               setLatitude(location[0].latitude); //여기서 location[0].latitude 바로 보내주면됨
               setLongitude(location[0].longitude);
-
               setRegisterVisible(!registerVisible);
-
               axios
                 .put("http://10.0.2.2:8080/api/userLocation", {
                   latitude: location[0].latitude,
                   longitude: location[0].longitude,
                 })
-                .then(({ data: { latitude, longitude } }) => {
+                .then(async ({ data: { latitude, longitude } }) => {
                   setLocation({ latitude, longitude });
                   setCurrentLocation({ latitude, longitude });
+                  await axios
+                    .get(`https://nominatim.openstreetmap.org/reverse`, {
+                      params: {
+                        format: "json",
+                        lat: latitude,
+                        lon: longitude,
+                        "accept-language": "ko",
+                      },
+                    })
+                    .then((res) => {
+                      const { city, borough, quarter, road } = res.data.address;
+                      setAddress({
+                        city,
+                        borough,
+                        quarter,
+                        road,
+                      });
+                    });
                 });
             }}
           />
         </Modal>
+      </Section>
+      <Section>
+        <SectionHeader>현 위치</SectionHeader>
+        <LocationInfo>
+          {address.city} {address.borough} {address.quarter} {address.road}
+        </LocationInfo>
       </Section>
     </Container>
   );

@@ -90,6 +90,7 @@ const Tabs = ({ navigation: { navigate } }) => {
                       setRating(res.data.rating);
                       setUniqueId(res.data.id);
                       setMyImg(res.data.image);
+                      console.log(res.data);
                     })
                     .catch((error) => console.log("에러", error));
                 }}
@@ -123,14 +124,20 @@ const Tabs = ({ navigation: { navigate } }) => {
         listeners={({ navigation }) => ({
           tabPress: (e) => {
             isAdmin
-              ? axios.get(`${BASE_URL}/admin/reportList`).then(({ data }) => {
-                  setReportList(data);
-                  console.log(data);
-                })
-              : axios.get(`${BASE_URL}/api/workList/all`).then(({ data }) => {
-                  setHistoryWork(data);
-                  console.log(data);
-                });
+              ? axios
+                  .get(`${BASE_URL}/admin/reportList`)
+                  .then(({ data }) => {
+                    setReportList(data);
+                    console.log(data);
+                  })
+                  .catch((error) => console.log("이용내역admin", error))
+              : axios
+                  .get(`${BASE_URL}/api/workList/all`)
+                  .then(({ data }) => {
+                    setHistoryWork(data);
+                    console.log(data);
+                  })
+                  .catch((error) => console.log("유저 이용내역에러", error));
           },
         })}
         options={{

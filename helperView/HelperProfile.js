@@ -170,13 +170,13 @@ const HelperProfile = ({ route }) => {
     navigation.navigate("Chatting");
   };
   const onPressBtn = async () => {
-    //심부름 목록 보기
+    //내 심부름 목록 보기
     axios
       .get(`${BASE_URL}/api/workList`)
       .then(({ data }) => {
         setWorkList(data);
       })
-      .catch((error) => console.log(error.response.data.message));
+      .catch((error) => console.log(error));
     setWorkListVisible(!workListVisible);
   };
 

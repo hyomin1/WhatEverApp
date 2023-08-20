@@ -17,7 +17,7 @@ const UserCustomerHistory = ({ workComplete, working, beforeWork }) => {
     setSendWork(historyWork[index]);
     setReportVisible(!reportVisible);
   };
-
+  console.log(historyWork);
   return (
     <View>
       {historyWork

@@ -10,7 +10,7 @@ const BtnContainer = styled.View`
   bottom: 7%;
   left: 50%;
 `;
-const Button = styled.Pressable`
+const Button = styled.TouchableOpacity`
   padding: 0 15px;
   height: 45px;
   border-radius: 20px;

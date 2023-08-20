@@ -256,7 +256,7 @@ const Main = ({ navigation: { navigate }, route }) => {
               <Order
                 setOrderVisible={setOrderVisible}
                 orderVisible={orderVisible}
-                titleName="심부름 등록"
+                titleName="심부름 등록서"
                 btnText="등록하기"
                 alertText="심부름이 등록되었습니다."
                 divide="0"
