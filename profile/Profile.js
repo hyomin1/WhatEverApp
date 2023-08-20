@@ -1,4 +1,11 @@
-import { View, Text, TextInput, Pressable, Modal } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  Modal,
+  TouchableOpacity,
+} from "react-native";
 import styled from "styled-components/native";
 import { useState } from "react";
 import ProfileFix from "./ProfileFix";
@@ -17,6 +24,8 @@ import * as Location from "expo-location";
 import axios from "axios";
 import { BASE_URL } from "../api";
 import ReviewModal from "../components/ReviewModal";
+import { Ionicons } from "@expo/vector-icons";
+import { useEffect } from "react";
 
 const Container = styled.ScrollView`
   flex: 1;
@@ -50,13 +59,8 @@ const Name = styled.Text`
   font-weight: 700;
 `;
 
-const RatingText = styled.Text`
-  font-size: 16px;
-  color: #666;
-`;
-
 const EditButton = styled.TouchableOpacity`
-  background-color: #3498db;
+  background-color: #0fbcf9;
   padding: 10px 20px;
   border-radius: 8px;
   align-self: flex-start;
@@ -89,7 +93,7 @@ const ButtonContainer = styled.View`
 
 const Button = styled.TouchableOpacity`
   width: 100%;
-  background-color: #3498db;
+  background-color: #0fbcf9;
   padding: 12px 20px;
   border-radius: 8px;
   align-items: center;
@@ -99,28 +103,22 @@ const ButtonText = styled.Text`
   color: white;
   font-weight: 600;
 `;
-const CountBox = styled.View`
-  padding: 0 20px;
-  margin-top: 20px;
-`;
-
-const CountContainer = styled.View`
-  border-radius: 10px;
-  background-color: #f5f5f5;
-  padding: 15px 20px;
+const PostView = styled.View`
   flex-direction: row;
-  justify-content: space-between;
+  padding: 20px 10px;
   align-items: center;
-  margin-bottom: 10px;
 `;
-
-const CountText = styled.Text`
-  font-size: 16px;
-  font-weight: 800;
+const CloseIcon = styled(Ionicons)`
+  flex: 1;
+  color: black;
 `;
-
-const CountValue = styled.Text`
+const EmptyView = styled.View`
+  flex: 1;
+`;
+const LocationInfo = styled.Text`
   font-size: 16px;
+  font-weight: 400;
+  margin-top: 10px;
 `;
 
 const Profile = () => {
@@ -208,29 +206,36 @@ const Profile = () => {
         </View>
       </Section>
 
-      {/* <Section>
-        <SectionHeader>요청 정보</SectionHeader>
-        <CountBox>
-          <CountContainer>
-            <CountText>총 심부름 수</CountText>
-            <CountValue>0</CountValue>
-          </CountContainer>
-          <CountContainer>
-            <CountText>요청한 심부름 수</CountText>
-            <CountValue>0</CountValue>
-          </CountContainer>
-        </CountBox>
-      </Section> */}
-
       <Section>
         <SectionHeader>헬퍼 등록</SectionHeader>
-        <ButtonContainer>
+        <ButtonContainer style={{ flexDirection: "column" }}>
           <Button onPress={() => setRegisterVisible(!registerVisible)}>
             <ButtonText>내 위치 등록하기</ButtonText>
           </Button>
+          <LocationInfo>현재 위치</LocationInfo>
         </ButtonContainer>
 
         <Modal animationType="slide" visible={registerVisible}>
+          <PostView>
+            <TouchableOpacity
+              style={{ flex: 1 }}
+              onPress={() => setRegisterVisible(!registerVisible)}
+            >
+              <CloseIcon name="arrow-back" size={24} color="black" />
+            </TouchableOpacity>
+            <EmptyView>
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: "bold",
+                  textAlign: "center",
+                }}
+              >
+                내 위치 등록
+              </Text>
+            </EmptyView>
+            <EmptyView />
+          </PostView>
           <Postcode
             style={{ flex: 1, height: 250, marginBottom: 40 }}
             jsOptions={{ animation: true }}

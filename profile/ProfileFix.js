@@ -22,7 +22,7 @@ import { Button } from "react-native-web";
 
 const Background = styled.View`
   flex: 1;
-  background-color: white; /* 불투명한 배경색 */
+  background-color: white;
 `;
 const TitleBar = styled.View`
   flex-direction: row;
@@ -47,7 +47,6 @@ const Title = styled.Text`
 const Line = styled.View`
   height: 1px;
   background-color: #ccc;
-  //margin-vertical: 10px;
 `;
 
 const MainContent = styled.View`
@@ -79,7 +78,7 @@ const CameraIcon = styled(Entypo)`
 
 const SaveButton = styled.TouchableOpacity`
   width: 50%;
-  background-color: #3498db;
+  background-color: #0fbcf9;
   padding: 10px;
   align-items: center;
   border-radius: 5px;
@@ -102,9 +101,7 @@ const Inform = styled.Text`
   margin-bottom: 10px;
 `;
 
-const PasswordContainer = styled.View`
-  //margin: 10px 0;
-`;
+const PasswordContainer = styled.View``;
 
 const PasswordText = styled.Text`
   margin: 5px 0;
@@ -113,7 +110,7 @@ const PasswordText = styled.Text`
 const CheckBtn = styled.TouchableOpacity`
   align-self: flex-end;
   padding: 10px 20px;
-  background-color: #3498db;
+  background-color: #0fbcf9;
   border-radius: 5px;
   margin-top: 15px;
 `;
@@ -277,6 +274,8 @@ const ProfileFix = ({ modalVisible, setModalVisible, myImg }) => {
                 value={introduce}
                 placeholder="자기소개..."
                 onChangeText={onChangeIntroduce}
+                style={{ height: 100 }}
+                multiline
               />
             </InputView>
             <InputView>

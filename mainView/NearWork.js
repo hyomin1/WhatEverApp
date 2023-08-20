@@ -114,7 +114,8 @@ const NearWork = ({ nearWork }) => {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
         navigation.navigate("Chatting");
-      });
+      })
+      .catch((error) => console.log("1", error.response.data.message));
     // 진행 요청 로직
   };
 

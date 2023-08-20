@@ -16,7 +16,7 @@ const Button = styled.Pressable`
   border-radius: 20px;
   align-items: center;
   justify-content: center;
-  background-color: #2196f3;
+  background-color: #0fbcf9;
 `;
 
 const RequestBtn = ({ setOrderVisible, orderVisible }) => {

@@ -39,7 +39,7 @@ const Input = styled.TextInput`
   border-radius: 10px;
   margin: 5px 0;
 `;
-const Button = styled.Pressable`
+const Button = styled.TouchableOpacity`
   padding: 0 15px;
   height: 40px;
   border-radius: 10px;
@@ -58,7 +58,7 @@ const Line = styled.View`
   border-bottom-width: 1px;
   margin: 10px 0;
 `;
-const JoinBtn = styled.Pressable`
+const JoinBtn = styled.TouchableOpacity`
   align-items: center;
   justify-content: center;
 `;
@@ -157,8 +157,8 @@ function Login({ navigation: { navigate } }) {
           <Text style={{ color: "white" }}>관리자 로그인</Text>
         </JoinBtn>
         <Line />
-        <JoinBtn>
-          <JoinText onPress={() => navigate("Join")}>회원가입</JoinText>
+        <JoinBtn onPress={() => navigate("Join")}>
+          <JoinText>회원가입</JoinText>
         </JoinBtn>
       </View>
     </Container>

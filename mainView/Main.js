@@ -234,7 +234,7 @@ const Main = ({ navigation: { navigate }, route }) => {
                 axios
                   .get(`${BASE_URL}/api/workList/nearBy`)
                   .then((res) => setNearWork(res.data))
-                  .catch((error) => console.log(error));
+                  .catch((error) => console.log("ee", error));
               }}
             >
               <SelectText>주변 심부름 보기</SelectText>

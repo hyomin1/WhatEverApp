@@ -30,7 +30,11 @@ const Input = styled.TextInput`
   border-radius: 10px;
   margin-bottom: 5px;
 `;
-const Button = styled.Pressable`
+const ButtonContainer = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+`;
+const Button = styled.TouchableOpacity`
   padding: 0px 15px;
   height: 45px;
   background-color: white;
@@ -126,9 +130,14 @@ const Join = ({ navigation: { navigate } }) => {
           secureTextEntry
           onChangeText={onChangePw2}
         />
-        <Button onPress={onPressJoin}>
-          <ButtonText>완료</ButtonText>
-        </Button>
+        <ButtonContainer>
+          <Button onPress={() => navigate("Login")}>
+            <ButtonText>돌아가기</ButtonText>
+          </Button>
+          <Button onPress={onPressJoin}>
+            <ButtonText>완료</ButtonText>
+          </Button>
+        </ButtonContainer>
       </JoinForm>
     </Container>
   );

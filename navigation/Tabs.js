@@ -23,6 +23,7 @@ import {
   uniqueIdData,
 } from "../atom";
 import { BASE_URL } from "../api";
+import { TouchableOpacity } from "react-native";
 
 const Tab = createBottomTabNavigator();
 
@@ -74,11 +75,7 @@ const Tabs = ({ navigation: { navigate } }) => {
           },
           headerLeft: () => {
             return (
-              <Octicons
-                name="person"
-                style={{ marginLeft: 11 }}
-                size={24}
-                color="black"
+              <TouchableOpacity
                 onPress={() => {
                   //관리자인지 서버에 물어보기 (여기에 추가)
                   navigate("Profile");
@@ -96,17 +93,26 @@ const Tabs = ({ navigation: { navigate } }) => {
                     })
                     .catch((error) => console.log("에러", error));
                 }}
-              />
+              >
+                <Octicons
+                  name="person"
+                  style={{ marginLeft: 11 }}
+                  size={24}
+                  color="black"
+                />
+              </TouchableOpacity>
             );
           },
           headerRight: () => {
             return (
-              <FontAwesome
-                name="bell-o"
-                style={{ marginRight: 11 }}
-                size={24}
-                color="black"
-              />
+              <TouchableOpacity>
+                <FontAwesome
+                  name="bell-o"
+                  style={{ marginRight: 11 }}
+                  size={24}
+                  color="black"
+                />
+              </TouchableOpacity>
             );
           },
         }}

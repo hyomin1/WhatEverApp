@@ -18,6 +18,7 @@ import { MaterialIcons, Entypo, Ionicons } from "@expo/vector-icons";
 import Order from "../components/Order";
 import { BASE_URL } from "../api";
 import ReviewModal from "../components/ReviewModal";
+import HelperWorkList from "./HelperWorkList";
 
 const Container = styled.View`
   flex: 1;
@@ -29,10 +30,6 @@ const ProfileView = styled.View`
   padding: 20px;
   margin: 20px;
   border-radius: 10px;
-  /* shadow-color: #000;
-  shadow-opacity: 0.2;
-  shadow-radius: 4px;
-  elevation: 5; */
 `;
 
 const ProfileHeader = styled.View`
@@ -88,9 +85,9 @@ const CountBox = styled.View`
   margin-top: 20px;
 `;
 
-const CountContainer = styled.View`
+const CountContainer = styled.TouchableOpacity`
   border-radius: 10px;
-  background-color: #f5f5f5;
+  background-color: #3498db;
   padding: 15px 20px;
   flex-direction: row;
   justify-content: space-between;
@@ -101,22 +98,14 @@ const CountContainer = styled.View`
 const CountText = styled.Text`
   font-size: 16px;
   font-weight: 800;
+  color: white;
 `;
 
 const CountValue = styled.Text`
   font-size: 16px;
+  color: white;
 `;
 
-const Button = styled.Pressable`
-  padding: 0 15px;
-  height: 40px;
-  border-radius: 10px;
-  margin-top: 150px;
-  align-items: center;
-  justify-content: center;
-  background-color: #2196f3;
-  width: 60%;
-`;
 const WorkListText = styled.Text`
   font-size: 17px;
   font-weight: 800;
@@ -175,15 +164,19 @@ const HelperProfile = ({ route }) => {
 
   const navigation = useNavigation();
   const [visible, setVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const goChat = () => {
     navigation.navigate("Chatting");
   };
   const onPressBtn = async () => {
     //심부름 목록 보기
-    axios.get(`${BASE_URL}/api/workList`).then(({ data }) => {
-      setWorkList(data);
-    });
+    axios
+      .get(`${BASE_URL}/api/workList`)
+      .then(({ data }) => {
+        setWorkList(data);
+      })
+      .catch((error) => console.log(error.response.data.message));
     setWorkListVisible(!workListVisible);
   };
 
@@ -271,16 +264,16 @@ const HelperProfile = ({ route }) => {
       </Section>
 
       <Section>
-        <SectionHeader>요청정보</SectionHeader>
+        <SectionHeader>심부름 수행</SectionHeader>
         <CountBox>
-          <CountContainer>
-            <CountText>총 심부름 수</CountText>
+          <CountContainer onPress={() => setModalVisible(true)}>
+            <CountText>심부름 보기</CountText>
             <CountValue>0</CountValue>
           </CountContainer>
-          <CountContainer>
-            <CountText>요청한 심부름 수</CountText>
-            <CountValue>0</CountValue>
-          </CountContainer>
+          <HelperWorkList
+            modalVisible={modalVisible}
+            setModalVisible={setModalVisible}
+          />
         </CountBox>
       </Section>
 

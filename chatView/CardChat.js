@@ -160,14 +160,14 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
                 onPress={() => {
                   axios
                     .put(`${BASE_URL}/api/work/finish/${chatList.workId}`)
-                    .then(({ data }) => {
+                    .then((res) => {
                       client.publish({
                         destination: `/pub/card/${conversation._id}`,
                         body: JSON.stringify(finishCard),
                         headers: { Authorization: `Bearer ${accessToken}` },
                       });
-                      isSetTimer(false);
-                      setHistoryWork([...historyWork, data]);
+
+                      // setHistoryWork([...historyWork, res.data]);
                     });
                 }}
               >
