@@ -1,12 +1,13 @@
 import { View } from "react-native";
-import { historyWorkData, myIdData, sendWorkData } from "../atom";
+import { myIdData, sendWorkData } from "../atom";
 import { useState } from "react";
 import Report from "./Report";
 import HistoryInform from "./HistoryInform";
 import { useRecoilValue, useSetRecoilState } from "recoil";
+import styled from "styled-components/native";
+const NoWorkText = styled.Text``;
 
-const UserCustomerHistory = ({ workComplete, working, beforeWork }) => {
-  const historyWork = useRecoilValue(historyWorkData);
+const UserCustomerHistory = ({ historyWork, status }) => {
   const myId = useRecoilValue(myIdData);
 
   const setSendWork = useSetRecoilState(sendWorkData);
@@ -18,52 +19,51 @@ const UserCustomerHistory = ({ workComplete, working, beforeWork }) => {
     setReportVisible(!reportVisible);
   };
   console.log(historyWork);
+  //console.log(isHelper);
+  //console.log(status);
   return (
     <View>
       {historyWork
         ? historyWork?.map((data, index) =>
             myId === data.customerId &&
-            workComplete &&
-            data.finished &&
-            !data.proceeding ? (
-              <HistoryInform
-                key={index}
-                data={data}
-                index={index}
-                onPressReport={onPressReport}
-                isReport={true}
-              />
-            ) : null
-          )
-        : null}
-      {historyWork
-        ? historyWork?.map((data, index) =>
-            myId === data.customerId &&
-            working &&
-            !data.finished &&
-            data.proceeding ? (
-              <HistoryInform
-                key={index}
-                data={data}
-                index={index}
-                onPressReport={onPressReport}
-                isReport={true}
-              />
-            ) : null
-          )
-        : null}
-      {historyWork
-        ? historyWork?.map((data, index) =>
-            myId === data.customerId &&
-            beforeWork &&
-            !data.finished &&
-            !data.proceeding ? (
+            status === "심부름 전" &&
+            data.workProceedingStatus === 0 ? (
               <HistoryInform
                 key={index}
                 data={data}
                 index={index}
                 onPressReport={onPressReport}
                 isReport={false}
+              />
+            ) : null
+          )
+        : null}
+      {historyWork
+        ? historyWork?.map((data, index) =>
+            myId === data.customerId &&
+            status === "심부름 중" &&
+            data.workProceedingStatus === 1 ? (
+              <HistoryInform
+                key={index}
+                data={data}
+                index={index}
+                onPressReport={onPressReport}
+                isReport={true}
+              />
+            ) : null
+          )
+        : null}
+      {historyWork
+        ? historyWork?.map((data, index) =>
+            myId === data.customerId &&
+            status === "심부름 완료" &&
+            data.workProceedingStatus === 2 ? (
+              <HistoryInform
+                key={index}
+                data={data}
+                index={index}
+                onPressReport={onPressReport}
+                isReport={true}
               />
             ) : null
           )

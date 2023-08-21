@@ -2,19 +2,11 @@ import { useState } from "react";
 import { View, Alert, Text } from "react-native";
 import styled from "styled-components/native";
 
-import {
-  accessData,
-  grantData,
-  myIdData,
-  chatRoomListData,
-  adminData,
-} from "../atom";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { accessData, grantData, myIdData, adminData } from "../atom";
+import { useSetRecoilState } from "recoil";
 import { useNavigation } from "@react-navigation/native";
 import { apiClient, BASE_URL } from "../api";
 import axios from "axios";
-
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Container = styled.View`
   background-color: #0fbcf9;
@@ -103,7 +95,6 @@ function Login({ navigation: { navigate } }) {
         setAccess(res.data.accessToken);
         setGrant(res.data.grantType);
         setMyId(res.data.id);
-        //AsyncStorage.setItem("accessToken", res.data.accessToken);
 
         if (res.status === 200) {
           axios.defaults.headers.common[

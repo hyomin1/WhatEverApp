@@ -1,7 +1,13 @@
 import { useState } from "react";
 import styled from "styled-components/native";
-import { Pressable, View, Text } from "react-native";
-
+import {
+  Pressable,
+  View,
+  Text,
+  TouchableOpacity,
+  TouchableHighlight,
+} from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
 import { useRecoilValue } from "recoil";
 import { historyWorkData } from "../atom";
 import UserCustomerHistory from "./UserCustomerHistory";
@@ -12,32 +18,41 @@ const SelectView = styled.View`
   flex-direction: row;
   margin-bottom: 10px;
 `;
-const SelectBtn = styled.Pressable`
+const SelectBtn = styled.TouchableOpacity`
   background-color: white;
   flex: 1;
   justify-content: center;
   align-items: center;
   height: 40px;
   border-bottom-width: 2px;
+  border: 0.8px solid lightgray;
 `;
 const SelectText = styled.Text`
   color: black;
 `;
-
+const TouchableCustom = styled.TouchableHighlight`
+  //padding: 5px 10px;
+  border-radius: 10px;
+`;
 const BtnView = styled.View`
   flex-direction: row;
-  display: flex;
-  left: 150px;
-  padding: 5px 0px;
+  align-items: center;
+  justify-content: space-around;
+  padding: 10px 0px;
 `;
 const BtnText = styled.Text`
   margin-right: 5px;
+  color: ${(props) => (props.status === props.buttonStatus ? "black" : "gray")};
 `;
 
 const UserHistory = () => {
   const [workComplete, setWorkComplete] = useState(true); //이용 완료
   const [working, setWorking] = useState(false); //이용중
   const [beforeWork, setBeforeWork] = useState(false); // 이용전
+  const [status, setStatus] = useState("심부름 전");
+  const changeStatus = (newStatus) => {
+    setStatus(newStatus);
+  };
 
   const historyWork = useRecoilValue(historyWorkData);
 
@@ -51,75 +66,69 @@ const UserHistory = () => {
   const onPressCustomer = () => {
     setIsHelper(false);
   };
-
+  //console.log(historyWork);
   return (
     <View>
       <SelectView>
         <SelectBtn
-          style={{ borderBottomWidth: isHelepr ? 2 : 0 }}
+          style={{
+            borderBottomColor: "black",
+            borderBottomWidth: isHelepr ? 2 : 0,
+          }}
           onPress={onPressHelper}
         >
           <SelectText>요청 받은 심부름</SelectText>
         </SelectBtn>
         <SelectBtn
-          style={{ borderBottomWidth: !isHelepr ? 2 : 0 }}
+          style={{
+            borderBottomColor: "black",
+            borderBottomWidth: !isHelepr ? 2 : 0,
+          }}
           onPress={onPressCustomer}
         >
           <SelectText>이용한 심부름</SelectText>
         </SelectBtn>
       </SelectView>
+
       <View style={{ paddingHorizontal: 20 }}>
         <BtnView>
-          <Pressable
-            onPress={() => {
-              setWorkComplete(true);
-              setWorking(false);
-              setBeforeWork(false);
-            }}
+          <TouchableCustom
+            status={status}
+            buttonStatus="심부름 전"
+            underlayColor="#e0e0e0"
+            onPress={() => changeStatus("심부름 전")}
           >
-            <BtnText style={{ color: workComplete ? "black" : "gray" }}>
-              심부름 완료
+            <BtnText status={status} buttonStatus="심부름 전">
+              심부름 전
             </BtnText>
-          </Pressable>
-          <Pressable
-            onPress={() => {
-              setWorkComplete(false);
-              setWorking(true);
-              setBeforeWork(false);
-            }}
+          </TouchableCustom>
+          <TouchableCustom
+            status={status}
+            buttonStatus="심부름 중"
+            underlayColor="#e0e0e0"
+            onPress={() => changeStatus("심부름 중")}
           >
-            <BtnText style={{ color: working ? "black" : "gray" }}>
+            <BtnText status={status} buttonStatus="심부름 중">
               심부름 중
             </BtnText>
-          </Pressable>
+          </TouchableCustom>
           {isHelepr ? null : (
-            <Pressable
-              onPress={() => {
-                setWorkComplete(false);
-                setWorking(false);
-                setBeforeWork(true);
-              }}
+            <TouchableCustom
+              status={status}
+              buttonStatus="심부름 완료"
+              underlayColor="#e0e0e0"
+              onPress={() => changeStatus("심부름 완료")}
             >
-              <BtnText style={{ color: beforeWork ? "black" : "gray" }}>
-                심부름 전
+              <BtnText status={status} buttonStatus="심부름 완료">
+                심부름 완료
               </BtnText>
-            </Pressable>
+            </TouchableCustom>
           )}
         </BtnView>
         {isHelepr ? (
-          <UserHelperHistory
-            isHelepr={isHelepr}
-            workComplete={workComplete}
-            working={working}
-            beforeWork={beforeWork}
-          />
+          <UserHelperHistory />
         ) : (
-          <UserCustomerHistory
-            isHelepr={isHelepr}
-            workComplete={workComplete}
-            working={working}
-            beforeWork={beforeWork}
-          />
+          <UserCustomerHistory status={status} historyWork={historyWork} />
         )}
       </View>
     </View>

@@ -106,11 +106,16 @@ const CountValue = styled.Text`
   color: white;
 `;
 
-const WorkListText = styled.Text`
-  font-size: 17px;
-  font-weight: 800;
-  margin-right: 10px;
+const ListItemText = styled.Text`
+  font-size: ${({ isSelected }) => (isSelected ? "20px" : "18px")};
   margin-bottom: 5px;
+  color: ${({ isSelected }) => (isSelected ? "#ffffff" : "#333333")};
+  font-weight: ${({ isSelected }) => (isSelected ? "bold" : "normal")};
+`;
+const ListItemTime = styled.Text`
+  color: ${({ isSelected }) => (isSelected ? "#ffffff" : "#888888")};
+  margin-bottom: 5px;
+  font-size: 14px;
 `;
 const TitleBar = styled.View`
   flex-direction: row;
@@ -128,7 +133,7 @@ const Line = styled.View`
   border-bottom-width: 0.5px;
   margin-top: 3px;
 `;
-const OrderButton = styled.Pressable`
+const OrderButton = styled.TouchableOpacity`
   padding: 0 15px;
   height: 40px;
   border-radius: 10px;
@@ -136,13 +141,28 @@ const OrderButton = styled.Pressable`
   align-items: center;
   justify-content: center;
   background-color: #2196f3;
-  width: 100%;
+  width: 60%;
+  align-self: center;
 `;
-const ErrandList = styled.Pressable`
-  margin-top: 15px;
+const ErrandList = styled.TouchableOpacity`
+  margin-top: 10px;
   flex-direction: row;
-  border-radius: 20px;
-  border: 1px solid white;
+  border-radius: 10px;
+  padding: 15px;
+  justify-content: center;
+  align-items: center;
+  border-width: 1px;
+  margin-bottom: 20px;
+  background-color: ${({ isSelected }) =>
+    isSelected ? " #rgba(33,150,243,0.7)" : "#ffffff"};
+  border-color: ${({ isSelected }) => (isSelected ? "#2980b9" : "#dddddd")};
+`;
+const ButtonsContainer = styled.View`
+  flex-direction: row;
+  align-items: center;
+`;
+const IconButton = styled.TouchableOpacity`
+  padding: 5px;
 `;
 
 const HelperProfile = ({ route }) => {
@@ -207,6 +227,28 @@ const HelperProfile = ({ route }) => {
       .get(`${BASE_URL}/api/review/${route.params.id}`)
       .then((res) => console.log(res.data))
       .catch((error) => console.log(error));
+  };
+  const onDeleteItem = (itemId) => {
+    Alert.alert(
+      "삭제 확인",
+      "정말로 이 심부름을 삭제하시겠습니까?",
+      [
+        {
+          text: "취소",
+          style: "cancel",
+        },
+        {
+          text: "삭제",
+          onPress: () => {
+            axios.delete(`${BASE_URL}/api/work/${itemId}`).then(({ data }) => {
+              setWorkList(data);
+            });
+            console.log(itemId);
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
   const reviews = [
     {
@@ -310,61 +352,54 @@ const HelperProfile = ({ route }) => {
             btnText="수정 완료"
             alertText="심부름 수정이 완료되었습니다."
           />
-          <View
+
+          <ScrollView
             style={{
-              flex: 10,
-              backgroundColor: "#dcdde1",
+              flex: 1,
+              backgroundColor: "#f5f5f5",
               paddingHorizontal: 15,
             }}
           >
             {workList.map((data, index) => (
               <ErrandList
                 key={data.id}
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  paddingHorizontal: 30,
-                  paddingVertical: 10,
-                  backgroundColor: "white",
-                  // backgroundColor: selectWork === data ? "gray" : "white",
-                  borderColor: selectWork === data ? "blue" : "white",
-                }}
+                isSelected={selectWork === data}
                 onPress={() => {
                   setSelectWork(data);
                 }}
               >
                 <View style={{ flex: 1 }}>
-                  <WorkListText>제목 : {data.title} </WorkListText>
-                  <WorkListText>내용 : {data.context} </WorkListText>
-                  <WorkListText>
+                  <ListItemText isSelected={selectWork === data}>
+                    {data.title}
+                  </ListItemText>
+                  <ListItemTime isSelected={selectWork === data}>
+                    {data.context}
+                  </ListItemTime>
+                  <ListItemTime isSelected={selectWork === data}>
                     마감시간 : {data.deadLineTime}시간
-                  </WorkListText>
-                  <Pressable
+                  </ListItemTime>
+                </View>
+                <ButtonsContainer>
+                  <IconButton
                     onPress={() => {
-                      axios
-                        .delete(`${BASE_URL}/api/work/${data.id}`)
-                        .then((res) => {
-                          setWorkList(res.data);
-                          console.log(res.data);
-                        });
+                      setOrderVisible(!orderVisible);
+                      setIndexValue(index);
                     }}
                   >
-                    <Text>삭제</Text>
-                  </Pressable>
-                </View>
-
-                <Entypo
-                  name="pencil"
-                  size={24}
-                  color="black"
-                  onPress={() => {
-                    //console.log("수정", data);
-                    setOrderVisible(!orderVisible);
-                    //console.log(index);
-                    setIndexValue(index);
-                  }}
-                />
+                    <MaterialIcons
+                      name="edit"
+                      size={24}
+                      color={selectWork === data ? "#2196f3" : "#333333"}
+                    />
+                  </IconButton>
+                  <IconButton onPress={() => onDeleteItem(data.id)}>
+                    <MaterialIcons
+                      name="delete"
+                      size={24}
+                      color={selectWork === data ? "#2196f3" : "#333333"}
+                    />
+                  </IconButton>
+                </ButtonsContainer>
               </ErrandList>
             ))}
             <OrderButton onPress={onPressOrderBtn}>
@@ -372,7 +407,7 @@ const HelperProfile = ({ route }) => {
                 신청하기
               </Text>
             </OrderButton>
-          </View>
+          </ScrollView>
         </View>
       </Modal>
     </Container>

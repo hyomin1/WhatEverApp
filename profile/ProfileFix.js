@@ -18,7 +18,6 @@ import {
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { Entypo } from "@expo/vector-icons";
 import axios from "axios";
-import { Button } from "react-native-web";
 
 const Background = styled.View`
   flex: 1;
