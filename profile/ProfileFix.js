@@ -1,23 +1,13 @@
 import { Text, View, Modal, ScrollView, Alert } from "react-native";
 import styled from "styled-components/native";
-import { MaterialIcons } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
-import {
-  imgData,
-  nameData,
-  IntroduceData,
-  responseData,
-  distanceData,
-  ratingData,
-  uniqueIdData,
-  pwData,
-  myImgData,
-} from "../atom";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { imgData, myImgData } from "../atom";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { Entypo } from "@expo/vector-icons";
 import axios from "axios";
+import { BASE_URL } from "../api";
 
 const Background = styled.View`
   flex: 1;
@@ -121,23 +111,21 @@ const Input = styled.TextInput`
   margin-bottom: 10px;
 `;
 
-const ProfileFix = ({ modalVisible, setModalVisible, myImg }) => {
+const ProfileFix = ({
+  modalVisible,
+  setModalVisible,
+  myImg,
+  user,
+  setUser,
+}) => {
   const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions(); //권한 요청을 위한 hooks
   const [img, setImg] = useRecoilState(imgData);
-
-  const [name, setName] = useRecoilState(nameData); //닉네임 수정용
-  const [introduce, setIntroduce] = useRecoilState(IntroduceData); //자기소개 수정용
-  const [pw, setPw] = useRecoilState(pwData); //비밀번호 수정용
-
-  const response = useRecoilValue(responseData);
-  const distance = useRecoilValue(distanceData);
-  const rating = useRecoilValue(ratingData);
-  const uniqueId = useRecoilValue(uniqueIdData);
+  const { avgReactTime, distance, id, introduce, name, rating, password } =
+    user;
 
   const [changePw, setChangePw] = useState(); //비밀번호 수정용1
   const [changePw2, setChangePw2] = useState(); //비밀번호 수정용2
   const setMyImg = useSetRecoilState(myImgData);
-  //const [ok, setOk] = useState(false);
 
   const pickImage = async () => {
     if (!status.granted) {
@@ -171,7 +159,7 @@ const ProfileFix = ({ modalVisible, setModalVisible, myImg }) => {
 
     await axios({
       method: "put",
-      url: "http://10.0.2.2:8080/api/userInfo/image",
+      url: `${BASE_URL}/api/userInfo/image`,
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -179,7 +167,10 @@ const ProfileFix = ({ modalVisible, setModalVisible, myImg }) => {
     });
   };
   const onChangeName = (payload) => {
-    setName(payload);
+    setUser((prev) => ({
+      ...prev,
+      name: payload,
+    }));
   };
   const onChangePw1 = (payload) => {
     setChangePw(payload);
@@ -187,10 +178,15 @@ const ProfileFix = ({ modalVisible, setModalVisible, myImg }) => {
   const onChangePw2 = (payload) => {
     setChangePw2(payload);
   };
+
   const changePassword = () => {
     if (changePw === changePw2 && changePw !== "" && changePw2 !== "") {
       Alert.alert("비밀번호 변경 완료");
-      setPw(changePw);
+      //비밀번호 변경 버튼 누를시에도 서버에 보내줘야함 어떻게 추가할지 생각
+      setUser((prev) => ({
+        ...prev,
+        password: changePw,
+      }));
       setChangePw("");
       setChangePw2("");
     } else if (changePw === "" || changePw2 === "") {
@@ -199,26 +195,31 @@ const ProfileFix = ({ modalVisible, setModalVisible, myImg }) => {
       Alert.alert("비밀번호가 일치하지 않습니다.");
     }
   };
-  const onPressBtn = () => {
+  const onUpdateProfile = async () => {
     setModalVisible(!modalVisible);
-    axios.get("http://10.0.2.2:8080/api/userInfo").then((res) => {
+    await axios.get(`${BASE_URL}/api/userInfo`).then((res) => {
       setMyImg(res.data.image);
     });
-    axios
-      .put("http://10.0.2.2:8080/api/userInfo", {
-        avgReactTime: response,
+    await axios
+      .put(`${BASE_URL}/api/userInfo`, {
+        avgReactTime,
         distance,
-        id: uniqueId,
+        id,
         introduce,
         name,
         rating,
-        password: pw,
+        password,
       })
       .then((res) => console.log("유저 정보 데이터 전송 성공"));
   };
   const onChangeIntroduce = (payload) => {
-    setIntroduce(payload);
+    console.log(payload);
+    setUser((prev) => ({
+      ...prev,
+      introduce: payload,
+    }));
   };
+
   return (
     <Modal
       animationType="slide"
@@ -262,7 +263,7 @@ const ProfileFix = ({ modalVisible, setModalVisible, myImg }) => {
             <InputView>
               <Inform>이름</Inform>
               <Input
-                value={name}
+                value={user.name}
                 placeholder="이름을 입력해주세요..."
                 onChangeText={onChangeName}
               />
@@ -270,11 +271,12 @@ const ProfileFix = ({ modalVisible, setModalVisible, myImg }) => {
             <InputView>
               <Inform>자기소개</Inform>
               <Input
-                value={introduce}
+                value={user.introduce}
                 placeholder="자기소개..."
                 onChangeText={onChangeIntroduce}
                 style={{ height: 100 }}
                 multiline
+                numberOfLines={1}
               />
             </InputView>
             <InputView>
@@ -303,7 +305,7 @@ const ProfileFix = ({ modalVisible, setModalVisible, myImg }) => {
             </InputView>
           </MainContent>
 
-          <SaveButton onPress={onPressBtn}>
+          <SaveButton onPress={onUpdateProfile}>
             <ButtonText>프로필 수정 완료</ButtonText>
           </SaveButton>
         </ScrollView>

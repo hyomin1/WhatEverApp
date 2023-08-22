@@ -15,6 +15,55 @@ import styled from "styled-components/native";
 import { useState } from "react";
 import Rating from "./Rating";
 import * as Location from "expo-location";
+import { Text } from "react-native";
+const CardBubble = styled.View`
+  background-color: white;
+  border-radius: 10px;
+  margin: 5px;
+  width: 50%;
+  margin-bottom: 10px;
+`;
+const CardTitleWrapper = styled.View`
+  background-color: #0fbcf9;
+  width: 100%;
+  flex: 1;
+  justify-content: center;
+  align-items: flex-start;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  height: 30px;
+`;
+const CardTitle = styled.Text`
+  font-size: 12px;
+  font-weight: bold;
+  margin: 4px 0px;
+  margin-left: 6px;
+`;
+const PaddingView = styled.View`
+  padding: 20px 10px;
+`;
+const MainText = styled.Text`
+  color: #888;
+  font-size: 12px;
+`;
+const MainTitle = styled.Text`
+  font-size: 18px;
+  font-weight: bold;
+`;
+const Divider = styled.View`
+  border-bottom-width: 1px;
+  border-bottom-color: #f0f0f0;
+  margin: 8px 0;
+`;
+const MainDescription = styled.Text`
+  font-size: 13px;
+  color: #555;
+  font-weight: bold;
+`;
+const MoneyText = styled(MainDescription)`
+  color: #007bff;
+`;
+
 const CardBtn = styled.TouchableOpacity`
   background-color: #ffcd02;
   padding: 10px;
@@ -29,28 +78,17 @@ const CardContainer = styled.View`
   margin-bottom: 16px;
   width: 50%;
 `;
-const CardTitle = styled.Text`
-  font-size: 16px;
-  font-weight: bold;
-  color: #333;
-  text-align: center;
-  margin-bottom: 4px;
-`;
-const Divider = styled.View`
-  border-bottom-width: 1px;
-  border-bottom-color: #ccc;
-  margin: 8px 0;
-`;
 
 const ButtonContainer = styled.View`
   flex-direction: row;
   justify-content: space-between;
+  margin-top: 40px;
 `;
 
 const ActionButton = styled.TouchableOpacity`
   background-color: #3498db;
-  padding: 12px;
-  border-radius: 5px;
+  padding: 10px;
+  border-radius: 10px;
   align-items: center;
   flex: 1;
   margin: 0 4px;
@@ -58,7 +96,7 @@ const ActionButton = styled.TouchableOpacity`
 
 const ButtonText = styled.Text`
   color: white;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: bold;
 `;
 
@@ -131,50 +169,96 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
   return (
     <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
       {data.message === "Accept work" ? (
-        <CardContainer>
-          <CardTitle>심부름 매칭 성공</CardTitle>
-          <Divider />
-          <ButtonContainer>
-            <ActionButton
-              onPress={isCustomer ? onPressView : onPressWorkComplete}
-            >
-              <ButtonText>
-                {isCustomer ? "진행상황 보기" : "심부름 완료하기"}
-              </ButtonText>
-            </ActionButton>
-          </ButtonContainer>
-        </CardContainer>
-      ) : data.message === "Complete work" ? (
-        myId !== messageData.customerId ? (
-          <CardContainer>
-            <CardTitle>상대방의 수락 기다리는중</CardTitle>
+        <CardBubble>
+          <CardTitleWrapper>
+            <CardTitle>심부름 매칭 성공</CardTitle>
+          </CardTitleWrapper>
+          <PaddingView>
+            <MainText>심부름 요청서</MainText>
+            <MainTitle>{messageData.title}</MainTitle>
             <Divider />
-            <CardBtn></CardBtn>
-          </CardContainer>
-        ) : (
-          <CardContainer>
-            <CardTitle>심부름 완료 확인</CardTitle>
-            <Divider />
+            <MainText mb={true}>상세 정보입니다</MainText>
+            <MainDescription>{messageData.context}</MainDescription>
+            <MainDescription>
+              마감시간 : {messageData.deadLineTime}시간
+            </MainDescription>
+            <View style={{ flexDirection: "row" }}>
+              <MainDescription>보상금액: </MainDescription>
+              <MoneyText>{messageData.reward}원</MoneyText>
+            </View>
             <ButtonContainer>
               <ActionButton
-                onPress={() => {
-                  axios
-                    .put(`${BASE_URL}/api/work/finish/${chatList.workId}`)
-                    .then((res) => {
-                      client.publish({
-                        destination: `/pub/card/${conversation._id}`,
-                        body: JSON.stringify(finishCard),
-                        headers: { Authorization: `Bearer ${accessToken}` },
-                      });
-
-                      // setHistoryWork([...historyWork, res.data]);
-                    });
-                }}
+                onPress={isCustomer ? onPressView : onPressWorkComplete}
               >
-                <ButtonText>확인하기</ButtonText>
+                <ButtonText>
+                  {isCustomer ? "진행상황 보기" : "심부름 완료하기"}
+                </ButtonText>
               </ActionButton>
             </ButtonContainer>
-          </CardContainer>
+          </PaddingView>
+          <Divider />
+        </CardBubble>
+      ) : data.message === "Complete work" ? (
+        myId !== messageData.customerId ? (
+          <CardBubble>
+            <CardTitleWrapper>
+              <CardTitle>심부름 완료</CardTitle>
+            </CardTitleWrapper>
+            <PaddingView>
+              <MainText>심부름 요청서</MainText>
+              <MainTitle>{messageData.title}</MainTitle>
+              <Divider />
+              <MainText mb={true}>상세 정보입니다</MainText>
+              <MainDescription>{messageData.context}</MainDescription>
+              <MainDescription>
+                마감시간 : {messageData.deadLineTime}시간
+              </MainDescription>
+              <View style={{ flexDirection: "row" }}>
+                <MainDescription>보상금액: </MainDescription>
+                <MoneyText>{messageData.reward}원</MoneyText>
+              </View>
+              <View>
+                <Text>완료 확인중</Text>
+              </View>
+            </PaddingView>
+          </CardBubble>
+        ) : (
+          <CardBubble>
+            <CardTitleWrapper>
+              <CardTitle>심부름 완료 확인</CardTitle>
+            </CardTitleWrapper>
+            <PaddingView>
+              <MainText>심부름 요청서</MainText>
+              <MainTitle>{messageData.title}</MainTitle>
+              <Divider />
+              <MainText mb={true}>상세 정보입니다</MainText>
+              <MainDescription>{messageData.context}</MainDescription>
+              <MainDescription>
+                마감시간 : {messageData.deadLineTime}시간
+              </MainDescription>
+              <View style={{ flexDirection: "row" }}>
+                <MainDescription>보상금액: </MainDescription>
+                <MoneyText>{messageData.reward}원</MoneyText>
+              </View>
+              <ButtonContainer>
+                <ActionButton
+                  onPress={() => {
+                    axios
+                      .put(`${BASE_URL}/api/work/finish/${chatList.workId}`)
+                      .then((res) => {
+                        client.publish({
+                          destination: `/pub/card/${conversation._id}`,
+                          body: JSON.stringify(finishCard),
+                          headers: { Authorization: `Bearer ${accessToken}` },
+                        });
+                      });
+                  }}
+                >
+                  <ButtonText>확인하기</ButtonText>
+                </ActionButton>
+              </ButtonContainer>
+            </PaddingView>
+          </CardBubble>
         )
       ) : data.message === "Finish Work" ? (
         <CardContainer>

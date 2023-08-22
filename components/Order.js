@@ -164,6 +164,7 @@ const Order = ({
   const onPressBtn = async () => {
     console.log(deadLineTime);
     if (divide === "0") {
+      //심부름 등록시
       await axios
         .post(`${BASE_URL}/api/work`, {
           latitude,
@@ -176,14 +177,17 @@ const Order = ({
           receiveLongitude,
         })
         .then((res) => {
-          Alert.alert(alertText);
+          //Alert.alert(alertText);
+          console.log(res.data);
           setAddress("");
           setAddress2("");
           setWork(res.data);
+          setWorkList((prev) => [res.data, ...prev]);
           setOrderVisible(!orderVisible);
         })
         .catch((error) => console.log(error));
     } else {
+      //심부름 수정시
       setOrderVisible(!orderVisible);
       const copiedWorkList = [...workList];
       //console.log("wl", workList);

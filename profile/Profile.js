@@ -1,23 +1,17 @@
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  Modal,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, Modal, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
 import { useEffect, useState } from "react";
 import ProfileFix from "./ProfileFix";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
-  IntroduceData,
   helperLocationData,
   myImgData,
-  nameData,
-  ratingData,
   locationData,
   currentLocationData,
+  userData,
+  nameData,
+  ratingData,
+  IntroduceData,
 } from "../atom";
 import Postcode from "@actbase/react-daum-postcode";
 import * as Location from "expo-location";
@@ -133,14 +127,14 @@ const Profile = () => {
   const [latitude, setLatitude] = useState(); //서버에 지정한 위치 보내주기 위함
   const [longitude, setLongitude] = useState();
 
-  const [location, setLocation] = useRecoilState(locationData);
+  const setLocation = useSetRecoilState(locationData);
   const setCurrentLocation = useSetRecoilState(currentLocationData);
 
   const myImg = useRecoilValue(myImgData);
-  const rating = useRecoilValue(ratingData);
-  const setHelperLocation = useSetRecoilState(helperLocationData);
-  const name = useRecoilValue(nameData);
-  const introduce = useRecoilValue(IntroduceData);
+  //const setHelperLocation = useSetRecoilState(helperLocationData);
+
+  const [user, setUser] = useRecoilState(userData);
+
   const [visible, setVisible] = useState(false);
   const [address, setAddress] = useState({
     city: "",
@@ -149,7 +143,7 @@ const Profile = () => {
     road: "",
   });
 
-  const API_KEY = Config.GOOGLE_MAPS_API_KEY;
+  //const API_KEY = Config.GOOGLE_MAPS_API_KEY;
   const goProfileFix = () => {
     setModalVisible(!modalVisible);
   };
@@ -172,44 +166,7 @@ const Profile = () => {
       date: "2.5",
     },
   ];
-  const getLocation = async () => {
-    const { granted } = await Location.requestForegroundPermissionsAsync();
-    if (!granted) console.log("내 정보 현 위치 에러");
-    const {
-      coords: { latitude, longitude },
-    } = await Location.getCurrentPositionAsync({ accuracy: 5 });
-
-    try {
-      const res = await axios.get(
-        `https://nominatim.openstreetmap.org/reverse`,
-        {
-          params: {
-            format: "json",
-            lat: latitude,
-            lon: longitude,
-            "accept-language": "ko",
-          },
-        }
-      );
-      const { city, borough, quarter, road } = res.data.address;
-
-      setAddress({
-        city,
-        borough,
-        quarter,
-        road,
-      });
-    } catch (error) {
-      console.log(error);
-    }
-
-    setLatitude(latitude);
-    setLongitude(longitude);
-  };
-  useEffect(() => {
-    getLocation();
-  }, []);
-
+  //console.log(user);
   return (
     <Container>
       <ProfileView>
@@ -222,8 +179,12 @@ const Profile = () => {
             }
           />
           <ProfileInfo style={{ paddingVertical: 20 }}>
-            <Name>{name}</Name>
-            {rating ? <Text>⭐ {rating.toFixed(1)}/5</Text> : <Text>⭐</Text>}
+            <Name>{user.name}</Name>
+            {user.rating ? (
+              <Text>⭐ {user.rating.toFixed(1)}/5</Text>
+            ) : (
+              <Text>⭐ 0/5</Text>
+            )}
           </ProfileInfo>
         </ProfileHeader>
         {/**프로필 수정 UI*/}
@@ -231,6 +192,8 @@ const Profile = () => {
           setModalVisible={setModalVisible}
           modalVisible={modalVisible}
           myImg={myImg}
+          user={user}
+          setUser={setUser}
         />
 
         <ButtonContainer>
@@ -251,12 +214,23 @@ const Profile = () => {
       <Section>
         <SectionHeader>자기소개</SectionHeader>
         <View style={{ paddingHorizontal: 20 }}>
-          <Text style={{ fontSize: 16, fontWeight: "400" }}>{introduce}</Text>
+          <Text
+            style={{
+              fontSize: 16,
+              textAlign: "center",
+              color: "#666666",
+            }}
+          >
+            {user.introduce === ""
+              ? "작성된 자기소개가 없습니다"
+              : user.introduce}
+          </Text>
         </View>
       </Section>
 
       <Section>
         <SectionHeader>헬퍼 등록</SectionHeader>
+
         <ButtonContainer style={{ flexDirection: "column" }}>
           <Button onPress={() => setRegisterVisible(!registerVisible)}>
             <FontAwesome name="map-marker" size={24} color="red" />
@@ -325,10 +299,16 @@ const Profile = () => {
         </Modal>
       </Section>
       <Section>
-        <SectionHeader>현 위치</SectionHeader>
-        <LocationInfo>
-          {address.city} {address.borough} {address.quarter} {address.road}
-        </LocationInfo>
+        <SectionHeader>헬퍼 활동 장소</SectionHeader>
+        {address.city && address.borough && address.quarter && address.road ? (
+          <LocationInfo>
+            {address.city} {address.borough} {address.quarter} {address.road}
+          </LocationInfo>
+        ) : (
+          <Text style={{ fontSize: 13, color: "#666666", textAlign: "center" }}>
+            위치를 등록하고 헬퍼 활동을 시작해보세요
+          </Text>
+        )}
       </Section>
     </Container>
   );

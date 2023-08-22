@@ -20,7 +20,7 @@ import CardChat from "./CardChat";
 
 const Container = styled.View`
   flex: 1;
-  background-color: white;
+  background-color: #e0e0e0;
 `;
 
 const ChatView = styled.ScrollView`

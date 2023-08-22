@@ -1,6 +1,8 @@
 import { Pressable, View, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import styled from "styled-components/native";
+import axios from "axios";
+import { BASE_URL } from "../api";
 
 const Name = styled.Text`
   font-weight: 800;
@@ -27,19 +29,28 @@ const HelperInformation = styled.TouchableOpacity`
   border-radius: 20px;
 `;
 
-const HelperInform = ({ data }) => {
+const HelperInform = ({ helperData }) => {
+  console.log(helperData);
   const navigation = useNavigation();
+  const { name, introduce, rating, id, image, distance, avgReactTime } =
+    helperData;
   return (
     <HelperInformation
-      onPress={() =>
-        navigation.navigate("HelperProfile", {
-          name: data.name,
-          introduce: data.introduce,
-          rating: data.rating,
-          id: data.id,
-          image: data.image,
-        })
-      }
+      onPress={() => {
+        axios
+          .get(`${BASE_URL}/api/workList/byHelper/${id}`)
+          .then(({ data }) => {
+            navigation.navigate("HelperProfile", {
+              name,
+              introduce,
+              rating,
+              id,
+              image,
+              completedWork: data,
+            });
+          })
+          .catch((error) => console.log(error.response.data.message));
+      }}
     >
       <View
         style={{
@@ -50,9 +61,9 @@ const HelperInform = ({ data }) => {
       >
         <Image
           source={
-            data.image
+            image
               ? {
-                  uri: `data:image/png;base64,${data.image}`,
+                  uri: `data:image/png;base64,${image}`,
                 }
               : require("../images/profile.jpg")
           }
@@ -60,11 +71,11 @@ const HelperInform = ({ data }) => {
         />
       </View>
       <View style={{ flex: 2, paddingTop: 10 }}>
-        <Name>{data.name}</Name>
-        <Distance>{data.distance.toFixed(2)}m</Distance>
-        <Rating>⭐ {data.rating ? data.rating.toFixed(1) : 0}/5</Rating>
-        {data.avgReactTime ? (
-          <Response>응답시간 {data.avgReactTime}초</Response>
+        <Name>{name}</Name>
+        <Distance>{distance.toFixed(2)}m</Distance>
+        <Rating>⭐ {rating ? rating.toFixed(1) : 0}/5</Rating>
+        {avgReactTime ? (
+          <Response>응답시간 {avgReactTime}초</Response>
         ) : (
           <Response>응답시간 알 수 없음</Response>
         )}

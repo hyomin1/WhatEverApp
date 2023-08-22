@@ -21,6 +21,7 @@ import {
   reportData,
   responseData,
   uniqueIdData,
+  userData,
 } from "../atom";
 import { BASE_URL } from "../api";
 import { TouchableOpacity } from "react-native";
@@ -37,6 +38,7 @@ const Tabs = ({ navigation: { navigate } }) => {
   const setUniqueId = useSetRecoilState(uniqueIdData);
   const setMyImg = useSetRecoilState(myImgData); //내 프로필 사진 데이터
   const setReportList = useSetRecoilState(reportData);
+  const setUser = useSetRecoilState(userData);
 
   const [historyWork, setHistoryWork] = useRecoilState(historyWorkData);
 
@@ -78,10 +80,11 @@ const Tabs = ({ navigation: { navigate } }) => {
               <TouchableOpacity
                 onPress={() => {
                   //관리자인지 서버에 물어보기 (여기에 추가)
-                  navigate("Profile");
+
                   axios
                     .get("http://10.0.2.2:8080/api/userInfo")
                     .then((res) => {
+                      setUser(res.data);
                       setPw(res.data.password);
                       setDistance(res.data.distance);
                       setResponse(res.data.avgReactTime);
@@ -90,9 +93,9 @@ const Tabs = ({ navigation: { navigate } }) => {
                       setRating(res.data.rating);
                       setUniqueId(res.data.id);
                       setMyImg(res.data.image);
-                      console.log(res.data);
+                      navigate("Profile");
                     })
-                    .catch((error) => console.log("에러", error));
+                    .catch((error) => console.log("f", error));
                 }}
               >
                 <Octicons

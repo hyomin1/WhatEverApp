@@ -10,39 +10,18 @@ import * as Location from "expo-location";
 import BackgroundTimer from "react-native-background-timer";
 import { useState } from "react";
 import { Button } from "react-native-web";
+import ErrandRequest from "./ErrandRequest";
 
 const WorkBubble = styled.View`
-  background-color: #e4eaf2;
+  background-color: white;
   border-radius: 10px;
-  padding: 15px;
   margin: 5px;
   width: 50%;
   margin-bottom: 10px;
 `;
-const Divider = styled.View`
-  border-bottom-width: 1px;
-  border-bottom-color: #ccc;
-  margin: 8px 0;
-`;
-const WorkTitle = styled.Text`
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 4px;
-  text-align: center;
-  color: #333;
-`;
-const WorkText = styled.Text`
-  color: #555;
-  font-size: 14px;
-  margin-bottom: 6px;
-`;
-const DeadlineText = styled.Text`
-  font-size: 12px;
-  color: #777;
-`;
 
 const WorkTitleWrapper = styled.View`
-  background-color: #7f8fa6;
+  background-color: #0fbcf9;
   width: 100%;
   flex: 1;
   justify-content: center;
@@ -51,6 +30,43 @@ const WorkTitleWrapper = styled.View`
   border-top-right-radius: 10px;
   height: 30px;
 `;
+const WorkTitle = styled.Text`
+  font-size: 12px;
+  font-weight: bold;
+  margin: 4px 0px;
+  margin-left: 6px;
+`;
+const PaddingView = styled.View`
+  padding: 20px 10px;
+`;
+const MainText = styled.Text`
+  color: #888;
+  font-size: 12px;
+  margin-bottom: ${(props) => (props.mb ? "20px" : "0")};
+`;
+const MainTitle = styled.Text`
+  font-size: 18px;
+  font-weight: bold;
+`;
+const Divider = styled.View`
+  border-bottom-width: 1px;
+  border-bottom-color: #f0f0f0;
+  margin: 8px 0;
+`;
+const MainDescription = styled.Text`
+  font-size: 13px;
+  color: #555;
+  font-weight: bold;
+`;
+const MoneyText = styled(MainDescription)`
+  color: #007bff;
+`;
+const WorkText = styled.Text`
+  color: #555;
+  font-size: 14px;
+  margin-bottom: 6px;
+`;
+
 const ButtonContainer = styled.View`
   flex-direction: row;
   justify-content: space-between;
@@ -102,14 +118,14 @@ const WorkChat = ({
       const {
         coords: { latitude, longitude },
       } = await Location.getCurrentPositionAsync({ accuracy: 5 });
-      console.log(latitude, longitude);
+      // console.log(latitude, longitude);
       axios
         .post(`${BASE_URL}/api/location/helperLocation/${id}`, {
           latitude,
           longitude,
         })
         .then((res) => {
-          console.log("위치데이터", res.data);
+          //console.log("위치데이터", res.data);
         })
         .catch((error) => console.log(error));
     }, 10000); //isFinish true면 타이머 멈추고 아닐경우 타이머 하게하기
@@ -150,6 +166,7 @@ const WorkChat = ({
       })
       .catch((error) => {
         Alert.alert(error.response.data.message);
+        console.log(error.response.data.message);
       });
   };
   const onPressDeny = () => {
@@ -192,7 +209,7 @@ const WorkChat = ({
       .catch((error) => Alert.alert(error.response.data.message));
   };
   const customerId = JSON.parse(data.message).customerId;
-
+  console.log(messageData);
   return (
     <View
       style={{
@@ -204,13 +221,10 @@ const WorkChat = ({
       {myId === customerId ? (
         myId === creatorId ? (
           <WorkBubble>
-            <WorkTitle>심부름 요청서</WorkTitle>
-            <Divider />
-            <WorkText>제목 : {messageData.title}</WorkText>
-            <WorkText>내용 : {messageData.context}</WorkText>
-            <DeadlineText>
-              마감시간 : {messageData.deadLineTime}시간
-            </DeadlineText>
+            <WorkTitleWrapper>
+              <WorkTitle>심부름 요청서 도착</WorkTitle>
+            </WorkTitleWrapper>
+            <ErrandRequest messageData={messageData} />
           </WorkBubble>
         ) : (
           <WorkBubble>
@@ -228,22 +242,32 @@ const WorkChat = ({
         )
       ) : myId !== creatorId ? (
         <WorkBubble>
-          <WorkTitle>심부름 요청서</WorkTitle>
-          <WorkText>제목 : {messageData.title}</WorkText>
-          <WorkText>내용 : {messageData.context}</WorkText>
-          <DeadlineText>
-            마감시간 : {messageData.deadLineTime}
-            시간
-          </DeadlineText>
-          <ButtonContainer>
-            <WorkBtn accept={true} onPress={() => onPressAccept(index)}>
-              <WorkBtnText>수락</WorkBtnText>
-            </WorkBtn>
-            <Spacer />
-            <WorkBtn accept={false} onPress={onPressDeny}>
-              <WorkBtnText>거절</WorkBtnText>
-            </WorkBtn>
-          </ButtonContainer>
+          <WorkTitleWrapper>
+            <WorkTitle>심부름 요청서 도착</WorkTitle>
+          </WorkTitleWrapper>
+          <PaddingView>
+            <MainText>심부름 요청서</MainText>
+            <MainTitle>{messageData.title}</MainTitle>
+            <Divider />
+            <MainText mb={true}>상세 정보입니다</MainText>
+            <MainDescription>{messageData.context}</MainDescription>
+            <MainDescription>
+              마감시간 : {messageData.deadLineTime}시간
+            </MainDescription>
+            <View style={{ flexDirection: "row" }}>
+              <MainDescription>보상금액: </MainDescription>
+              <MoneyText>{messageData.reward}원</MoneyText>
+            </View>
+            <ButtonContainer>
+              <WorkBtn accept={true} onPress={() => onPressAccept(index)}>
+                <WorkBtnText>수락</WorkBtnText>
+              </WorkBtn>
+              <Spacer />
+              <WorkBtn accept={false} onPress={onPressDeny}>
+                <WorkBtnText>거절</WorkBtnText>
+              </WorkBtn>
+            </ButtonContainer>
+          </PaddingView>
         </WorkBubble>
       ) : (
         <WorkBubble>

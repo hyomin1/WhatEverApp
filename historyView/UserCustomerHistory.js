@@ -21,6 +21,7 @@ const UserCustomerHistory = ({ historyWork, status }) => {
   console.log(historyWork);
   //console.log(isHelper);
   //console.log(status);
+
   return (
     <View>
       {historyWork
@@ -57,7 +58,8 @@ const UserCustomerHistory = ({ historyWork, status }) => {
         ? historyWork?.map((data, index) =>
             myId === data.customerId &&
             status === "심부름 완료" &&
-            data.workProceedingStatus === 2 ? (
+            (data.workProceedingStatus === 2 ||
+              data.workProceedingStatus === 3) ? (
               <HistoryInform
                 key={index}
                 data={data}

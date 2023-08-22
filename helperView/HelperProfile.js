@@ -186,18 +186,13 @@ const HelperProfile = ({ route }) => {
   const [visible, setVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
+  //const [completedWork, setCompltedWork] = useState(false);
+
   const goChat = () => {
     navigation.navigate("Chatting");
   };
   const onPressBtn = async () => {
     //내 심부름 목록 보기
-    axios
-      .get(`${BASE_URL}/api/workList`)
-      .then(({ data }) => {
-        setWorkList(data);
-      })
-      .catch((error) => console.log(error));
-    setWorkListVisible(!workListVisible);
   };
 
   const onPressOrderBtn = async () => {
@@ -225,7 +220,7 @@ const HelperProfile = ({ route }) => {
     setVisible(true);
     axios
       .get(`${BASE_URL}/api/review/${route.params.id}`)
-      .then((res) => console.log(res.data))
+      .then(({ data }) => console.log(data))
       .catch((error) => console.log(error));
   };
   const onDeleteItem = (itemId) => {
@@ -243,7 +238,6 @@ const HelperProfile = ({ route }) => {
             axios.delete(`${BASE_URL}/api/work/${itemId}`).then(({ data }) => {
               setWorkList(data);
             });
-            console.log(itemId);
           },
         },
       ],
@@ -260,6 +254,15 @@ const HelperProfile = ({ route }) => {
       date: "2.57",
     },
   ];
+  const onViewWork = () => {
+    setModalVisible(true);
+    // axios
+    //   .get(`${BASE_URL}/api/workList/byHelper/${route.params.id}`)
+    //   .then(({ data }) => setCompltedWork(data))
+    //   .catch((error) => console.log(error.response.data.message));
+  };
+  // console.log("worklist", workList);
+
   return (
     <Container>
       <ProfileView>
@@ -282,7 +285,7 @@ const HelperProfile = ({ route }) => {
         </ProfileHeader>
 
         <ButtonContainer>
-          <EditButton onPress={onPressBtn}>
+          <EditButton onPress={() => setWorkListVisible(!workListVisible)}>
             <EditButtonText>내 심부름 목록</EditButtonText>
           </EditButton>
           <EditButton onPress={onPressReview}>
@@ -308,13 +311,18 @@ const HelperProfile = ({ route }) => {
       <Section>
         <SectionHeader>심부름 수행</SectionHeader>
         <CountBox>
-          <CountContainer onPress={() => setModalVisible(true)}>
+          <CountContainer onPress={onViewWork}>
             <CountText>심부름 보기</CountText>
-            <CountValue>0</CountValue>
+            <CountValue>
+              {route.params.completedWork
+                ? `${route.params.completedWork.length}회`
+                : "0회"}
+            </CountValue>
           </CountContainer>
           <HelperWorkList
             modalVisible={modalVisible}
             setModalVisible={setModalVisible}
+            completedWork={route.params.completedWork}
           />
         </CountBox>
       </Section>

@@ -81,17 +81,17 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
             <View style={{ flex: 2, paddingHorizontal: 10 }}>
               {distanceData && isDistance
                 ? distanceData.map((data) => (
-                    <HelperInform key={data.id} data={data} />
+                    <HelperInform key={data.id} helperData={data} />
                   ))
                 : null}
               {ratingData && isRating
                 ? ratingData.map((data) => (
-                    <HelperInform key={data.id} data={data} />
+                    <HelperInform key={data.id} helperData={data} />
                   ))
                 : null}
               {responseData && isResponse
                 ? responseData.map((data) => (
-                    <HelperInform key={data.id} data={data} />
+                    <HelperInform key={data.id} helperData={data} />
                   ))
                 : null}
             </View>
