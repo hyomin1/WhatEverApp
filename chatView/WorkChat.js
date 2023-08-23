@@ -87,6 +87,11 @@ const WorkBtnText = styled.Text`
   color: white;
   font-weight: 600;
 `;
+const Time = styled.Text`
+  color: gray;
+  margin-top: 5px;
+  font-size: 12px;
+`;
 
 const WorkChat = ({
   data,
@@ -227,13 +232,12 @@ const WorkChat = ({
           </WorkBubble>
         ) : (
           <WorkBubble>
-            <WorkTitle>심부름 검증서</WorkTitle>
-            <Divider />
-            <ButtonContainer style={{ justifyContent: "center" }}>
-              <WorkBtn
-                style={{ backgroundColor: "#3498db" }}
-                onPress={onPressCheck}
-              >
+            <WorkTitleWrapper>
+              <WorkTitle>심부름 검증서</WorkTitle>
+            </WorkTitleWrapper>
+            <ErrandRequest messageData={messageData} />
+            <ButtonContainer style={{ justifyContent: "center", padding: 20 }}>
+              <WorkBtn onPress={onPressCheck} accept={true}>
                 <WorkBtnText>승낙</WorkBtnText>
               </WorkBtn>
             </ButtonContainer>
@@ -270,8 +274,10 @@ const WorkChat = ({
         </WorkBubble>
       ) : (
         <WorkBubble>
-          <WorkTitle>심부름 검증서</WorkTitle>
-          <Divider />
+          <WorkTitleWrapper>
+            <WorkTitle>심부름 검증서</WorkTitle>
+          </WorkTitleWrapper>
+          <ErrandRequest messageData={messageData} />
           <WorkText style={{ textAlign: "center" }}>검증 대기중...</WorkText>
         </WorkBubble>
       )}

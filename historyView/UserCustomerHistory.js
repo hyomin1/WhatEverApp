@@ -18,7 +18,7 @@ const UserCustomerHistory = ({ historyWork, status }) => {
     setSendWork(historyWork[index]);
     setReportVisible(!reportVisible);
   };
-  console.log(historyWork);
+
   //console.log(isHelper);
   //console.log(status);
 

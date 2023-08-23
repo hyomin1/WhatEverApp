@@ -12,7 +12,7 @@ const ChatWrapper = styled.View`
   margin-bottom: 10px;
 `;
 const ChatWrapper2 = styled(ChatWrapper)`
-  background-color: #dcdde1;
+  background-color: white;
 `;
 const ChatText = styled.Text`
   color: white;

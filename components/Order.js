@@ -317,12 +317,27 @@ const Order = ({
                   style={{ flex: 1, height: 250, marginBottom: 40 }}
                   jsOptions={{ animation: true }}
                   onSelected={async (data) => {
-                    const location = await Location.geocodeAsync(data.address);
-                    setAddress(data.address);
-                    setLatitude(location[0].latitude);
-                    setLongitude(location[0].longitude);
-                    setOrderAddress(!orderAddress);
-                    console.log(data, location);
+                    //const location = await Location.geocodeAsync(data.address);
+                    await axios
+                      .get(
+                        `https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=${data.address}`,
+                        {
+                          headers: {
+                            Accept: "application/json",
+                            "Content-Type": "application/json",
+                            "X-NCP-APIGW-API-KEY-ID": "sc8bw8njee",
+                            "X-NCP-APIGW-API-KEY":
+                              "bagOYXE2P7DmQR17nB9M3lNKoAt8e5CqnFTl7Hd8",
+                          },
+                        }
+                      )
+                      .then((res) => {
+                        setAddress(data.address);
+                        setLatitude(res.data.addresses[0].y);
+                        setLongitude(res.data.addresses[0].x);
+                        setOrderAddress(!orderAddress);
+                      })
+                      .catch((error) => console.log("naver", error));
                   }}
                 />
               </Modal>
@@ -347,11 +362,26 @@ const Order = ({
                   style={{ flex: 1, height: 250, marginBottom: 40 }}
                   jsOptions={{ animation: true }}
                   onSelected={async (data) => {
-                    const location = await Location.geocodeAsync(data.query);
-                    setAddress2(data.address);
-                    setReceiveLatitude(location[0].latitude);
-                    setReceiveLongitude(location[0].longitude);
-                    setReceiveAddress(!receiveAddress);
+                    await axios
+                      .get(
+                        `https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=${data.address}`,
+                        {
+                          headers: {
+                            Accept: "application/json",
+                            "Content-Type": "application/json",
+                            "X-NCP-APIGW-API-KEY-ID": "sc8bw8njee",
+                            "X-NCP-APIGW-API-KEY":
+                              "bagOYXE2P7DmQR17nB9M3lNKoAt8e5CqnFTl7Hd8",
+                          },
+                        }
+                      )
+                      .then((res) => {
+                        setAddress2(data.address);
+                        setReceiveLatitude(res.data.addresses[0].y);
+                        setReceiveLongitude(res.data.addresses[0].x);
+                        setReceiveAddress(!receiveAddress);
+                      })
+                      .catch((error) => console.log("naver", error));
                   }}
                 />
               </Modal>

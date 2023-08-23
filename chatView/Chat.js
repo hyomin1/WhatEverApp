@@ -61,7 +61,7 @@ const Chat = () => {
     setConversation(chatRoom);
     setChatList(chatRoom);
   };
-  console.log(chatRoomList.length);
+
   return (
     <Container>
       <ScrollView>

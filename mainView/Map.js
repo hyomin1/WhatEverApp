@@ -1,6 +1,6 @@
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { BASE_URL } from "../api";
-import { Image } from "react-native";
+import { Image, TouchableOpacity } from "react-native";
 import axios from "axios";
 import { useSetRecoilState } from "recoil";
 import { contentData, ratingHelperData, responseHelperData } from "../atom";
@@ -52,33 +52,34 @@ const Map = ({ location, distanceHelper, navigate, currentLocation }) => {
       ></Marker>
       {distanceHelper
         ? distanceHelper.map((location) => (
-            <Marker
-              onPress={() =>
-                navigate("HelperProfile", {
-                  name: location.name,
-                  introduce: location.introduce,
-                  rating: location.rating,
-                  id: location.id,
-                  image: location.image,
-                })
-              }
-              key={location.id}
-              coordinate={{
-                latitude: location.latitude,
-                longitude: location.longitude,
-              }}
-            >
-              <Image
-                source={
-                  location.image
-                    ? {
-                        uri: `data:image/png;base64,${location.image}`,
-                      }
-                    : require("../images/profile.jpg")
+            <TouchableOpacity key={location.id}>
+              <Marker
+                onPress={() =>
+                  navigate("HelperProfile", {
+                    name: location.name,
+                    introduce: location.introduce,
+                    rating: location.rating,
+                    id: location.id,
+                    image: location.image,
+                  })
                 }
-                style={{ height: 35, width: 35, borderRadius: 20 }}
-              />
-            </Marker>
+                coordinate={{
+                  latitude: location.latitude,
+                  longitude: location.longitude,
+                }}
+              >
+                <Image
+                  source={
+                    location.image
+                      ? {
+                          uri: `data:image/png;base64,${location.image}`,
+                        }
+                      : require("../images/profile.jpg")
+                  }
+                  style={{ height: 35, width: 35, borderRadius: 20 }}
+                />
+              </Marker>
+            </TouchableOpacity>
           ))
         : null}
     </MapView>

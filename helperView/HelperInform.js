@@ -30,7 +30,6 @@ const HelperInformation = styled.TouchableOpacity`
 `;
 
 const HelperInform = ({ helperData }) => {
-  console.log(helperData);
   const navigation = useNavigation();
   const { name, introduce, rating, id, image, distance, avgReactTime } =
     helperData;

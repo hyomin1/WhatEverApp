@@ -21,7 +21,7 @@ const CardBubble = styled.View`
   border-radius: 10px;
   margin: 5px;
   width: 50%;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 `;
 const CardTitleWrapper = styled.View`
   background-color: #0fbcf9;
@@ -64,13 +64,6 @@ const MoneyText = styled(MainDescription)`
   color: #007bff;
 `;
 
-const CardBtn = styled.TouchableOpacity`
-  background-color: #ffcd02;
-  padding: 10px;
-  border-radius: 5px;
-  align-items: center;
-  margin-top: 16px;
-`;
 const CardContainer = styled.View`
   background-color: #e4eaf2;
   border-radius: 10px;
@@ -104,8 +97,6 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
   const navigation = useNavigation();
   const conversation = useRecoilValue(conversationData);
   const myId = useRecoilValue(myIdData);
-  const [historyWork, setHistoryWork] = useRecoilState(historyWorkData);
-  const [isStarRating, isSetStarRating] = useState(false);
   const accessToken = useRecoilValue(accessData);
   const completeCard = {
     message: "Complete work",
@@ -118,7 +109,6 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
     receiverName: receiverName,
   };
 
-  const [isFinish, setIsFinish] = useState(true);
   const [isTimer, isSetTimer] = useRecoilState(isTimerData);
   const messageData = JSON.parse(chatList.chatList[0].message); //workId찾아서 그 workId로 일 보이게
 
@@ -145,7 +135,6 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
       })
       .catch((error) => {
         Alert.alert(error.response.data.message);
-        console.log(error);
       });
 
     isSetTimer(false);
@@ -181,6 +170,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
                   body: JSON.stringify(finishCard),
                   headers: { Authorization: `Bearer ${accessToken}` },
                 });
+                navigation.navigate("Chat");
               });
           },
         },
@@ -282,24 +272,25 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
         <CardContainer>
           <CardTitle>심부름 종료</CardTitle>
           <Divider />
-          {myId !== messageData.customerId ? (
-            <ButtonContainer>
-              <ActionButton>
-                <ButtonText>헬퍼 입장 종료</ButtonText>
-              </ActionButton>
-            </ButtonContainer>
-          ) : null
-          // <ButtonContainer>
-          //   <ActionButton onPress={() => isSetStarRating((cur) => !cur)}>
-          //     <ButtonText>후기 작성</ButtonText>
-          //   </ActionButton>
-          //   <Modal animationType="slide" visible={isStarRating}>
-          //     <Rating
-          //       workId={chatList.workId}
-          //       isSetStarRating={isSetStarRating}
-          //     />
-          //   </Modal>
-          // </ButtonContainer>
+          {
+            myId !== messageData.customerId ? (
+              <ButtonContainer>
+                <ActionButton>
+                  <ButtonText>헬퍼 입장 종료</ButtonText>
+                </ActionButton>
+              </ButtonContainer>
+            ) : null
+            // <ButtonContainer>
+            //   <ActionButton onPress={() => isSetStarRating((cur) => !cur)}>
+            //     <ButtonText>후기 작성</ButtonText>
+            //   </ActionButton>
+            //   <Modal animationType="slide" visible={isStarRating}>
+            //     <Rating
+            //       workId={chatList.workId}
+            //       isSetStarRating={isSetStarRating}
+            //     />
+            //   </Modal>
+            // </ButtonContainer>
           }
         </CardContainer>
       ) : null}
