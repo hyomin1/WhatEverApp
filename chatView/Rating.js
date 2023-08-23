@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, TextInput, TouchableOpacity } from "react-native";
+import { View, TextInput, TouchableOpacity, Alert } from "react-native";
 import styled from "styled-components/native";
 import axios from "axios";
 import StarRating from "react-native-star-rating-widget"; // 올바른 StarRating 컴포넌트를 가져온다고 가정합니다.
@@ -62,8 +62,10 @@ const Rating = ({ isSetStarRating, workId }) => {
         rating,
         body: review,
       })
-      .then((res) => console.log(res.data))
-      .catch((error) => console.log(error.response.data.message));
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((error) => Alert.alert(error.response.data.message));
   };
 
   return (

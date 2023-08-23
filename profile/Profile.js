@@ -143,7 +143,7 @@ const Profile = () => {
     road: "",
   });
 
-  //const API_KEY = Config.GOOGLE_MAPS_API_KEY;
+  const API_KEY = Config.GOOGLE_MAPS_API_KEY;
   const goProfileFix = () => {
     setModalVisible(!modalVisible);
   };

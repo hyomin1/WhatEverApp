@@ -5,6 +5,7 @@ import {
   ScrollView,
   View,
   TouchableOpacity,
+  Modal,
 } from "react-native";
 import {
   MaterialIcons,
@@ -14,6 +15,8 @@ import {
 } from "@expo/vector-icons";
 import axios from "axios";
 import { BASE_URL } from "../api";
+import Rating from "../chatView/Rating";
+import { useState } from "react";
 
 const HistoryInformation = styled.View`
   margin-top: 15px;
@@ -38,7 +41,8 @@ const HistoryDescription = styled.Text`
 `;
 
 const HistoryInform = ({ data, index, onPressReport, isReport }) => {
-  console.log(data);
+  //console.log(data);
+  const [isStarRating, isSetStarRating] = useState(false);
   return (
     <HistoryInformation>
       <View>
@@ -49,17 +53,37 @@ const HistoryInform = ({ data, index, onPressReport, isReport }) => {
         </HistoryDescription>
       </View>
       {isReport ? (
-        <TouchableOpacity
-          style={{ flexDirection: "row", alignItems: "center" }}
-          onPress={() => {
-            onPressReport(index);
-          }}
-        >
-          <Text style={{ color: "red", fontSize: 18, fontWeight: "600" }}>
-            신고
-          </Text>
-          <Ionicons name="alert-circle" size={28} color="red" />
-        </TouchableOpacity>
+        <View style={{ flexDirection: "row", marginBottom: 10 }}>
+          <TouchableOpacity
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginRight: 10,
+            }}
+            onPress={() => {
+              onPressReport(index);
+            }}
+          >
+            <Text style={{ color: "red", fontSize: 18, fontWeight: "600" }}>
+              신고
+            </Text>
+            <Ionicons name="alert-circle" size={28} color="red" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              isSetStarRating((cur) => !cur);
+            }}
+            style={{ flexDirection: "row", alignItems: "center" }}
+          >
+            <Text style={{ color: "blue", fontSize: 18, fontWeight: "600" }}>
+              후기 작성
+            </Text>
+            <Ionicons name="create" size={28} color="blue" />
+          </TouchableOpacity>
+          <Modal animationType="slide" visible={isStarRating}>
+            <Rating workId={data.id} isSetStarRating={isSetStarRating} />
+          </Modal>
+        </View>
       ) : null}
       {!isReport ? (
         <View>

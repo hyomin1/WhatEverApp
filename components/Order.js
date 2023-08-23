@@ -317,11 +317,12 @@ const Order = ({
                   style={{ flex: 1, height: 250, marginBottom: 40 }}
                   jsOptions={{ animation: true }}
                   onSelected={async (data) => {
-                    const location = await Location.geocodeAsync(data.query);
+                    const location = await Location.geocodeAsync(data.address);
                     setAddress(data.address);
                     setLatitude(location[0].latitude);
                     setLongitude(location[0].longitude);
                     setOrderAddress(!orderAddress);
+                    console.log(data, location);
                   }}
                 />
               </Modal>

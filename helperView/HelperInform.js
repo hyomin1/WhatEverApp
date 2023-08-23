@@ -74,8 +74,12 @@ const HelperInform = ({ helperData }) => {
         <Name>{name}</Name>
         <Distance>{distance.toFixed(2)}m</Distance>
         <Rating>⭐ {rating ? rating.toFixed(1) : 0}/5</Rating>
-        {avgReactTime ? (
-          <Response>응답시간 {avgReactTime}초</Response>
+        {avgReactTime < 1 ? (
+          <Response>응답시간 1분 이내</Response>
+        ) : avgReactTime >= 1 && avgReactTime <= 60 ? (
+          <Response>응답시간 ${avgReactTime}초</Response>
+        ) : avgReactTime > 60 ? (
+          <Response>응답시간 1시간 이상</Response>
         ) : (
           <Response>응답시간 알 수 없음</Response>
         )}

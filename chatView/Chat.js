@@ -61,38 +61,48 @@ const Chat = () => {
     setConversation(chatRoom);
     setChatList(chatRoom);
   };
-
+  console.log(chatRoomList.length);
   return (
     <Container>
       <ScrollView>
-        {chatRoomList.map((chatRoom, index) => (
-          <ChatList
-            key={index}
-            activeOpacity={0.8}
-            onPress={() => goToChatting(chatRoom)}
+        {chatRoomList.length !== 0 ? (
+          chatRoomList.map((chatRoom, index) => (
+            <ChatList
+              key={index}
+              activeOpacity={0.8}
+              onPress={() => goToChatting(chatRoom)}
+            >
+              <ProfileImage>
+                {/* 사진 데이터 어디서? aws서버에서 */}
+                <Text>사진</Text>
+              </ProfileImage>
+              <ProfileInfo>
+                <Username>
+                  {myId === chatRoom.creatorId
+                    ? chatRoom.participatorName
+                    : chatRoom.creatorName}
+                </Username>
+                <LastMessage>
+                  {chatRoom.chatList[chatRoom.chatList.length - 1]
+                    ?.messageType === "Work"
+                    ? "심부름 요청서 입니다..."
+                    : chatRoom.chatList[chatRoom.chatList.length - 1]
+                        ?.messageType === "Card"
+                    ? "심부름이 수락되었습니다..."
+                    : chatRoom.chatList[chatRoom.chatList.length - 1]?.message}
+                </LastMessage>
+              </ProfileInfo>
+            </ChatList>
+          ))
+        ) : (
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
           >
-            <ProfileImage>
-              {/* 사진 데이터 어디서? aws서버에서 */}
-              <Text>사진</Text>
-            </ProfileImage>
-            <ProfileInfo>
-              <Username>
-                {myId === chatRoom.creatorId
-                  ? chatRoom.participatorName
-                  : chatRoom.creatorName}
-              </Username>
-              <LastMessage>
-                {chatRoom.chatList[chatRoom.chatList.length - 1]
-                  ?.messageType === "Work"
-                  ? "심부름 요청서 입니다..."
-                  : chatRoom.chatList[chatRoom.chatList.length - 1]
-                      ?.messageType === "Card"
-                  ? "심부름이 수락되었습니다..."
-                  : chatRoom.chatList[chatRoom.chatList.length - 1]?.message}
-              </LastMessage>
-            </ProfileInfo>
-          </ChatList>
-        ))}
+            <Text style={{ color: "#666", marginTop: 10 }}>
+              채팅방이 없습니다
+            </Text>
+          </View>
+        )}
       </ScrollView>
     </Container>
   );

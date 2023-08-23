@@ -165,6 +165,32 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
     }
     //진행상황 보기
   };
+  const handleConfrim = () => {
+    Alert.alert(
+      "심부름 종료",
+      "확인하시면 심부름이 완료되며 채팅방이 사라집니다.",
+      [
+        {
+          text: "확인",
+          onPress: () => {
+            axios
+              .put(`${BASE_URL}/api/work/finish/${chatList.workId}`)
+              .then((res) => {
+                client.publish({
+                  destination: `/pub/card/${conversation._id}`,
+                  body: JSON.stringify(finishCard),
+                  headers: { Authorization: `Bearer ${accessToken}` },
+                });
+              });
+          },
+        },
+        {
+          text: "취소",
+          style: "cancel",
+        },
+      ]
+    );
+  };
   const isCustomer = myId === messageData.customerId;
   return (
     <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
@@ -218,7 +244,11 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
                 <MoneyText>{messageData.reward}원</MoneyText>
               </View>
               <View>
-                <Text>완료 확인중</Text>
+                <Text
+                  style={{ color: "#666", marginTop: 10, textAlign: "center" }}
+                >
+                  완료 확인중...
+                </Text>
               </View>
             </PaddingView>
           </CardBubble>
@@ -241,19 +271,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
                 <MoneyText>{messageData.reward}원</MoneyText>
               </View>
               <ButtonContainer>
-                <ActionButton
-                  onPress={() => {
-                    axios
-                      .put(`${BASE_URL}/api/work/finish/${chatList.workId}`)
-                      .then((res) => {
-                        client.publish({
-                          destination: `/pub/card/${conversation._id}`,
-                          body: JSON.stringify(finishCard),
-                          headers: { Authorization: `Bearer ${accessToken}` },
-                        });
-                      });
-                  }}
-                >
+                <ActionButton onPress={handleConfrim}>
                   <ButtonText>확인하기</ButtonText>
                 </ActionButton>
               </ButtonContainer>
@@ -270,19 +288,19 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
                 <ButtonText>헬퍼 입장 종료</ButtonText>
               </ActionButton>
             </ButtonContainer>
-          ) : (
-            <ButtonContainer>
-              <ActionButton onPress={() => isSetStarRating((cur) => !cur)}>
-                <ButtonText>후기 작성</ButtonText>
-              </ActionButton>
-              <Modal animationType="slide" visible={isStarRating}>
-                <Rating
-                  workId={chatList.workId}
-                  isSetStarRating={isSetStarRating}
-                />
-              </Modal>
-            </ButtonContainer>
-          )}
+          ) : null
+          // <ButtonContainer>
+          //   <ActionButton onPress={() => isSetStarRating((cur) => !cur)}>
+          //     <ButtonText>후기 작성</ButtonText>
+          //   </ActionButton>
+          //   <Modal animationType="slide" visible={isStarRating}>
+          //     <Rating
+          //       workId={chatList.workId}
+          //       isSetStarRating={isSetStarRating}
+          //     />
+          //   </Modal>
+          // </ButtonContainer>
+          }
         </CardContainer>
       ) : null}
     </View>
