@@ -213,7 +213,7 @@ const WorkChat = ({
       .catch((error) => Alert.alert(error.response.data.message));
   };
   const customerId = JSON.parse(data.message).customerId;
-  console.log("일확인", messageData);
+  //console.log("일확인", messageData);
   return (
     <View
       style={{

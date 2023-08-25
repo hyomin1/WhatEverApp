@@ -187,7 +187,7 @@ const Order = ({
             .then((res) => console.log(res.data))
             .catch((error) => Alert.alert(error.response.data.message));
         })
-        .catch((error) => console.log(error));
+        .catch((error) => console.log("심부름 신청에러", error));
     } else {
       //심부름 수정시
       setOrderVisible(!orderVisible);

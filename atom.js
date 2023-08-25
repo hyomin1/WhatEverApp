@@ -164,3 +164,7 @@ export const isTimerData = atom({
   key: "isTimer",
   default: null,
 });
+export const chatCountData = atom({
+  key: "chatCount",
+  default: null,
+});

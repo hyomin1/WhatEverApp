@@ -8,9 +8,11 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import axios from "axios";
+import { View, Text } from "react-native";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   adminData,
+  chatCountData,
   distanceData,
   historyWorkData,
   IntroduceData,
@@ -25,6 +27,27 @@ import {
 } from "../atom";
 import { BASE_URL } from "../api";
 import { Alert, TouchableOpacity } from "react-native";
+import styled from "styled-components/native";
+
+const BadgeContainer = styled.View`
+  justify-content: center;
+  align-items: center;
+  position: relative;
+`;
+const Badge = styled.View`
+  position: absolute;
+  top: -3px;
+  right: -8px;
+  background-color: tomato;
+  border-radius: 10px;
+  min-width: 20px;
+  height: 20px;
+  justify-content: center;
+  align-items: center;
+`;
+const BadgeText = styled.Text`
+  color: white;
+`;
 
 const Tab = createBottomTabNavigator();
 
@@ -43,6 +66,7 @@ const Tabs = ({ navigation: { navigate } }) => {
   const [historyWork, setHistoryWork] = useRecoilState(historyWorkData);
 
   const isAdmin = useRecoilValue(adminData);
+  const chatCount = useRecoilValue(chatCountData);
 
   const onPressAlarm = () => {
     //알람데이터 확인
@@ -51,7 +75,7 @@ const Tabs = ({ navigation: { navigate } }) => {
       .then((res) => console.log(res.data))
       .catch((error) => Alert.alert(error.response.data.message));
   };
-
+  console.log(chatCount);
   return (
     <Tab.Navigator
       screenOptions={{
@@ -174,15 +198,23 @@ const Tabs = ({ navigation: { navigate } }) => {
         options={{
           tabBarIcon: ({ focused, color, size }) => {
             return (
-              <Ionicons
-                name={
-                  focused
-                    ? "chatbubble-ellipses"
-                    : "chatbubble-ellipses-outline"
-                }
-                size={size}
-                color={color}
-              />
+              <BadgeContainer>
+                <Ionicons
+                  name={
+                    focused
+                      ? "chatbubble-ellipses"
+                      : "chatbubble-ellipses-outline"
+                  }
+                  size={size}
+                  color={color}
+                />
+
+                {chatCount !== null && chatCount > 0 ? (
+                  <Badge>
+                    <BadgeText>{chatCount}</BadgeText>
+                  </Badge>
+                ) : null}
+              </BadgeContainer>
             );
           },
           headerTitleAlign: "center",

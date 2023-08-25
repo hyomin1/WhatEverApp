@@ -182,7 +182,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
       ]
     );
   };
-  console.log("카드챗", messageData);
+  //console.log("카드챗", messageData);
   const isCustomer = myId === messageData.customerId;
   return (
     <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>

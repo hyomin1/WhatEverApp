@@ -16,6 +16,8 @@ import {
   adminData,
   locationData,
   currentLocationData,
+  chatListData,
+  chatCountData,
 } from "../atom";
 import { MaterialIcons } from "@expo/vector-icons";
 import Order from "../components/Order";
@@ -80,6 +82,8 @@ const Main = ({ navigation: { navigate }, route }) => {
 
   const [orderVisible, setOrderVisible] = useState(false);
   const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
+  const [chatList, setChatList] = useRecoilState(chatListData);
+  const setChatCount = useSetRecoilState(chatCountData);
 
   const setHelperLocation = useSetRecoilState(helperLocationData);
 
@@ -87,6 +91,7 @@ const Main = ({ navigation: { navigate }, route }) => {
 
   const [isMap, isSetMap] = useState(true);
   const [nearWork, setNearWork] = useState();
+  const [convId, setConvId] = useState();
 
   const getToken = async () => {
     const token = await messaging().getToken();
@@ -131,7 +136,9 @@ const Main = ({ navigation: { navigate }, route }) => {
     Authorization: `${grant}` + " " + `${access}`,
   };
 
-  client.onConnect = function (frame) {};
+  client.onConnect = function (frame) {
+    client.activate();
+  };
   client.onStompError = function (frame) {
     console.log("Broker reported error: " + frame.headers["message"]);
     console.log("Additional details: " + frame.body);
@@ -157,22 +164,26 @@ const Main = ({ navigation: { navigate }, route }) => {
             const sub = client.subscribe(
               `/topic/chat/${chatId}`,
               function (message) {
-                axios.get(`${BASE_URL}/api/conversations`).then(({ data }) => {
-                  data.sort(function (a, b) {
-                    return (
+                const conversationData = JSON.parse(message.body).data;
+                setChatRoomList((prev) => {
+                  const newArr = prev.map((conv) =>
+                    conv._id === conversationData._id ? conversationData : conv
+                  );
+                  if (!newArr.some((conv) => conv._id === conversationData._id))
+                    newArr.push(conversationData);
+                  newArr.sort(
+                    (a, b) =>
                       new Date(b.updatedAt).getTime() -
                       new Date(a.updatedAt).getTime()
-                    );
-                  });
-                  console.log("구독완료");
-                  setChatRoomList(data);
+                  );
+                  return [...newArr];
                 });
-                // console.log("요청해서 들어간 채팅방 메시지", message.body);
               }
             );
           } else if (
             JSON.parse(message.body).messageType === "SetConvSeenCount"
           ) {
+            setChatCount(JSON.parse(message.body).data);
             console.log("개수", JSON.parse(message.body).data);
           }
         },
@@ -180,38 +191,131 @@ const Main = ({ navigation: { navigate }, route }) => {
       );
     }, 1000);
     setTimeout(() => {
+      //로그인 할때 받아옴
       axios
         .get(`${BASE_URL}/api/conversations`)
         .then(({ data }) => {
-          console.log("성공");
-          //setChatRoomList(res.data); // a1일 경우 a1의 채팅리스트를 저장함
-          //console.log("채팅목록", res.data);
           data.sort(function (a, b) {
             return (
               new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
             );
           });
           setChatRoomList(data);
-
           data.map((id) =>
             client.subscribe(`/topic/chat/${id._id}`, function (message) {
-              //  console.log("채팅 목록에서 들어간 메시지", message.body);
-              axios.get(`${BASE_URL}/api/conversations`).then(({ data }) => {
-                data.sort(function (a, b) {
-                  return (
+              const conversationData = JSON.parse(message.body).data;
+              console.log(id._id);
+              setChatRoomList((prev) => {
+                const newArr = prev.map((conv) =>
+                  conv._id === conversationData._id ? conversationData : conv
+                );
+                if (!newArr.some((conv) => conv._id === conversationData._id))
+                  newArr.push(conversationData);
+                newArr.sort(
+                  (a, b) =>
                     new Date(b.updatedAt).getTime() -
                     new Date(a.updatedAt).getTime()
-                  );
-                });
-
-                setChatRoomList(data);
+                );
+                return [...newArr];
               });
             })
           );
         })
-        .catch(() => console.log("웹소켓 에러"));
+        .catch((error) => console.log(error, "웹소켓 에러"));
     }, 1000);
   }, []);
+  // useEffect(() => {
+  //   const fetchDataAndSubscribe = async () => {
+  //     try {
+  //       getToken();
+  //       getLocation();
+  //       client.connectHeaders.Authorization = `${grant} ${access}`;
+
+  //       const loginSubscription = client.subscribe(
+  //         `/queue/${myId}`,
+  //         function (message) {
+  //           console.log("로그인 웹소켓");
+  //           if (JSON.parse(message.body).messageType === "OpenChat") {
+  //             console.log("오픈챗");
+
+  //             const chatId = JSON.parse(message.body).data[
+  //               JSON.parse(message.body).data.length - 1
+  //             ]._id;
+  //             console.log(chatRoomList);
+  //             const chatSubscription = client.subscribe(
+  //               `/topic/chat/${chatId}`,
+  //               function (message) {
+  //                 // const conversationData = JSON.parse(message.body).data;
+  //                 // setChatRoomList((prev) => {
+  //                 //   const newArr = prev.map((conv) =>
+  //                 //     conv._id === conversationData._id
+  //                 //       ? conversationData
+  //                 //       : conv
+  //                 //   );
+  //                 //   if (
+  //                 //     !newArr.some((conv) => conv._id === conversationData._id)
+  //                 //   )
+  //                 //     newArr.push(conversationData);
+  //                 //   newArr.sort(
+  //                 //     (a, b) =>
+  //                 //       new Date(b.updatedAt).getTime() -
+  //                 //       new Date(a.updatedAt).getTime()
+  //                 //   );
+  //                 //   return [...newArr];
+  //                 // });
+  //               }
+  //             );
+  //           } else if (
+  //             JSON.parse(message.body).messageType === "SetConvSeenCount"
+  //           ) {
+  //             console.log("개수", JSON.parse(message.body).data);
+  //           }
+  //         },
+  //         headers
+  //       );
+
+  //       const { data } = await axios.get(`${BASE_URL}/api/conversations`);
+  //       data.sort(
+  //         (a, b) =>
+  //           new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+  //       );
+  //       setChatRoomList(data);
+
+  //       const chatSubscriptions = data.map((id) =>
+  //         client.subscribe(`/topic/chat/${id._id}`, function (message) {
+  //           const conversationData = JSON.parse(message.body).data;
+
+  //           setChatRoomList((prev) => {
+  //             const newArr = prev.map((conv) =>
+  //               conv._id === conversationData._id ? conversationData : conv
+  //             );
+  //             if (!newArr.some((conv) => conv._id === conversationData._id))
+  //               newArr.push(conversationData);
+  //             newArr.sort(
+  //               (a, b) =>
+  //                 new Date(b.updatedAt).getTime() -
+  //                 new Date(a.updatedAt).getTime()
+  //             );
+  //             return [...newArr];
+  //           });
+  //         })
+  //       );
+
+  //       // Clean up subscriptions on unmount
+  //       return () => {
+  //         loginSubscription.unsubscribe();
+  //         chatSubscriptions.forEach((subscription) =>
+  //           subscription.unsubscribe()
+  //         );
+  //       };
+  //     } catch (error) {
+  //       console.log(error, "웹소켓 에러");
+  //     }
+  //   };
+
+  //   fetchDataAndSubscribe();
+  // }, []);
+
   return (
     <View style={{ flex: 1 }}>
       {isLoading ? (

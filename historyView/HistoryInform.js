@@ -6,6 +6,7 @@ import {
   View,
   TouchableOpacity,
   Modal,
+  Alert,
 } from "react-native";
 import {
   MaterialIcons,
@@ -17,6 +18,8 @@ import axios from "axios";
 import { BASE_URL } from "../api";
 import Rating from "../chatView/Rating";
 import { useState } from "react";
+import { useSetRecoilState } from "recoil";
+import { historyWorkData, workListData } from "../atom";
 
 const HistoryInformation = styled.View`
   margin-top: 15px;
@@ -43,6 +46,30 @@ const HistoryDescription = styled.Text`
 const HistoryInform = ({ data, index, onPressReport, isReport }) => {
   //console.log(data);
   const [isStarRating, isSetStarRating] = useState(false);
+  const setHistoryWork = useSetRecoilState(historyWorkData);
+  const setWorkList = useSetRecoilState(workListData);
+  const onDeleteItem = (itemId) => {
+    Alert.alert(
+      "삭제 확인",
+      "정말로 이 심부름을 삭제하시겠습니까?",
+      [
+        {
+          text: "취소",
+          style: "cancel",
+        },
+        {
+          text: "삭제",
+          onPress: () => {
+            axios.delete(`${BASE_URL}/api/work/${itemId}`).then(({ data }) => {
+              setHistoryWork(data);
+              setWorkList(data);
+            });
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
   return (
     <HistoryInformation>
       <View>
@@ -87,13 +114,7 @@ const HistoryInform = ({ data, index, onPressReport, isReport }) => {
       ) : null}
       {!isReport ? (
         <View>
-          <TouchableOpacity
-            onPress={() => {
-              // axios
-              // .delete(`${BASE_URL}/api/work/${data.id}`)
-              //.then((res) => console.log(res.data));
-            }}
-          >
+          <TouchableOpacity onPress={() => onDeleteItem(data.id)}>
             <MaterialIcons name="delete" size={24} />
           </TouchableOpacity>
         </View>
