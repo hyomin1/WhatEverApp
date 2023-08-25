@@ -8,7 +8,7 @@ import { client } from "../client";
 import { Alert } from "react-native";
 import * as Location from "expo-location";
 import BackgroundTimer from "react-native-background-timer";
-import { useState } from "react";
+import React from "react";
 import { Button } from "react-native-web";
 import ErrandRequest from "./ErrandRequest";
 
@@ -74,7 +74,7 @@ const ButtonContainer = styled.View`
 const Spacer = styled.View`
   width: 2%;
 `;
-const WorkBtn = styled.Pressable`
+const WorkBtn = styled.TouchableOpacity`
   background-color: ${(props) => (props.accept ? "#3498db" : "#e74c3c")};
   width: 80px;
   height: 30px;
@@ -213,7 +213,7 @@ const WorkChat = ({
       .catch((error) => Alert.alert(error.response.data.message));
   };
   const customerId = JSON.parse(data.message).customerId;
-  console.log(messageData);
+  console.log("일확인", messageData);
   return (
     <View
       style={{
@@ -261,15 +261,17 @@ const WorkChat = ({
               <MainDescription>보상금액: </MainDescription>
               <MoneyText>{messageData.reward}원</MoneyText>
             </View>
-            <ButtonContainer>
-              <WorkBtn accept={true} onPress={() => onPressAccept(index)}>
-                <WorkBtnText>수락</WorkBtnText>
-              </WorkBtn>
-              <Spacer />
-              <WorkBtn accept={false} onPress={onPressDeny}>
-                <WorkBtnText>거절</WorkBtnText>
-              </WorkBtn>
-            </ButtonContainer>
+            {messageData.workProceedingStatus === 0 ? (
+              <ButtonContainer>
+                <WorkBtn accept={true} onPress={() => onPressAccept(index)}>
+                  <WorkBtnText>수락</WorkBtnText>
+                </WorkBtn>
+                <Spacer />
+                <WorkBtn accept={false} onPress={onPressDeny}>
+                  <WorkBtnText>거절</WorkBtnText>
+                </WorkBtn>
+              </ButtonContainer>
+            ) : null}
           </PaddingView>
         </WorkBubble>
       ) : (

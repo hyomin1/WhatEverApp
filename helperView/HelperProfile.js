@@ -188,9 +188,6 @@ const HelperProfile = ({ route }) => {
 
   //const [completedWork, setCompltedWork] = useState(false);
 
-  const goChat = () => {
-    navigation.navigate("Chatting");
-  };
   const onPressBtn = async () => {
     //내 심부름 목록 보기
   };
@@ -210,8 +207,7 @@ const HelperProfile = ({ route }) => {
           body: JSON.stringify(selectWork),
           headers: { Authorization: `Bearer ${accessToken}` },
         });
-
-        goChat();
+        navigation.navigate("Chatting");
       })
       .catch((error) => console.log(error));
     setWorkListVisible(!workListVisible);

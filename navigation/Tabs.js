@@ -24,7 +24,7 @@ import {
   userData,
 } from "../atom";
 import { BASE_URL } from "../api";
-import { TouchableOpacity } from "react-native";
+import { Alert, TouchableOpacity } from "react-native";
 
 const Tab = createBottomTabNavigator();
 
@@ -43,6 +43,14 @@ const Tabs = ({ navigation: { navigate } }) => {
   const [historyWork, setHistoryWork] = useRecoilState(historyWorkData);
 
   const isAdmin = useRecoilValue(adminData);
+
+  const onPressAlarm = () => {
+    //알람데이터 확인
+    axios
+      .get(`${BASE_URL}/api/alarm`)
+      .then((res) => console.log(res.data))
+      .catch((error) => Alert.alert(error.response.data.message));
+  };
 
   return (
     <Tab.Navigator
@@ -109,7 +117,7 @@ const Tabs = ({ navigation: { navigate } }) => {
           },
           headerRight: () => {
             return (
-              <TouchableOpacity>
+              <TouchableOpacity onPress={onPressAlarm}>
                 <FontAwesome
                   name="bell-o"
                   style={{ marginRight: 11 }}

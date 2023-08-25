@@ -58,7 +58,7 @@ const Rating = ({ isSetStarRating, workId }) => {
   const onPressComplete = () => {
     isSetStarRating((cur) => !cur);
     axios
-      .put(`${BASE_URL}/api/work/setRating/${workId}`, {
+      .post(`${BASE_URL}/api/review/${workId}`, {
         rating,
         body: review,
       })

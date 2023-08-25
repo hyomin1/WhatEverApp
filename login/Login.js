@@ -86,12 +86,12 @@ function Login({ navigation: { navigate } }) {
   };
   //유저 로그인시 비번,아이디 이상 없을 경우 실행
   const sendLogin = async () => {
-    axios
+    await axios
       .post(`${BASE_URL}/login`, {
         userId: id,
         password,
       })
-      .then((res) => {
+      .then(async (res) => {
         setAccess(res.data.accessToken);
         setGrant(res.data.grantType);
         setMyId(res.data.id);
@@ -106,6 +106,14 @@ function Login({ navigation: { navigate } }) {
         }
 
         setIsAdmin(false);
+        await axios
+          .get(`${BASE_URL}/api/conversation/seen`)
+          .catch((error) => Alert.alert("2222" + error));
+        await axios
+          .get(`${BASE_URL}/api/alarm/seenCount`)
+          .then((res) => console.log("alarmSeenCount " + res.data))
+          .catch((error) => Alert.alert("1111" + error.response.data.message));
+
         goMain();
       })
       .catch((error) => Alert.alert(error.response.data.message));

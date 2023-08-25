@@ -162,7 +162,6 @@ const Order = ({
   };
 
   const onPressBtn = async () => {
-    console.log(deadLineTime);
     if (divide === "0") {
       //심부름 등록시
       await axios
@@ -178,12 +177,15 @@ const Order = ({
         })
         .then((res) => {
           //Alert.alert(alertText);
-          console.log(res.data);
           setAddress("");
           setAddress2("");
           setWork(res.data);
           setWorkList((prev) => [res.data, ...prev]);
           setOrderVisible(!orderVisible);
+          axios
+            .post(`${BASE_URL}/api/fcm/sendNearbyHelper`, res.data)
+            .then((res) => console.log(res.data))
+            .catch((error) => Alert.alert(error.response.data.message));
         })
         .catch((error) => console.log(error));
     } else {

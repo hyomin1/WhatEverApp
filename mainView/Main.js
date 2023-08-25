@@ -170,6 +170,10 @@ const Main = ({ navigation: { navigate }, route }) => {
                 // console.log("요청해서 들어간 채팅방 메시지", message.body);
               }
             );
+          } else if (
+            JSON.parse(message.body).messageType === "SetConvSeenCount"
+          ) {
+            console.log("개수", JSON.parse(message.body).data);
           }
         },
         headers
@@ -205,7 +209,7 @@ const Main = ({ navigation: { navigate }, route }) => {
             })
           );
         })
-        .catch(() => console.log("cc에러"));
+        .catch(() => console.log("웹소켓 에러"));
     }, 1000);
   }, []);
   return (

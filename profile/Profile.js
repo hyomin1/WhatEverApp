@@ -20,6 +20,7 @@ import { BASE_URL } from "../api";
 import ReviewModal from "../components/ReviewModal";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import Config from "react-native-config";
+import { Alert } from "react-native-web";
 
 const Container = styled.ScrollView`
   flex: 1;
@@ -263,37 +264,77 @@ const Profile = () => {
             style={{ flex: 1, height: 250, marginBottom: 40 }}
             jsOptions={{ animation: true }}
             onSelected={async (data) => {
-              const location = await Location.geocodeAsync(data.query);
-              setLatitude(location[0].latitude); //여기서 location[0].latitude 바로 보내주면됨
-              setLongitude(location[0].longitude);
-              setRegisterVisible(!registerVisible);
-              axios
-                .put("http://10.0.2.2:8080/api/userLocation", {
-                  latitude: location[0].latitude,
-                  longitude: location[0].longitude,
-                })
-                .then(async ({ data: { latitude, longitude } }) => {
-                  setLocation({ latitude, longitude });
-                  setCurrentLocation({ latitude, longitude });
-                  await axios
-                    .get(`https://nominatim.openstreetmap.org/reverse`, {
-                      params: {
-                        format: "json",
-                        lat: latitude,
-                        lon: longitude,
-                        "accept-language": "ko",
-                      },
-                    })
-                    .then((res) => {
-                      const { city, borough, quarter, road } = res.data.address;
-                      setAddress({
-                        city,
-                        borough,
-                        quarter,
-                        road,
-                      });
-                    });
+              try {
+                const res1 = await axios.get(
+                  `https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=${data.address}`,
+                  {
+                    headers: {
+                      Accept: "application/json",
+                      "Content-Type": "application/json",
+                      "X-NCP-APIGW-API-KEY-ID": "sc8bw8njee",
+                      "X-NCP-APIGW-API-KEY":
+                        "bagOYXE2P7DmQR17nB9M3lNKoAt8e5CqnFTl7Hd8",
+                    },
+                  }
+                );
+
+                const res2 = await axios.put(`${BASE_URL}/api/userLocation`, {
+                  latitude: res1.data.addresses[0].y,
+                  longitude: res1.data.addresses[0].x,
                 });
+
+                const { latitude, longitude } = res2.data;
+                setLocation({ latitude, longitude });
+                setCurrentLocation({ latitude, longitude });
+                const res3 = await axios.get(
+                  `https://nominatim.openstreetmap.org/reverse`,
+                  {
+                    params: {
+                      format: "json",
+                      lat: latitude,
+                      lon: longitude,
+                      "accept-language": "ko",
+                    },
+                  }
+                );
+                //console.log(res3.data);
+                const { city, borough, quarter, road } = res3.data.address;
+                setAddress({ city, borough, quarter, road });
+                setRegisterVisible(!registerVisible);
+              } catch (error) {
+                Alert.alert(error);
+              }
+              // const location = await Location.geocodeAsync(data.query);
+              // setLatitude(location[0].latitude); //여기서 location[0].latitude 바로 보내주면됨
+              // setLongitude(location[0].longitude);
+              // setRegisterVisible(!registerVisible);
+              // axios
+              //   .put("http://10.0.2.2:8080/api/userLocation", {
+              //     latitude: location[0].latitude,
+              //     longitude: location[0].longitude,
+              //   })
+              //   .then(async ({ data: { latitude, longitude } }) => {
+              //     setLocation({ latitude, longitude });
+              //     setCurrentLocation({ latitude, longitude });
+              //     await axios
+              //       .get(`https://nominatim.openstreetmap.org/reverse`, {
+              //         params: {
+              //           format: "json",
+              //           lat: latitude,
+              //           lon: longitude,
+              //           "accept-language": "ko",
+              //         },
+              //       })
+              //       .then((res) => {
+              //         const { city, borough, quarter, road } = res.data.address;
+              //         setAddress({
+              //           city,
+              //           borough,
+              //           quarter,
+              //           road,
+              //         });
+              //       });
+              //   });
             }}
           />
         </Modal>

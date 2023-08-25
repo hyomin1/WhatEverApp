@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, View, Pressable, ScrollView } from "react-native";
+import { Text, View, Pressable, ScrollView, Alert } from "react-native";
 import styled from "styled-components/native";
 import {
   chatListData,
@@ -9,6 +9,7 @@ import {
 } from "../atom";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { useNavigation } from "@react-navigation/native";
+import axios from "axios";
 
 const Container = styled.View`
   flex: 1;
@@ -60,6 +61,19 @@ const Chat = () => {
     navigation.navigate("Chatting", { chatRoom });
     setConversation(chatRoom);
     setChatList(chatRoom);
+    console.log(chatRoom);
+    axios
+      .post(`http://10.0.2.2:8080/api/conversation/seen/${chatRoom._id}`)
+      .then((res) => {
+        const newArr = [...chatRoomList];
+        chatRoomList.map((data, index) => {
+          if (data._id === res.data._id) {
+            newArr[index] = res.data;
+            setChatRoomList(newArr);
+          }
+        });
+      })
+      .catch((err) => Alert.alert(err.response.data.message));
   };
 
   return (

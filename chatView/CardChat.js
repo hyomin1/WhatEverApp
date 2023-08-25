@@ -139,6 +139,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
 
     isSetTimer(false);
   };
+
   const onPressView = () => {
     console.log(messageData.deadLineTime);
     if (messageData.deadLineTime === 1) {
@@ -181,6 +182,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
       ]
     );
   };
+  console.log("카드챗", messageData);
   const isCustomer = myId === messageData.customerId;
   return (
     <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
