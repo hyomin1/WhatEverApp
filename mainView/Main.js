@@ -28,6 +28,7 @@ import Map from "./Map";
 import RequestBtn from "./RequestBtn";
 import SearchBar from "./SearchBar";
 import NearWork from "./NearWork";
+import { parse } from "react-native-svg";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
@@ -125,6 +126,7 @@ const Main = ({ navigation: { navigate }, route }) => {
 
         const response = data.concat(); //응답시간 순 정렬
         response.sort((a, b) => a.avgReactTime - b.avgReactTime);
+        console.log("a", response);
         setResponseHelper(response);
       });
 
@@ -137,184 +139,81 @@ const Main = ({ navigation: { navigate }, route }) => {
   };
 
   client.onConnect = function (frame) {
-    client.activate();
+    console.log("웹소켓 연결완료");
+    //client.activate();
   };
   client.onStompError = function (frame) {
     console.log("Broker reported error: " + frame.headers["message"]);
     console.log("Additional details: " + frame.body);
   };
+  const subscribeToChatTopic = (client, chatId, setChatRoomList) => {
+    return client.subscribe(`/topic/chat/${chatId}`, function (message) {
+      console.log("대화 진행");
+      const conversationData = JSON.parse(message.body).data;
+      setChatRoomList((prev) => {
+        const updatedConv = prev.map((conv) =>
+          conv._id === conversationData._id ? conversationData : conv
+        );
+        if (!updatedConv.some((conv) => conv._id === conversationData._id))
+          updatedConv.push(conversationData);
+        updatedConv.sort(
+          (a, b) =>
+            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        );
+        return [...updatedConv];
+      });
+    });
+  };
 
   useEffect(() => {
     getToken();
     getLocation();
+
     client.connectHeaders.Authorization = `${grant}` + " " + `${access}`;
+    console.log("00");
     client.activate();
+    console.log("11");
     setTimeout(() => {
       console.log("연결됨");
-      const subscription = client.subscribe(
-        `/queue/${myId}`,
-        function (message) {
-          console.log("로그인 웹소켓");
-          if (JSON.parse(message.body).messageType === "OpenChat") {
-            console.log("오픈챗");
+      try {
+        const subscription = client.subscribe(
+          `/queue/${myId}`,
+          function (message) {
+            const parsedMessage = JSON.parse(message.body);
+            console.log("로그인 웹소켓");
+            if (parsedMessage.messageType === "OpenChat") {
+              console.log("오픈챗");
+              const chatId =
+                parsedMessage.data[parsedMessage.data.length - 1]._id;
 
-            const chatId = JSON.parse(message.body).data[
-              JSON.parse(message.body).data.length - 1
-            ]._id;
-            const sub = client.subscribe(
-              `/topic/chat/${chatId}`,
-              function (message) {
-                const conversationData = JSON.parse(message.body).data;
-                setChatRoomList((prev) => {
-                  const newArr = prev.map((conv) =>
-                    conv._id === conversationData._id ? conversationData : conv
-                  );
-                  if (!newArr.some((conv) => conv._id === conversationData._id))
-                    newArr.push(conversationData);
-                  newArr.sort(
-                    (a, b) =>
-                      new Date(b.updatedAt).getTime() -
-                      new Date(a.updatedAt).getTime()
-                  );
-                  return [...newArr];
-                });
-              }
-            );
-          } else if (
-            JSON.parse(message.body).messageType === "SetConvSeenCount"
-          ) {
-            setChatCount(JSON.parse(message.body).data);
-            console.log("개수", JSON.parse(message.body).data);
-          }
-        },
-        headers
-      );
+              const sub = subscribeToChatTopic(client, chatId, setChatRoomList);
+            } else if (parsedMessage.messageType === "SetConvSeenCount") {
+              setChatCount(parsedMessage.data);
+              console.log("개수", parsedMessage.data);
+            }
+          },
+          headers
+        );
+      } catch (error) {
+        console.error("웹소켓 에러", error);
+      }
     }, 1000);
     setTimeout(() => {
       //로그인 할때 받아옴
-      axios
-        .get(`${BASE_URL}/api/conversations`)
-        .then(({ data }) => {
-          data.sort(function (a, b) {
-            return (
-              new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-            );
-          });
+      try {
+        axios.get(`${BASE_URL}/api/conversations`).then(({ data }) => {
+          data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
           setChatRoomList(data);
-          data.map((id) =>
-            client.subscribe(`/topic/chat/${id._id}`, function (message) {
-              const conversationData = JSON.parse(message.body).data;
-              console.log(id._id);
-              setChatRoomList((prev) => {
-                const newArr = prev.map((conv) =>
-                  conv._id === conversationData._id ? conversationData : conv
-                );
-                if (!newArr.some((conv) => conv._id === conversationData._id))
-                  newArr.push(conversationData);
-                newArr.sort(
-                  (a, b) =>
-                    new Date(b.updatedAt).getTime() -
-                    new Date(a.updatedAt).getTime()
-                );
-                return [...newArr];
-              });
-            })
-          );
-        })
-        .catch((error) => console.log(error, "웹소켓 에러"));
+          data.forEach((chat) => {
+            const sub = subscribeToChatTopic(client, chat._id, setChatRoomList);
+          });
+        });
+      } catch (error) {
+        console.error("웹소켓 에러2:", error);
+      }
     }, 1000);
+    //actviateClinet();
   }, []);
-  // useEffect(() => {
-  //   const fetchDataAndSubscribe = async () => {
-  //     try {
-  //       getToken();
-  //       getLocation();
-  //       client.connectHeaders.Authorization = `${grant} ${access}`;
-
-  //       const loginSubscription = client.subscribe(
-  //         `/queue/${myId}`,
-  //         function (message) {
-  //           console.log("로그인 웹소켓");
-  //           if (JSON.parse(message.body).messageType === "OpenChat") {
-  //             console.log("오픈챗");
-
-  //             const chatId = JSON.parse(message.body).data[
-  //               JSON.parse(message.body).data.length - 1
-  //             ]._id;
-  //             console.log(chatRoomList);
-  //             const chatSubscription = client.subscribe(
-  //               `/topic/chat/${chatId}`,
-  //               function (message) {
-  //                 // const conversationData = JSON.parse(message.body).data;
-  //                 // setChatRoomList((prev) => {
-  //                 //   const newArr = prev.map((conv) =>
-  //                 //     conv._id === conversationData._id
-  //                 //       ? conversationData
-  //                 //       : conv
-  //                 //   );
-  //                 //   if (
-  //                 //     !newArr.some((conv) => conv._id === conversationData._id)
-  //                 //   )
-  //                 //     newArr.push(conversationData);
-  //                 //   newArr.sort(
-  //                 //     (a, b) =>
-  //                 //       new Date(b.updatedAt).getTime() -
-  //                 //       new Date(a.updatedAt).getTime()
-  //                 //   );
-  //                 //   return [...newArr];
-  //                 // });
-  //               }
-  //             );
-  //           } else if (
-  //             JSON.parse(message.body).messageType === "SetConvSeenCount"
-  //           ) {
-  //             console.log("개수", JSON.parse(message.body).data);
-  //           }
-  //         },
-  //         headers
-  //       );
-
-  //       const { data } = await axios.get(`${BASE_URL}/api/conversations`);
-  //       data.sort(
-  //         (a, b) =>
-  //           new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-  //       );
-  //       setChatRoomList(data);
-
-  //       const chatSubscriptions = data.map((id) =>
-  //         client.subscribe(`/topic/chat/${id._id}`, function (message) {
-  //           const conversationData = JSON.parse(message.body).data;
-
-  //           setChatRoomList((prev) => {
-  //             const newArr = prev.map((conv) =>
-  //               conv._id === conversationData._id ? conversationData : conv
-  //             );
-  //             if (!newArr.some((conv) => conv._id === conversationData._id))
-  //               newArr.push(conversationData);
-  //             newArr.sort(
-  //               (a, b) =>
-  //                 new Date(b.updatedAt).getTime() -
-  //                 new Date(a.updatedAt).getTime()
-  //             );
-  //             return [...newArr];
-  //           });
-  //         })
-  //       );
-
-  //       // Clean up subscriptions on unmount
-  //       return () => {
-  //         loginSubscription.unsubscribe();
-  //         chatSubscriptions.forEach((subscription) =>
-  //           subscription.unsubscribe()
-  //         );
-  //       };
-  //     } catch (error) {
-  //       console.log(error, "웹소켓 에러");
-  //     }
-  //   };
-
-  //   fetchDataAndSubscribe();
-  // }, []);
 
   return (
     <View style={{ flex: 1 }}>

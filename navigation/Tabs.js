@@ -72,10 +72,10 @@ const Tabs = ({ navigation: { navigate } }) => {
     //알람데이터 확인
     axios
       .get(`${BASE_URL}/api/alarm`)
-      .then((res) => console.log(res.data))
+      .then((res) => console.log("alaram", res.data))
       .catch((error) => Alert.alert(error.response.data.message));
   };
-  console.log(chatCount);
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -170,7 +170,6 @@ const Tabs = ({ navigation: { navigate } }) => {
                   .get(`${BASE_URL}/api/workList/all`)
                   .then(({ data }) => {
                     setHistoryWork(data);
-                    console.log(data);
                   })
                   .catch((error) => console.log("유저 이용내역에러", error));
           },

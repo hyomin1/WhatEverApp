@@ -44,7 +44,6 @@ const HistoryDescription = styled.Text`
 `;
 
 const HistoryInform = ({ data, index, onPressReport, isReport }) => {
-  //console.log(data);
   const [isStarRating, isSetStarRating] = useState(false);
   const setHistoryWork = useSetRecoilState(historyWorkData);
   const setWorkList = useSetRecoilState(workListData);

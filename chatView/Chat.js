@@ -75,7 +75,7 @@ const Chat = () => {
       })
       .catch((err) => Alert.alert(err.response.data.message));
   };
-
+  console.log(chatRoomList.length);
   return (
     <Container>
       <ScrollView>

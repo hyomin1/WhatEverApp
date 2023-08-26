@@ -112,21 +112,20 @@ const UserHistory = () => {
               심부름 중
             </BtnText>
           </TouchableCustom>
-          {isHelepr ? null : (
-            <TouchableCustom
-              status={status}
-              buttonStatus="심부름 완료"
-              underlayColor="#e0e0e0"
-              onPress={() => changeStatus("심부름 완료")}
-            >
-              <BtnText status={status} buttonStatus="심부름 완료">
-                심부름 완료
-              </BtnText>
-            </TouchableCustom>
-          )}
+
+          <TouchableCustom
+            status={status}
+            buttonStatus="심부름 완료"
+            underlayColor="#e0e0e0"
+            onPress={() => changeStatus("심부름 완료")}
+          >
+            <BtnText status={status} buttonStatus="심부름 완료">
+              심부름 완료
+            </BtnText>
+          </TouchableCustom>
         </BtnView>
         {isHelepr ? (
-          <UserHelperHistory />
+          <UserHelperHistory status={status} historyWork={historyWork} />
         ) : (
           <UserCustomerHistory status={status} historyWork={historyWork} />
         )}

@@ -16,12 +16,18 @@ import { useState } from "react";
 import Rating from "./Rating";
 import * as Location from "expo-location";
 import { Text } from "react-native";
+const CardContiainer = styled.View`
+  width: 100%;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: flex-end;
+`;
 const CardBubble = styled.View`
   background-color: white;
   border-radius: 10px;
   margin: 5px;
   width: 50%;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 `;
 const CardTitleWrapper = styled.View`
   background-color: #0fbcf9;
@@ -36,7 +42,7 @@ const CardTitleWrapper = styled.View`
 const CardTitle = styled.Text`
   font-size: 12px;
   font-weight: bold;
-  margin: 4px 0px;
+  margin: 3px 0px;
   margin-left: 6px;
 `;
 const PaddingView = styled.View`
@@ -45,6 +51,7 @@ const PaddingView = styled.View`
 const MainText = styled.Text`
   color: #888;
   font-size: 12px;
+  font-weight: bold;
 `;
 const MainTitle = styled.Text`
   font-size: 18px;
@@ -56,20 +63,13 @@ const Divider = styled.View`
   margin: 8px 0;
 `;
 const MainDescription = styled.Text`
-  font-size: 13px;
+  font-size: 14px;
   color: #555;
   font-weight: bold;
 `;
 const MoneyText = styled(MainDescription)`
   color: #007bff;
-`;
-
-const CardContainer = styled.View`
-  background-color: #e4eaf2;
-  border-radius: 10px;
-  padding: 16px;
-  margin-bottom: 16px;
-  width: 50%;
+  font-weight: bold;
 `;
 
 const ButtonContainer = styled.View`
@@ -92,6 +92,11 @@ const ButtonText = styled.Text`
   font-size: 14px;
   font-weight: bold;
 `;
+const Time = styled.Text`
+  color: gray;
+  margin-bottom: 30px;
+  font-size: 12px;
+`;
 
 const CardChat = ({ data, myName, chatList, receiverName }) => {
   const navigation = useNavigation();
@@ -111,7 +116,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
 
   const [isTimer, isSetTimer] = useRecoilState(isTimerData);
   const messageData = JSON.parse(chatList.chatList[0].message); //workId찾아서 그 workId로 일 보이게
-
+  console.log("time", data.sendTime);
   const onPressWorkComplete = async () => {
     const { granted } = await Location.requestForegroundPermissionsAsync();
     if (!granted) {
@@ -171,7 +176,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
                   body: JSON.stringify(finishCard),
                   headers: { Authorization: `Bearer ${accessToken}` },
                 });
-                navigation.navigate("Chat");
+                navigation.goBack();
               });
           },
         },
@@ -183,119 +188,146 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
     );
   };
   //console.log("카드챗", messageData);
+
   const isCustomer = myId === messageData.customerId;
   return (
-    <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
+    <View>
       {data.message === "Accept work" ? (
-        <CardBubble>
-          <CardTitleWrapper>
-            <CardTitle>심부름 매칭 성공</CardTitle>
-          </CardTitleWrapper>
-          <PaddingView>
-            <MainText>심부름 요청서</MainText>
-            <MainTitle>{messageData.title}</MainTitle>
+        <CardContiainer>
+          <Time>
+            {data.sendTime
+              ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(11, 16)}`
+              : null}
+          </Time>
+          <CardBubble>
+            <CardTitleWrapper>
+              <CardTitle>심부름 매칭 성공</CardTitle>
+            </CardTitleWrapper>
+            <PaddingView>
+              <MainText>심부름 요청서</MainText>
+
+              <MainTitle>{messageData.title}</MainTitle>
+              <Divider />
+              <MainText mb={true}>상세 정보입니다</MainText>
+              <MainDescription>{messageData.context}</MainDescription>
+              <MainDescription>
+                마감시간 : {messageData.deadLineTime}시간
+              </MainDescription>
+              <View style={{ flexDirection: "row" }}>
+                <MainDescription>보상금액: </MainDescription>
+                <MoneyText>{messageData.reward}원</MoneyText>
+              </View>
+              <ButtonContainer>
+                <ActionButton
+                  onPress={isCustomer ? onPressView : onPressWorkComplete}
+                >
+                  <ButtonText>
+                    {isCustomer ? "진행상황 보기" : "심부름 완료하기"}
+                  </ButtonText>
+                </ActionButton>
+              </ButtonContainer>
+            </PaddingView>
             <Divider />
-            <MainText mb={true}>상세 정보입니다</MainText>
-            <MainDescription>{messageData.context}</MainDescription>
-            <MainDescription>
-              마감시간 : {messageData.deadLineTime}시간
-            </MainDescription>
-            <View style={{ flexDirection: "row" }}>
-              <MainDescription>보상금액: </MainDescription>
-              <MoneyText>{messageData.reward}원</MoneyText>
-            </View>
-            <ButtonContainer>
-              <ActionButton
-                onPress={isCustomer ? onPressView : onPressWorkComplete}
-              >
-                <ButtonText>
-                  {isCustomer ? "진행상황 보기" : "심부름 완료하기"}
-                </ButtonText>
-              </ActionButton>
-            </ButtonContainer>
-          </PaddingView>
-          <Divider />
-        </CardBubble>
+          </CardBubble>
+        </CardContiainer>
       ) : data.message === "Complete work" ? (
         myId !== messageData.customerId ? (
-          <CardBubble>
-            <CardTitleWrapper>
-              <CardTitle>심부름 완료</CardTitle>
-            </CardTitleWrapper>
-            <PaddingView>
-              <MainText>심부름 요청서</MainText>
-              <MainTitle>{messageData.title}</MainTitle>
-              <Divider />
-              <MainText mb={true}>상세 정보입니다</MainText>
-              <MainDescription>{messageData.context}</MainDescription>
-              <MainDescription>
-                마감시간 : {messageData.deadLineTime}시간
-              </MainDescription>
-              <View style={{ flexDirection: "row" }}>
-                <MainDescription>보상금액: </MainDescription>
-                <MoneyText>{messageData.reward}원</MoneyText>
-              </View>
-              <View>
-                <Text
-                  style={{ color: "#666", marginTop: 10, textAlign: "center" }}
-                >
-                  완료 확인중...
-                </Text>
-              </View>
-            </PaddingView>
-          </CardBubble>
+          <CardContiainer>
+            <Time>
+              {data.sendTime
+                ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(11, 16)}`
+                : null}
+            </Time>
+            <CardBubble>
+              <CardTitleWrapper>
+                <CardTitle>심부름 완료</CardTitle>
+              </CardTitleWrapper>
+              <PaddingView>
+                <MainText>심부름 요청서</MainText>
+                <MainTitle>{messageData.title}</MainTitle>
+                <Divider />
+                <MainText mb={true}>상세 정보입니다</MainText>
+                <MainDescription>{messageData.context}</MainDescription>
+                <MainDescription>
+                  마감시간 : {messageData.deadLineTime}시간
+                </MainDescription>
+                <View style={{ flexDirection: "row" }}>
+                  <MainDescription>보상금액: </MainDescription>
+                  <MoneyText>{messageData.reward}원</MoneyText>
+                </View>
+                <View>
+                  <Text
+                    style={{
+                      color: "#666",
+                      marginTop: 10,
+                      textAlign: "center",
+                    }}
+                  >
+                    완료 확인중...
+                  </Text>
+                </View>
+              </PaddingView>
+            </CardBubble>
+          </CardContiainer>
         ) : (
-          <CardBubble>
-            <CardTitleWrapper>
-              <CardTitle>심부름 완료 확인</CardTitle>
-            </CardTitleWrapper>
-            <PaddingView>
-              <MainText>심부름 요청서</MainText>
-              <MainTitle>{messageData.title}</MainTitle>
-              <Divider />
-              <MainText mb={true}>상세 정보입니다</MainText>
-              <MainDescription>{messageData.context}</MainDescription>
-              <MainDescription>
-                마감시간 : {messageData.deadLineTime}시간
-              </MainDescription>
-              <View style={{ flexDirection: "row" }}>
-                <MainDescription>보상금액: </MainDescription>
-                <MoneyText>{messageData.reward}원</MoneyText>
-              </View>
-              <ButtonContainer>
-                <ActionButton onPress={handleConfrim}>
-                  <ButtonText>확인하기</ButtonText>
-                </ActionButton>
-              </ButtonContainer>
-            </PaddingView>
-          </CardBubble>
+          <CardContiainer>
+            <Time>
+              {data.sendTime
+                ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(11, 16)}`
+                : null}
+            </Time>
+            <CardBubble>
+              <CardTitleWrapper>
+                <CardTitle>심부름 완료 확인</CardTitle>
+              </CardTitleWrapper>
+              <PaddingView>
+                <MainText>심부름 요청서</MainText>
+                <MainTitle>{messageData.title}</MainTitle>
+                <Divider />
+                <MainText mb={true}>상세 정보입니다</MainText>
+                <MainDescription>{messageData.context}</MainDescription>
+                <MainDescription>
+                  마감시간 : {messageData.deadLineTime}시간
+                </MainDescription>
+                <View style={{ flexDirection: "row" }}>
+                  <MainDescription>보상금액: </MainDescription>
+                  <MoneyText>{messageData.reward}원</MoneyText>
+                </View>
+                <ButtonContainer>
+                  <ActionButton onPress={handleConfrim}>
+                    <ButtonText>확인하기</ButtonText>
+                  </ActionButton>
+                </ButtonContainer>
+              </PaddingView>
+            </CardBubble>
+          </CardContiainer>
         )
-      ) : data.message === "Finish Work" ? (
-        <CardContainer>
-          <CardTitle>심부름 종료</CardTitle>
-          <Divider />
-          {
-            myId !== messageData.customerId ? (
-              <ButtonContainer>
-                <ActionButton>
-                  <ButtonText>헬퍼 입장 종료</ButtonText>
-                </ActionButton>
-              </ButtonContainer>
-            ) : null
-            // <ButtonContainer>
-            //   <ActionButton onPress={() => isSetStarRating((cur) => !cur)}>
-            //     <ButtonText>후기 작성</ButtonText>
-            //   </ActionButton>
-            //   <Modal animationType="slide" visible={isStarRating}>
-            //     <Rating
-            //       workId={chatList.workId}
-            //       isSetStarRating={isSetStarRating}
-            //     />
-            //   </Modal>
-            // </ButtonContainer>
-          }
-        </CardContainer>
-      ) : null}
+      ) : // ) : data.message === "Finish Work" ? (
+      //   <CardContainer>
+      //     <CardTitle>심부름 종료</CardTitle>
+      //     <Divider />
+      //     {
+      //       myId !== messageData.customerId ? (
+      //         <ButtonContainer>
+      //           <ActionButton>
+      //             <ButtonText>헬퍼 입장 종료</ButtonText>
+      //           </ActionButton>
+      //         </ButtonContainer>
+      //       ) : null
+      // <ButtonContainer>
+      //   <ActionButton onPress={() => isSetStarRating((cur) => !cur)}>
+      //     <ButtonText>후기 작성</ButtonText>
+      //   </ActionButton>
+      //   <Modal animationType="slide" visible={isStarRating}>
+      //     <Rating
+      //       workId={chatList.workId}
+      //       isSetStarRating={isSetStarRating}
+      //     />
+      //   </Modal>
+      // </ButtonContainer>
+
+      //</View>/ </CardContainer>
+      null}
     </View>
   );
 };

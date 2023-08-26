@@ -33,7 +33,7 @@ const HelperInform = ({ helperData }) => {
   const navigation = useNavigation();
   const { name, introduce, rating, id, image, distance, avgReactTime } =
     helperData;
-  console.log(avgReactTime);
+  //console.log(rating);
   return (
     <HelperInformation
       onPress={() => {

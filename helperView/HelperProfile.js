@@ -209,7 +209,7 @@ const HelperProfile = ({ route }) => {
         });
         navigation.navigate("Chatting");
       })
-      .catch((error) => console.log(error));
+      .catch((error) => Alert.alert(error.response.data.message));
     setWorkListVisible(!workListVisible);
   };
   const onPressReview = () => {

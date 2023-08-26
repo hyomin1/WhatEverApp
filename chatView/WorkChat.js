@@ -11,7 +11,11 @@ import BackgroundTimer from "react-native-background-timer";
 import React from "react";
 import { Button } from "react-native-web";
 import ErrandRequest from "./ErrandRequest";
-
+const WorkContiainer = styled.View`
+  width: 100%;
+  flex-direction: row;
+  align-items: flex-end;
+`;
 const WorkBubble = styled.View`
   background-color: white;
   border-radius: 10px;
@@ -89,7 +93,7 @@ const WorkBtnText = styled.Text`
 `;
 const Time = styled.Text`
   color: gray;
-  margin-top: 5px;
+  margin-bottom: 10px;
   font-size: 12px;
 `;
 
@@ -213,7 +217,7 @@ const WorkChat = ({
       .catch((error) => Alert.alert(error.response.data.message));
   };
   const customerId = JSON.parse(data.message).customerId;
-  //console.log("일확인", messageData);
+  console.log("일확인", data.sendTime);
   return (
     <View
       style={{
@@ -224,64 +228,94 @@ const WorkChat = ({
     >
       {myId === customerId ? (
         myId === creatorId ? (
+          <WorkContiainer style={{ justifyContent: "flex-end" }}>
+            <Time>
+              {data.sendTime
+                ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(11, 16)}`
+                : null}
+            </Time>
+            <WorkBubble>
+              <WorkTitleWrapper>
+                <WorkTitle>심부름 요청서 도착</WorkTitle>
+              </WorkTitleWrapper>
+              <ErrandRequest messageData={messageData} />
+            </WorkBubble>
+          </WorkContiainer>
+        ) : (
+          <WorkContiainer>
+            <WorkBubble>
+              <WorkTitleWrapper>
+                <WorkTitle>심부름 검증서</WorkTitle>
+              </WorkTitleWrapper>
+              <ErrandRequest messageData={messageData} />
+              <ButtonContainer
+                style={{ justifyContent: "center", padding: 20 }}
+              >
+                <WorkBtn onPress={onPressCheck} accept={true}>
+                  <WorkBtnText>승낙</WorkBtnText>
+                </WorkBtn>
+              </ButtonContainer>
+            </WorkBubble>
+            <Time>
+              {data.sendTime
+                ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(11, 16)}`
+                : null}
+            </Time>
+          </WorkContiainer>
+        )
+      ) : myId !== creatorId ? (
+        <WorkContiainer>
           <WorkBubble>
             <WorkTitleWrapper>
               <WorkTitle>심부름 요청서 도착</WorkTitle>
             </WorkTitleWrapper>
-            <ErrandRequest messageData={messageData} />
+            <PaddingView>
+              <MainText>심부름 요청서</MainText>
+              <MainTitle>{messageData.title}</MainTitle>
+              <Divider />
+              <MainText>상세 정보입니다</MainText>
+              <MainDescription>{messageData.context}</MainDescription>
+              <MainDescription>
+                마감시간 : {messageData.deadLineTime}시간
+              </MainDescription>
+              <View style={{ flexDirection: "row" }}>
+                <MainDescription>보상금액: </MainDescription>
+                <MoneyText>{messageData.reward}원</MoneyText>
+              </View>
+              {messageData.workProceedingStatus === 0 ? (
+                <ButtonContainer>
+                  <WorkBtn accept={true} onPress={() => onPressAccept(index)}>
+                    <WorkBtnText>수락</WorkBtnText>
+                  </WorkBtn>
+                  <Spacer />
+                  <WorkBtn accept={false} onPress={onPressDeny}>
+                    <WorkBtnText>거절</WorkBtnText>
+                  </WorkBtn>
+                </ButtonContainer>
+              ) : null}
+            </PaddingView>
           </WorkBubble>
-        ) : (
+          <Time>
+            {data.sendTime
+              ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(11, 16)}`
+              : null}
+          </Time>
+        </WorkContiainer>
+      ) : (
+        <WorkContiainer>
           <WorkBubble>
             <WorkTitleWrapper>
               <WorkTitle>심부름 검증서</WorkTitle>
             </WorkTitleWrapper>
             <ErrandRequest messageData={messageData} />
-            <ButtonContainer style={{ justifyContent: "center", padding: 20 }}>
-              <WorkBtn onPress={onPressCheck} accept={true}>
-                <WorkBtnText>승낙</WorkBtnText>
-              </WorkBtn>
-            </ButtonContainer>
+            <WorkText style={{ textAlign: "center" }}>검증 대기중...</WorkText>
           </WorkBubble>
-        )
-      ) : myId !== creatorId ? (
-        <WorkBubble>
-          <WorkTitleWrapper>
-            <WorkTitle>심부름 요청서 도착</WorkTitle>
-          </WorkTitleWrapper>
-          <PaddingView>
-            <MainText>심부름 요청서</MainText>
-            <MainTitle>{messageData.title}</MainTitle>
-            <Divider />
-            <MainText>상세 정보입니다</MainText>
-            <MainDescription>{messageData.context}</MainDescription>
-            <MainDescription>
-              마감시간 : {messageData.deadLineTime}시간
-            </MainDescription>
-            <View style={{ flexDirection: "row" }}>
-              <MainDescription>보상금액: </MainDescription>
-              <MoneyText>{messageData.reward}원</MoneyText>
-            </View>
-            {messageData.workProceedingStatus === 0 ? (
-              <ButtonContainer>
-                <WorkBtn accept={true} onPress={() => onPressAccept(index)}>
-                  <WorkBtnText>수락</WorkBtnText>
-                </WorkBtn>
-                <Spacer />
-                <WorkBtn accept={false} onPress={onPressDeny}>
-                  <WorkBtnText>거절</WorkBtnText>
-                </WorkBtn>
-              </ButtonContainer>
-            ) : null}
-          </PaddingView>
-        </WorkBubble>
-      ) : (
-        <WorkBubble>
-          <WorkTitleWrapper>
-            <WorkTitle>심부름 검증서</WorkTitle>
-          </WorkTitleWrapper>
-          <ErrandRequest messageData={messageData} />
-          <WorkText style={{ textAlign: "center" }}>검증 대기중...</WorkText>
-        </WorkBubble>
+          <Time>
+            {data.sendTime
+              ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(11, 16)}`
+              : null}
+          </Time>
+        </WorkContiainer>
       )}
     </View>
   );

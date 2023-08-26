@@ -1,12 +1,11 @@
 import { View } from "react-native";
-import { historyWorkData, myIdData, sendWorkData } from "../atom";
+import { myIdData, sendWorkData } from "../atom";
 import { useState } from "react";
 import Report from "./Report";
 import HistoryInform from "./HistoryInform";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 
-const UserHelperHistory = ({ workComplete, working, beforeWork }) => {
-  const historyWork = useRecoilValue(historyWorkData);
+const UserHelperHistory = ({ status, historyWork }) => {
   const myId = useRecoilValue(myIdData);
 
   const setSendWork = useSetRecoilState(sendWorkData);
@@ -23,7 +22,7 @@ const UserHelperHistory = ({ workComplete, working, beforeWork }) => {
       {historyWork
         ? historyWork?.map((data, index) =>
             myId !== data.customerId &&
-            workComplete &&
+            status &&
             data.finished &&
             !data.proceeding ? (
               <HistoryInform
@@ -38,9 +37,8 @@ const UserHelperHistory = ({ workComplete, working, beforeWork }) => {
       {historyWork
         ? historyWork?.map((data, index) =>
             myId !== data.customerId &&
-            working &&
-            !data.finished &&
-            data.proceeding ? (
+            status === "심부름 전" &&
+            data.workProceedingStatus === 0 ? (
               <HistoryInform
                 key={index}
                 data={data}
@@ -50,12 +48,12 @@ const UserHelperHistory = ({ workComplete, working, beforeWork }) => {
             ) : null
           )
         : null}
-      {/* {historyWork
+      {historyWork
         ? historyWork?.map((data, index) =>
             myId !== data.customerId &&
-            beforeWork &&
-            !data.finished &&
-            !data.proceeding ? (
+            status === "심부름 중" &&
+            (data.workProceedingStatus === 1 ||
+              data.workProceedingStatus === 2) ? (
               <HistoryInform
                 key={index}
                 data={data}
@@ -64,7 +62,21 @@ const UserHelperHistory = ({ workComplete, working, beforeWork }) => {
               />
             ) : null
           )
-        : null} */}
+        : null}
+      {historyWork
+        ? historyWork?.map((data, index) =>
+            myId !== data.customerId &&
+            status === "심부름 완료" &&
+            data.workProceedingStatus === 3 ? (
+              <HistoryInform
+                key={index}
+                data={data}
+                index={index}
+                onPressReport={onPressReport}
+              />
+            ) : null
+          )
+        : null}
 
       <Report
         reportVisible={reportVisible}
