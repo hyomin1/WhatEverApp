@@ -1,19 +1,19 @@
-import { View, Modal, Alert } from "react-native";
+import { View, Alert } from "react-native";
 import axios from "axios";
 import { BASE_URL } from "../api";
 import { client } from "../client";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   accessData,
+  chatRoomListData,
   conversationData,
-  historyWorkData,
   isTimerData,
   myIdData,
+  workStatusCodeData,
 } from "../atom";
 import { useNavigation } from "@react-navigation/native";
 import styled from "styled-components/native";
-import { useState } from "react";
-import Rating from "./Rating";
+
 import * as Location from "expo-location";
 import { Text } from "react-native";
 const CardContiainer = styled.View`
@@ -115,8 +115,10 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
   };
 
   const [isTimer, isSetTimer] = useRecoilState(isTimerData);
-  const messageData = JSON.parse(chatList.chatList[0].message); //workId찾아서 그 workId로 일 보이게
-  console.log("time", data.sendTime);
+  const messageData = JSON.parse(chatList.chatList[0].message);
+  const setChatRoomList = useSetRecoilState(chatRoomListData);
+  const [workStatusCode, setWorkStatusCode] =
+    useRecoilState(workStatusCodeData);
   const onPressWorkComplete = async () => {
     const { granted } = await Location.requestForegroundPermissionsAsync();
     if (!granted) {
@@ -131,12 +133,15 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
         latitude,
         longitude,
       })
-      .then((res) => {
+      .then(({ data }) => {
         client.publish({
           destination: `/pub/card/${conversation._id}`,
           body: JSON.stringify(completeCard),
           headers: { Authorization: `Bearer ${accessToken}` },
         });
+        axios.post(`${BASE_URL}/api/fcm/${conversation._id}`).then();
+
+        setWorkStatusCode(data.workProceedingStatus);
       })
       .catch((error) => {
         Alert.alert(error.response.data.message);
@@ -176,7 +181,15 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
                   body: JSON.stringify(finishCard),
                   headers: { Authorization: `Bearer ${accessToken}` },
                 });
-                navigation.goBack();
+                axios.post(`${BASE_URL}/api/fcm/${conversation._id}`).then();
+                axios.get(`${BASE_URL}/api/conversations`).then(({ data }) => {
+                  data.sort(
+                    (a, b) => new Date(b.updateAt) - new Date(a.updateAt)
+                  );
+                  console.log("end", data.length);
+                  setChatRoomList(data);
+                  navigation.goBack();
+                });
               });
           },
         },
@@ -187,7 +200,6 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
       ]
     );
   };
-  //console.log("카드챗", messageData);
 
   const isCustomer = myId === messageData.customerId;
   return (
@@ -217,15 +229,17 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
                 <MainDescription>보상금액: </MainDescription>
                 <MoneyText>{messageData.reward}원</MoneyText>
               </View>
-              <ButtonContainer>
-                <ActionButton
-                  onPress={isCustomer ? onPressView : onPressWorkComplete}
-                >
-                  <ButtonText>
-                    {isCustomer ? "진행상황 보기" : "심부름 완료하기"}
-                  </ButtonText>
-                </ActionButton>
-              </ButtonContainer>
+              {workStatusCode === 1 ? (
+                <ButtonContainer>
+                  <ActionButton
+                    onPress={isCustomer ? onPressView : onPressWorkComplete}
+                  >
+                    <ButtonText>
+                      {isCustomer ? "진행상황 보기" : "심부름 완료하기"}
+                    </ButtonText>
+                  </ActionButton>
+                </ButtonContainer>
+              ) : null}
             </PaddingView>
             <Divider />
           </CardBubble>

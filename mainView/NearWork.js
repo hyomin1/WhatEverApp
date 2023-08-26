@@ -37,6 +37,9 @@ const WorkInformation = styled.Pressable`
   background-color: #ffffff;
   border-radius: 10px;
   box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 const WorkTitle = styled.Text`
@@ -49,6 +52,20 @@ const WorkSubtitle = styled.Text`
   font-size: 14px;
   color: #999999;
   margin-top: 5px;
+`;
+const ButtonContainer = styled.View``;
+const Button = styled.TouchableOpacity`
+  background-color: ${({ bgColor }) => bgColor || "#1e90ff"};
+  border-radius: 8px;
+  padding: 12px 20px;
+  margin-top: 20px;
+`;
+
+const ButtonText = styled.Text`
+  font-size: 16px;
+  font-weight: 600;
+  color: ${({ textColor }) => textColor || "#ffffff"};
+  text-align: center;
 `;
 
 const WorkDetail = styled.View`
@@ -118,7 +135,7 @@ const NearWork = ({ nearWork }) => {
       .catch((error) => console.log("1", error.response.data.message));
     // 진행 요청 로직
   };
-
+  //console.log(nearWork);
   return (
     <ScrollView>
       {nearWork && nearWork.length > 0 ? (
@@ -126,9 +143,27 @@ const NearWork = ({ nearWork }) => {
           !data.finished ? (
             <View key={index}>
               <WorkInformation onPress={() => onPressWork(data)} key={index}>
-                <WorkTitle>{data.title}</WorkTitle>
-                <WorkSubtitle>작성자: {data.author}</WorkSubtitle>
-                <WorkSubtitle>작성일: {data.date}</WorkSubtitle>
+                <View>
+                  <WorkTitle>{data.title}</WorkTitle>
+                  <WorkSubtitle>마감기한 {data.date}</WorkSubtitle>
+                </View>
+
+                {/* 유저 정보보기 버튼 */}
+                <ButtonContainer>
+                  <Button
+                    bgColor="#4CAF50"
+                    onPress={() => console.log("유저 정보 보기")}
+                  >
+                    <ButtonText textColor="#ffffff">유저 정보보기</ButtonText>
+                  </Button>
+                  {/* 상세보기 버튼 */}
+                  <Button
+                    bgColor="#1e90ff"
+                    onPress={() => console.log("작업 상세보기")}
+                  >
+                    <ButtonText textColor="#ffffff">심부름 상세보기</ButtonText>
+                  </Button>
+                </ButtonContainer>
               </WorkInformation>
             </View>
           ) : null
@@ -145,33 +180,6 @@ const NearWork = ({ nearWork }) => {
           <Text>주변에 심부름이 없습니다</Text>
         </View>
       )}
-
-      <Modal animationType="slide" visible={visible}>
-        <Wrapper>
-          <HeaderView>
-            <Pressable onPress={() => setVisible(false)}>
-              <MaterialIcons name="cancel" size={24} color="black" />
-            </Pressable>
-            <Title>상세보기</Title>
-            <View />
-          </HeaderView>
-          {selectedWork && (
-            <WorkDetail>
-              <WorkDetailTitle>제목</WorkDetailTitle>
-              <WorkDetailContent>{selectedWork.title}</WorkDetailContent>
-              <WorkDetailTitle>작성자</WorkDetailTitle>
-              <WorkDetailContent>{selectedWork.author}</WorkDetailContent>
-              <WorkDetailTitle>작성일</WorkDetailTitle>
-              <WorkDetailContent>{selectedWork.date}</WorkDetailContent>
-              <WorkDetailTitle>상세 내용</WorkDetailTitle>
-              <WorkDetailContent>{selectedWork.context}</WorkDetailContent>
-              <ProgressButton onPress={() => onPressProgress(selectedWork)}>
-                <ProgressButtonText>진행 요청</ProgressButtonText>
-              </ProgressButton>
-            </WorkDetail>
-          )}
-        </Wrapper>
-      </Modal>
     </ScrollView>
   );
 };

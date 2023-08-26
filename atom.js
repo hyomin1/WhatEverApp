@@ -168,3 +168,7 @@ export const chatCountData = atom({
   key: "chatCount",
   default: null,
 });
+export const workStatusCodeData = atom({
+  key: "workStatusCode",
+  default: null,
+});

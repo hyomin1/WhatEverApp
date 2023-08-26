@@ -1,7 +1,13 @@
 import { Pressable, View, Text } from "react-native";
 import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components/native";
-import { accessData, conversationData, isTimerData, myIdData } from "../atom";
+import {
+  accessData,
+  conversationData,
+  isTimerData,
+  myIdData,
+  workStatusCodeData,
+} from "../atom";
 import axios from "axios";
 import { BASE_URL } from "../api";
 import { client } from "../client";
@@ -109,13 +115,15 @@ const WorkChat = ({
   const myId = useRecoilValue(myIdData);
   const conversation = useRecoilValue(conversationData);
   const accessToken = useRecoilValue(accessData);
+  const [workStatusCode, setWorkStatusCode] =
+    useRecoilState(workStatusCodeData);
   const AcceptCard = {
     message: "Accept work",
     senderName: myName,
     receiverName: receiverName,
   };
 
-  const [isTimer, isSetTimer] = useRecoilState(isTimerData);
+  //const [isTimer, isSetTimer] = useRecoilState(isTimerData);
 
   const intervalId = (id) => {
     BackgroundTimer.setInterval(async () => {
@@ -159,15 +167,17 @@ const WorkChat = ({
             : conversation.participantId,
         finished: work.finished,
       })
-      .then((res) => {
+      .then(({ data }) => {
         client.publish({
           destination: `/pub/card/${conversation._id}`,
           body: JSON.stringify(AcceptCard),
           headers: { Authorization: `Bearer ${accessToken}` },
         });
-
+        axios.post(`${BASE_URL}/api/fcm/${conversation._id}`).then();
+        console.log(data.workProceedingStatus);
         if (work.deadLineTime === 1) {
           intervalId(work.id);
+          setWorkStatusCode(data.workProceedingStatus);
         } else {
           console.log("마감시간 1시간 초과");
         }
@@ -217,7 +227,7 @@ const WorkChat = ({
       .catch((error) => Alert.alert(error.response.data.message));
   };
   const customerId = JSON.parse(data.message).customerId;
-  console.log("일확인", data.sendTime);
+  console.log(workStatusCode);
   return (
     <View
       style={{
@@ -282,7 +292,8 @@ const WorkChat = ({
                 <MainDescription>보상금액: </MainDescription>
                 <MoneyText>{messageData.reward}원</MoneyText>
               </View>
-              {messageData.workProceedingStatus === 0 ? (
+              {
+                //workStatusCode !== 1 && workStatusCode !== 2 ? (
                 <ButtonContainer>
                   <WorkBtn accept={true} onPress={() => onPressAccept(index)}>
                     <WorkBtnText>수락</WorkBtnText>
@@ -292,7 +303,8 @@ const WorkChat = ({
                     <WorkBtnText>거절</WorkBtnText>
                   </WorkBtn>
                 </ButtonContainer>
-              ) : null}
+                // ) : null
+              }
             </PaddingView>
           </WorkBubble>
           <Time>
