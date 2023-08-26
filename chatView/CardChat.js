@@ -151,7 +151,6 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
   };
 
   const onPressView = () => {
-    console.log(messageData.deadLineTime);
     if (messageData.deadLineTime === 1) {
       axios
         .get(`${BASE_URL}/api/location/helperLocation/${messageData.id}`)
@@ -186,7 +185,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
                   data.sort(
                     (a, b) => new Date(b.updateAt) - new Date(a.updateAt)
                   );
-                  console.log("end", data.length);
+
                   setChatRoomList(data);
                   navigation.goBack();
                 });
@@ -229,7 +228,8 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
                 <MainDescription>보상금액: </MainDescription>
                 <MoneyText>{messageData.reward}원</MoneyText>
               </View>
-              {workStatusCode === 1 ? (
+              {
+                //workStatusCode === 1 ? (
                 <ButtonContainer>
                   <ActionButton
                     onPress={isCustomer ? onPressView : onPressWorkComplete}
@@ -239,7 +239,8 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
                     </ButtonText>
                   </ActionButton>
                 </ButtonContainer>
-              ) : null}
+                // ) : null
+              }
             </PaddingView>
             <Divider />
           </CardBubble>

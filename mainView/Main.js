@@ -147,22 +147,27 @@ const Main = ({ navigation: { navigate }, route }) => {
     console.log("Additional details: " + frame.body);
   };
   const subscribeToChatTopic = (client, chatId, setChatRoomList) => {
-    return client.subscribe(`/topic/chat/${chatId}`, function (message) {
-      console.log("대화 진행");
-      const conversationData = JSON.parse(message.body).data;
-      setChatRoomList((prev) => {
-        const updatedConv = prev.map((conv) =>
-          conv._id === conversationData._id ? conversationData : conv
-        );
-        if (!updatedConv.some((conv) => conv._id === conversationData._id))
-          updatedConv.push(conversationData);
-        updatedConv.sort(
-          (a, b) =>
-            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-        );
-        return [...updatedConv];
-      });
-    });
+    const subscription = client.subscribe(
+      `/topic/chat/${chatId}`,
+      function (message) {
+        isSubscribed = true;
+        console.log("새로운 챗방 열기 또는 채팅 보내기");
+        const conversationData = JSON.parse(message.body).data;
+        setChatRoomList((prev) => {
+          const updatedConv = prev.map((conv) =>
+            conv._id === conversationData._id ? conversationData : conv
+          );
+          if (!updatedConv.some((conv) => conv._id === conversationData._id))
+            //아이디 비교했을때 일치하는게 없으면 새로운 채팅방추가
+            updatedConv.push(conversationData);
+          updatedConv.sort(
+            (a, b) =>
+              new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+          );
+          return [...updatedConv];
+        });
+      }
+    );
   };
 
   useEffect(() => {
@@ -170,23 +175,27 @@ const Main = ({ navigation: { navigate }, route }) => {
     getLocation();
 
     client.connectHeaders.Authorization = `${grant}` + " " + `${access}`;
-    console.log("00");
+
     client.activate();
-    console.log("11");
+    if (subscription) {
+      subscription.unsubscribe();
+    }
+    let subscription;
     setTimeout(() => {
       console.log("연결됨");
       try {
-        const subscription = client.subscribe(
+        console.log("로그인 웹소켓");
+        subscription = client.subscribe(
           `/queue/${myId}`,
+          //처음 채팅이 열렸을때 콜백 시작
           function (message) {
             const parsedMessage = JSON.parse(message.body);
-            console.log("로그인 웹소켓");
+
             if (parsedMessage.messageType === "OpenChat") {
               console.log("오픈챗");
               const chatId =
-                parsedMessage.data[parsedMessage.data.length - 1]._id;
-
-              const sub = subscribeToChatTopic(client, chatId, setChatRoomList);
+                parsedMessage.data[parsedMessage.data.length - 1]._id; //새로운 채팅방 아이디 찾기
+              subscribeToChatTopic(client, chatId, setChatRoomList);
             } else if (parsedMessage.messageType === "SetConvSeenCount") {
               setChatCount(parsedMessage.data);
               console.log("개수", parsedMessage.data);
@@ -194,25 +203,27 @@ const Main = ({ navigation: { navigate }, route }) => {
           },
           headers
         );
+        axios.get(`${BASE_URL}/api/conversations`).then(({ data }) => {
+          data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+          setChatRoomList(data);
+          const subscribedChatIds = new Set();
+          data.forEach((chat) => {
+            if (!subscribedChatIds.has(chat._id)) {
+              subscribeToChatTopic(client, chat._id, setChatRoomList);
+              subscribedChatIds.add(chat._id);
+            }
+          });
+        });
       } catch (error) {
         console.error("웹소켓 에러", error);
       }
     }, 1000);
-    setTimeout(() => {
-      //로그인 할때 받아옴
-      try {
-        axios.get(`${BASE_URL}/api/conversations`).then(({ data }) => {
-          data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-          setChatRoomList(data);
-          data.forEach((chat) => {
-            const sub = subscribeToChatTopic(client, chat._id, setChatRoomList);
-          });
-        });
-      } catch (error) {
-        console.error("웹소켓 에러2:", error);
+    return () => {
+      if (subscription) {
+        subscription.unsubscribe();
+        client.deactivate();
       }
-    }, 1000);
-    //actviateClinet();
+    };
   }, []);
 
   return (

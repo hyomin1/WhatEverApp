@@ -19,20 +19,36 @@ const SelectView = styled.View`
   margin-bottom: 10px;
 `;
 const SelectBtn = styled.TouchableOpacity`
-  background-color: white;
   flex: 1;
   justify-content: center;
   align-items: center;
   height: 40px;
-  border-bottom-width: 2px;
-  border: 0.8px solid lightgray;
+  border-color: black;
+  background-color: #0fbcf9;
+  border-radius: 2px;
+  border-color: white;
+  border-width: 1px;
 `;
 const SelectText = styled.Text`
-  color: black;
+  color: white;
+  font-weight: bold;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
 `;
 const TouchableCustom = styled.TouchableHighlight`
   //padding: 5px 10px;
   border-radius: 10px;
+`;
+const StatusButton = styled.TouchableHighlight`
+  border-radius: 10px;
+  padding: 10px 20px;
+  background-color: ${(props) =>
+    props.isSelected ? "#0fbcf9" : "transparent"};
+  border: 2px solid #0fbcf9;
+`;
+
+const StatusButtonText = styled.Text`
+  color: ${(props) => (props.isSelected ? "white" : "#0fbcf9")};
+  font-weight: bold;
 `;
 const BtnView = styled.View`
   flex-direction: row;
@@ -72,7 +88,6 @@ const UserHistory = () => {
       <SelectView>
         <SelectBtn
           style={{
-            borderBottomColor: "black",
             borderBottomWidth: isHelepr ? 2 : 0,
           }}
           onPress={onPressHelper}
@@ -81,7 +96,6 @@ const UserHistory = () => {
         </SelectBtn>
         <SelectBtn
           style={{
-            borderBottomColor: "black",
             borderBottomWidth: !isHelepr ? 2 : 0,
           }}
           onPress={onPressCustomer}
@@ -92,37 +106,34 @@ const UserHistory = () => {
 
       <View style={{ paddingHorizontal: 20 }}>
         <BtnView>
-          <TouchableCustom
-            status={status}
-            buttonStatus="심부름 전"
+          <StatusButton
+            isSelected={status === "심부름 전"}
             underlayColor="#e0e0e0"
             onPress={() => changeStatus("심부름 전")}
           >
-            <BtnText status={status} buttonStatus="심부름 전">
+            <StatusButtonText isSelected={status === "심부름 전"}>
               심부름 전
-            </BtnText>
-          </TouchableCustom>
-          <TouchableCustom
-            status={status}
-            buttonStatus="심부름 중"
+            </StatusButtonText>
+          </StatusButton>
+          <StatusButton
+            isSelected={status === "심부름 중"}
             underlayColor="#e0e0e0"
             onPress={() => changeStatus("심부름 중")}
           >
-            <BtnText status={status} buttonStatus="심부름 중">
+            <StatusButtonText isSelected={status === "심부름 중"}>
               심부름 중
-            </BtnText>
-          </TouchableCustom>
+            </StatusButtonText>
+          </StatusButton>
 
-          <TouchableCustom
-            status={status}
-            buttonStatus="심부름 완료"
+          <StatusButton
+            isSelected={status === "심부름 완료"}
             underlayColor="#e0e0e0"
             onPress={() => changeStatus("심부름 완료")}
           >
-            <BtnText status={status} buttonStatus="심부름 완료">
+            <StatusButtonText isSelected={status === "심부름 완료"}>
               심부름 완료
-            </BtnText>
-          </TouchableCustom>
+            </StatusButtonText>
+          </StatusButton>
         </BtnView>
         {isHelepr ? (
           <UserHelperHistory status={status} historyWork={historyWork} />

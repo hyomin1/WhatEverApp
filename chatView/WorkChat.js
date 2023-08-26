@@ -149,7 +149,7 @@ const WorkChat = ({
   const onPressAccept = (index) => {
     //헬퍼가 심부름 수락시
     const work = JSON.parse(chatList.chatList[index].message);
-    console.log(work.id);
+
     axios
       .put(`${BASE_URL}/api/work/matching/${chatList._id}`, {
         id: work.id,
@@ -174,7 +174,7 @@ const WorkChat = ({
           headers: { Authorization: `Bearer ${accessToken}` },
         });
         axios.post(`${BASE_URL}/api/fcm/${conversation._id}`).then();
-        console.log(data.workProceedingStatus);
+        //console.log(data.workProceedingStatus);
         if (work.deadLineTime === 1) {
           intervalId(work.id);
           setWorkStatusCode(data.workProceedingStatus);
@@ -227,7 +227,7 @@ const WorkChat = ({
       .catch((error) => Alert.alert(error.response.data.message));
   };
   const customerId = JSON.parse(data.message).customerId;
-  console.log(workStatusCode);
+
   return (
     <View
       style={{
