@@ -1,7 +1,18 @@
 import React from "react";
-import { Modal, TouchableOpacity } from "react-native";
+import { Modal, TouchableOpacity, Alert } from "react-native";
 import styled from "styled-components/native";
 import { AntDesign } from "@expo/vector-icons";
+import axios from "axios";
+import { BASE_URL } from "../api";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import {
+  accessData,
+  chatListData,
+  chatRoomListData,
+  conversationData,
+} from "../atom";
+import { client } from "../client";
+import { useNavigation } from "@react-navigation/native";
 
 const Container = styled.View`
   flex: 1;
@@ -62,12 +73,35 @@ const ProgressButtonText = styled.Text`
   color: #ffffff;
 `;
 
-const DetailWork = ({
-  workVisible,
-  setWorkVisible,
-  selectedWork,
-  onPressProgress,
-}) => {
+const DetailWork = ({ workVisible, setWorkVisible, selectedWork }) => {
+  const setConversation = useSetRecoilState(conversationData);
+  const setChatRoomList = useSetRecoilState(chatRoomListData);
+  const setChatList = useSetRecoilState(chatListData);
+  const accessToken = useRecoilValue(accessData);
+  const navigation = useNavigation();
+  const onPressProgress = async (selectedWork) => {
+    const { customerId } = selectedWork;
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/api/conversation/${customerId}`,
+        {
+          id: customerId,
+        }
+      );
+      setConversation(res.data);
+      setChatRoomList((prev) => [...prev, res.data]);
+      setChatList(res.data);
+      client.publish({
+        destination: `/pub/work/${res.data._id}`,
+        body: JSON.stringify(selectedWork),
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      navigation.navigate("Chatting");
+    } catch (error) {
+      console.log("진행요청", error);
+      Alert.alert(error.response.data.message);
+    }
+  };
   return (
     <Modal animationType="slide" visible={workVisible} transparent>
       <Container>

@@ -144,7 +144,7 @@ const WorkChat = ({
           //console.log("위치데이터", res.data);
         })
         .catch((error) => console.log(error));
-    }, 10000); //isFinish true면 타이머 멈추고 아닐경우 타이머 하게하기
+    }, 10000);
   };
   const onPressAccept = (index) => {
     //헬퍼가 심부름 수락시
@@ -220,8 +220,8 @@ const WorkChat = ({
         });
 
         if (work.deadLineTime === 1) {
-          intervalId(work.id);
-        } else {
+          //마감시간 1시간일 경우
+          intervalId(work.id); //서버에 현재위치 계속 보내줌
         }
       })
       .catch((error) => Alert.alert(error.response.data.message));

@@ -38,6 +38,11 @@ const WorkSubtitle = styled.Text`
   color: #999999;
   margin-top: 5px;
 `;
+const HighlightedAmout = styled.Text`
+  font-size: 16px;
+  color: #ffa500;
+  font-weight: bold;
+`;
 const ButtonContainer = styled.View``;
 const Button = styled.TouchableOpacity`
   background-color: ${({ bgColor }) => bgColor || "#1e90ff"};
@@ -113,7 +118,7 @@ const NearWork = ({ nearWork }) => {
                 <View>
                   <WorkTitle>{data.title}</WorkTitle>
                   <WorkSubtitle>마감기한 {data.date}</WorkSubtitle>
-                  <WorkSubtitle>금액 {data.reward}원</WorkSubtitle>
+                  <HighlightedAmout>{data.reward}원</HighlightedAmout>
                 </View>
 
                 {/* 유저 정보보기 버튼 */}

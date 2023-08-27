@@ -2,11 +2,15 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Main from "../mainView/Main";
 import History from "../historyView/History";
 import Chat from "../chatView/Chat";
-import { Ionicons } from "@expo/vector-icons";
-import { AntDesign } from "@expo/vector-icons";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Octicons } from "@expo/vector-icons";
-import { FontAwesome } from "@expo/vector-icons";
+import {
+  AntDesign,
+  MaterialCommunityIcons,
+  Octicons,
+  Entypo,
+  Ionicons,
+  Feather,
+} from "@expo/vector-icons";
+
 import axios from "axios";
 import { View, Text } from "react-native";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
@@ -142,8 +146,8 @@ const Tabs = ({ navigation: { navigate } }) => {
           headerRight: () => {
             return (
               <TouchableOpacity onPress={onPressAlarm}>
-                <FontAwesome
-                  name="bell-o"
+                <Feather
+                  name="bell"
                   style={{ marginRight: 11 }}
                   size={24}
                   color="black"
