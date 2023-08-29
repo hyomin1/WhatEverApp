@@ -172,3 +172,11 @@ export const workStatusCodeData = atom({
   key: "workStatusCode",
   default: null,
 });
+export const alarmData = atom({
+  key: "alarm",
+  default: null,
+});
+export const alarmViewData = atom({
+  key: "alarmView",
+  default: false,
+});

@@ -147,9 +147,10 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
         Alert.alert(error.response.data.message);
       });
 
-    isSetTimer(false);
+ 
   };
 
+  //진행상황 보기
   const onPressView = () => {
     if (messageData.deadLineTime === 1) {
       axios
@@ -160,9 +161,10 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
           });
         });
     } else {
+      //여기에서 한시간 초과되는 심부름 점 하나 찍어서 보여줌
       console.log("마감시간 한시간 초과");
     }
-    //진행상황 보기
+    
   };
   const handleConfrim = () => {
     Alert.alert(

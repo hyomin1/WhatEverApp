@@ -29,6 +29,7 @@ import RequestBtn from "./RequestBtn";
 import SearchBar from "./SearchBar";
 import NearWork from "./NearWork";
 import { parse } from "react-native-svg";
+import AlarmView from "./AlarmView";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
@@ -287,6 +288,7 @@ const Main = ({ navigation: { navigate }, route }) => {
                   color="black"
                 />
               </HelperView>
+              <AlarmView />
             </View>
           ) : (
             <NearWork nearWork={nearWork} />

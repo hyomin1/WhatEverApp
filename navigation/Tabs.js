@@ -6,16 +6,15 @@ import {
   AntDesign,
   MaterialCommunityIcons,
   Octicons,
-  Entypo,
   Ionicons,
   Feather,
 } from "@expo/vector-icons";
-
 import axios from "axios";
-import { View, Text } from "react-native";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   adminData,
+  alarmData,
+  alarmViewData,
   chatCountData,
   distanceData,
   historyWorkData,
@@ -71,13 +70,21 @@ const Tabs = ({ navigation: { navigate } }) => {
 
   const isAdmin = useRecoilValue(adminData);
   const chatCount = useRecoilValue(chatCountData);
+  const setAlarm = useSetRecoilState(alarmData);
 
-  const onPressAlarm = () => {
+  const [visible, setVisible] = useRecoilState(alarmViewData);
+
+  const onPressAlarm = async () => {
     //알람데이터 확인
-    axios
-      .get(`${BASE_URL}/api/alarm`)
-      .then((res) => console.log("alaram", res.data))
-      .catch((error) => Alert.alert(error.response.data.message));
+    try {
+      const res = await axios.get(`${BASE_URL}/api/alarm`);
+      //console.log(res.data);
+      setAlarm(res.data);
+      setVisible(true);
+    } catch (error) {
+      console.log(error);
+      //Alert.alert(error.response.data.message);
+    }
   };
 
   return (

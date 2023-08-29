@@ -94,7 +94,18 @@ const Stack = ({ navigation }) => {
           },
         }}
       />
-      <NativeStack.Screen name="HelperLocation" component={HelperLocation} />
+      <NativeStack.Screen
+        name="HelperLocation"
+        component={HelperLocation}
+        options={{
+          headerTitle: "헬퍼 위치",
+          headerTitleAlign: "center",
+          headerTitleStyle: {
+            fontWeight: "800",
+            fontSize: 18,
+          },
+        }}
+      />
       <NativeStack.Screen name="StackHistory" component={History} />
     </NativeStack.Navigator>
   );

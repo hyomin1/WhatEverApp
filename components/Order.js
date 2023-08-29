@@ -18,6 +18,7 @@ import * as Location from "expo-location";
 import axios from "axios";
 import { BASE_URL } from "../api";
 import IMP from "iamport-react-native";
+import { useNavigation } from "@react-navigation/native";
 
 const Container = styled.View`
   flex: 1;
@@ -108,16 +109,6 @@ const AddressInputButtonText = styled.Text`
   color: #004080;
   margin-left: 5px;
 `;
-
-// const DropdownContainer = styled.View`
-//   width: 200px;
-//   height: 40px;
-//   border: 1px solid lightgray;
-//   border-radius: 5px;
-//   margin-top: 10px;
-//   background-color: #f5f5f5;
-//   justify-content: center;
-// `;
 
 const Order = ({
   orderVisible,
@@ -241,12 +232,19 @@ const Order = ({
     buyer_addr: "서울시 강남구 신사동 661-16",
     buyer_postcode: "06018",
     app_scheme: "example",
+    pg_api_key: "ItEQKi3rY7uvDS8l",
+
     // [Deprecated v1.0.3]: m_redirect_url
   };
   const [payVisible, setPayVisible] = useState(false);
+
   const onPayment = (res) => {
     setPayVisible(true);
     console.log(res);
+    if (res.imp_success) {
+      setPayVisible(false);
+      //navigation.replace("Main");
+    }
     // IMP.request_pay(data, () => {
     //   console.log("g?");
     // });
