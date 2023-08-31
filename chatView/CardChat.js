@@ -9,6 +9,7 @@ import {
   conversationData,
   isTimerData,
   myIdData,
+  workProceedingStatusData,
   workStatusCodeData,
 } from "../atom";
 import { useNavigation } from "@react-navigation/native";
@@ -101,6 +102,7 @@ const Time = styled.Text`
 const CardChat = ({ data, myName, chatList, receiverName }) => {
   const navigation = useNavigation();
   const conversation = useRecoilValue(conversationData);
+
   const myId = useRecoilValue(myIdData);
   const accessToken = useRecoilValue(accessData);
   const completeCard = {
@@ -117,8 +119,9 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
   const [isTimer, isSetTimer] = useRecoilState(isTimerData);
   const messageData = JSON.parse(chatList.chatList[0].message);
   const setChatRoomList = useSetRecoilState(chatRoomListData);
-  const [workStatusCode, setWorkStatusCode] =
-    useRecoilState(workStatusCodeData);
+  const [workProceedingStatus, setWorkProceedingStatus] = useRecoilState(
+    workProceedingStatusData
+  );
   const onPressWorkComplete = async () => {
     const { granted } = await Location.requestForegroundPermissionsAsync();
     if (!granted) {
@@ -141,13 +144,11 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
         });
         axios.post(`${BASE_URL}/api/fcm/${conversation._id}`).then();
 
-        setWorkStatusCode(data.workProceedingStatus);
+        setWorkProceedingStatus(data.workProceedingStatus);
       })
       .catch((error) => {
         Alert.alert(error.response.data.message);
       });
-
- 
   };
 
   //진행상황 보기
@@ -164,7 +165,6 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
       //여기에서 한시간 초과되는 심부름 점 하나 찍어서 보여줌
       console.log("마감시간 한시간 초과");
     }
-    
   };
   const handleConfrim = () => {
     Alert.alert(
@@ -230,8 +230,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
                 <MainDescription>보상금액: </MainDescription>
                 <MoneyText>{messageData.reward}원</MoneyText>
               </View>
-              {
-                //workStatusCode === 1 ? (
+              {workProceedingStatus === 1 ? (
                 <ButtonContainer>
                   <ActionButton
                     onPress={isCustomer ? onPressView : onPressWorkComplete}
@@ -241,8 +240,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
                     </ButtonText>
                   </ActionButton>
                 </ButtonContainer>
-                // ) : null
-              }
+              ) : null}
             </PaddingView>
             <Divider />
           </CardBubble>

@@ -11,6 +11,7 @@ import {
   receiverNameData,
   accessData,
   grantData,
+  workProceedingStatusData,
 } from "../atom";
 import { client } from "../client";
 import axios from "axios";
@@ -62,7 +63,7 @@ const SendIcon = styled(Ionicons)`
 
 const Chatting = () => {
   const [textInput, setTextInput] = useState("");
-  const conversation = useRecoilValue(conversationData);
+
   const myId = useRecoilValue(myIdData);
   const [myName, setMyName] = useState("");
   const [receiverName, setReceiverName] = useRecoilState(receiverNameData);
@@ -83,12 +84,12 @@ const Chatting = () => {
     } else {
       setTextInput("");
       client.publish({
-        destination: `/pub/chat/${conversation._id}`,
+        destination: `/pub/chat/${chatList._id}`,
         body: JSON.stringify(chat),
         headers: { Authorization: `${grant} ${access}` },
       });
       axios
-        .post(`http://10.0.2.2:8080/api/fcm/${conversation._id}`)
+        .post(`http://10.0.2.2:8080/api/fcm/${chatList._id}`)
         .then((res) => {})
         .catch((error) => console.log("fcmerr", error));
     }
@@ -99,12 +100,12 @@ const Chatting = () => {
   };
 
   useEffect(() => {
-    if (myId === conversation.creatorId) {
-      setMyName(conversation.creatorName);
-      setReceiverName(conversation.participatorName);
+    if (myId === chatList.creatorId) {
+      setMyName(chatList.creatorName);
+      setReceiverName(chatList.participatorName);
     } else {
-      setMyName(conversation.participatorName);
-      setReceiverName(conversation.creatorName);
+      setMyName(chatList.participatorName);
+      setReceiverName(chatList.creatorName);
     }
   }, []);
 
@@ -116,12 +117,12 @@ const Chatting = () => {
       setChatList(updatedChatList);
     }
   }, [chatRoomList]);
-
+  const chatListItems = chatList?.chatList || [];
   return (
     <Container>
       <ScrollView>
         <ChatView>
-          {chatList?.chatList.map((data, index) =>
+          {chatListItems.map((data, index) =>
             data.messageType === "Work" ? (
               <WorkChat
                 key={index}

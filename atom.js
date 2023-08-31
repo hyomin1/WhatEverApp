@@ -140,6 +140,10 @@ export const historyWorkData = atom({
   key: "historyWork",
   default: null,
 });
+export const historyReportData = atom({
+  key: "historyReport",
+  default: null,
+});
 
 export const fcmTokenData = atom({
   key: "fcmToken",
@@ -168,6 +172,10 @@ export const chatCountData = atom({
   key: "chatCount",
   default: null,
 });
+export const alarmCountData = atom({
+  key: "alarmCount",
+  default: null,
+});
 export const workStatusCodeData = atom({
   key: "workStatusCode",
   default: null,
@@ -179,4 +187,8 @@ export const alarmData = atom({
 export const alarmViewData = atom({
   key: "alarmView",
   default: false,
+});
+export const workProceedingStatusData = atom({
+  key: "workProceedingStatus",
+  default: null,
 });

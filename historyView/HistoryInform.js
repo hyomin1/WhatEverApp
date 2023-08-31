@@ -27,9 +27,6 @@ const HistoryInformation = styled.View`
   background-color: white;
   border-radius: 20px;
   padding: 20px 20px;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
 `;
 
 const HistoryText = styled.Text`
@@ -41,6 +38,28 @@ const HistoryText = styled.Text`
 const HistoryDescription = styled.Text`
   font-size: 14px;
   color: #888888;
+  margin-bottom: 10px;
+`;
+
+const ActionButtonsContainer = styled.View`
+  flex-direction: row;
+  justify-content: space-around;
+  margin: 10px 0px;
+`;
+
+const ActionButton = styled.TouchableOpacity`
+  padding: 8px 15px;
+  background-color: ${(props) => props.backgroundColor || "#3498db"};
+  border-radius: 5px;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const ButtonText = styled.Text`
+  color: ${(props) => props.color || "black"};
+  font-size: 18px;
+  font-weight: bold;
+  margin-left: 5px;
 `;
 
 const HistoryInform = ({ data, index, onPressReport, isReport }) => {
@@ -79,37 +98,28 @@ const HistoryInform = ({ data, index, onPressReport, isReport }) => {
         </HistoryDescription>
       </View>
       {isReport ? (
-        <View style={{ flexDirection: "row", marginBottom: 10 }}>
-          <TouchableOpacity
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              marginRight: 10,
+        <ActionButtonsContainer>
+          <ActionButton
+            onPress={() => {
+              isSetStarRating((cur) => !cur);
             }}
+            backgroundColor="#4caf50"
+          >
+            <ButtonText color="white">리뷰작성</ButtonText>
+          </ActionButton>
+          <ActionButton
+            backgroundColor="red"
             onPress={() => {
               onPressReport(index);
             }}
           >
-            <Text style={{ color: "red", fontSize: 18, fontWeight: "600" }}>
-              신고
-            </Text>
-            <Ionicons name="alert-circle" size={28} color="red" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              isSetStarRating((cur) => !cur);
-            }}
-            style={{ flexDirection: "row", alignItems: "center" }}
-          >
-            <Text style={{ color: "blue", fontSize: 18, fontWeight: "600" }}>
-              후기 작성
-            </Text>
-            <Ionicons name="create" size={28} color="blue" />
-          </TouchableOpacity>
+            <ButtonText color="white">신고하기</ButtonText>
+          </ActionButton>
+
           <Modal animationType="slide" visible={isStarRating}>
             <Rating workId={data.id} isSetStarRating={isSetStarRating} />
           </Modal>
-        </View>
+        </ActionButtonsContainer>
       ) : null}
       {!isReport ? (
         <View>

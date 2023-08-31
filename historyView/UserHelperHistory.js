@@ -22,35 +22,6 @@ const UserHelperHistory = ({ status, historyWork }) => {
       {historyWork
         ? historyWork?.map((data, index) =>
             myId !== data.customerId &&
-            status &&
-            data.finished &&
-            !data.proceeding ? (
-              <HistoryInform
-                key={index}
-                data={data}
-                index={index}
-                onPressReport={onPressReport}
-              />
-            ) : null
-          )
-        : null}
-      {historyWork
-        ? historyWork?.map((data, index) =>
-            myId !== data.customerId &&
-            status === "심부름 전" &&
-            data.workProceedingStatus === 0 ? (
-              <HistoryInform
-                key={index}
-                data={data}
-                index={index}
-                onPressReport={onPressReport}
-              />
-            ) : null
-          )
-        : null}
-      {historyWork
-        ? historyWork?.map((data, index) =>
-            myId !== data.customerId &&
             status === "심부름 중" &&
             (data.workProceedingStatus === 1 ||
               data.workProceedingStatus === 2) ? (

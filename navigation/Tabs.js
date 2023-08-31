@@ -13,10 +13,12 @@ import axios from "axios";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   adminData,
+  alarmCountData,
   alarmData,
   alarmViewData,
   chatCountData,
   distanceData,
+  historyReportData,
   historyWorkData,
   IntroduceData,
   myImgData,
@@ -73,17 +75,19 @@ const Tabs = ({ navigation: { navigate } }) => {
   const setAlarm = useSetRecoilState(alarmData);
 
   const [visible, setVisible] = useRecoilState(alarmViewData);
+  const [alarmCount, setAlarmCount] = useRecoilState(alarmCountData);
 
   const onPressAlarm = async () => {
     //알람데이터 확인
     try {
       const res = await axios.get(`${BASE_URL}/api/alarm`);
-      //console.log(res.data);
       setAlarm(res.data);
+      setAlarmCount(0); //알람 누르면 읽은거니까 0으로 만들기
+
       setVisible(true);
     } catch (error) {
       console.log(error);
-      //Alert.alert(error.response.data.message);
+      Alert.alert(error.response.data.message);
     }
   };
 
@@ -152,37 +156,40 @@ const Tabs = ({ navigation: { navigate } }) => {
           },
           headerRight: () => {
             return (
-              <TouchableOpacity onPress={onPressAlarm}>
-                <Feather
-                  name="bell"
-                  style={{ marginRight: 11 }}
-                  size={24}
-                  color="black"
-                />
-              </TouchableOpacity>
+              <BadgeContainer>
+                <TouchableOpacity
+                  onPress={() => {
+                    onPressAlarm();
+                  }}
+                >
+                  <Feather
+                    name="bell"
+                    style={{ marginRight: 11 }}
+                    size={24}
+                    color="black"
+                  />
+                </TouchableOpacity>
+                {alarmCount !== null && alarmCount > 0 ? (
+                  <Badge style={{ right: 2, top: -7 }}>
+                    <BadgeText>{alarmCount}</BadgeText>
+                  </Badge>
+                ) : null}
+              </BadgeContainer>
             );
           },
         }}
       />
       <Tab.Screen
-        name={isAdmin ? "신고내역" : "이용내역"}
+        name={"이용내역"}
         component={History}
         listeners={({ navigation }) => ({
-          tabPress: (e) => {
-            isAdmin
-              ? axios
-                  .get(`${BASE_URL}/admin/reportList`)
-                  .then(({ data }) => {
-                    setReportList(data);
-                    console.log(data);
-                  })
-                  .catch((error) => console.log("이용내역admin", error))
-              : axios
-                  .get(`${BASE_URL}/api/workList/all`)
-                  .then(({ data }) => {
-                    setHistoryWork(data);
-                  })
-                  .catch((error) => console.log("유저 이용내역에러", error));
+          tabPress: async (e) => {
+            try {
+              const res1 = await axios.get(`${BASE_URL}/api/workList/all`);
+              setHistoryWork(res1.data);
+            } catch (error) {
+              Alert.alert(error);
+            }
           },
         })}
         options={{

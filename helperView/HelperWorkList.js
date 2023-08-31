@@ -1,15 +1,19 @@
 import React, { useState } from "react";
 import { Modal, FlatList } from "react-native";
 import styled from "styled-components/native";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 const ModalContainer = styled.View`
   flex: 1;
   justify-content: center;
+  align-items: center;
   background-color: rgba(0, 0, 0, 0.5);
 `;
+
 const ModalContent = styled.View`
   background-color: white;
   border-radius: 20px;
+  width: 80%;
   padding: 20px;
 `;
 
@@ -17,45 +21,57 @@ const ModalTitle = styled.Text`
   font-size: 22px;
   font-weight: bold;
   margin-bottom: 20px;
-  align-self: center;
+  text-align: center;
 `;
 
 const TaskItem = styled.View`
-  padding: 10px;
-  border-bottom-width: 1px;
-  border-bottom-color: #e0e0e0;
+  padding: 15px;
+  border-radius: 10px;
+  background-color: #f5f5f5;
+  margin-bottom: 15px;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const TaskInfo = styled.View`
+  flex: 1;
+  margin-left: 10px;
 `;
 
 const TaskTitle = styled.Text`
   font-size: 18px;
   font-weight: bold;
+  color: #333;
   margin-bottom: 5px;
 `;
+
 const TaskDescription = styled.Text`
   font-size: 16px;
+  color: #666;
 `;
 
 const CloseButton = styled.TouchableOpacity`
   margin-top: 20px;
   padding: 10px;
   background-color: #3498db;
-  border-radius: 10px;
-  width: 50%;
+  border-radius: 8px;
   align-self: center;
 `;
 
 const CloseButtonText = styled.Text`
   color: white;
   font-size: 16px;
-  text-align: center;
+  font-weight: bold;
 `;
 
 const HelperWorkList = ({ modalVisible, setModalVisible, completedWork }) => {
-  //console.log("A", completedWork);
   const renderItem = ({ item }) => (
     <TaskItem>
-      <TaskTitle>{item.title}</TaskTitle>
-      <TaskDescription>{item.context}</TaskDescription>
+      <FontAwesome5 name="check-circle" size={24} color="#43a047" />
+      <TaskInfo>
+        <TaskTitle>{item.title}</TaskTitle>
+        <TaskDescription>{item.context}</TaskDescription>
+      </TaskInfo>
     </TaskItem>
   );
 
@@ -68,7 +84,7 @@ const HelperWorkList = ({ modalVisible, setModalVisible, completedWork }) => {
     >
       <ModalContainer>
         <ModalContent>
-          <ModalTitle>완료한 일들</ModalTitle>
+          <ModalTitle>수행한 심부름 목록</ModalTitle>
           <FlatList
             data={completedWork}
             renderItem={renderItem}

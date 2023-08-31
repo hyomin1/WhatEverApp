@@ -11,6 +11,11 @@ import Chat from "../chatView/Chat";
 import HelperLocation from "../helperView/HelperLocation";
 import History from "../historyView/History";
 import Map from "../mainView/Map";
+import DetailReport from "../adminView/DetailReport";
+import AdminTab from "./AdminTab";
+import AdminUserView from "../adminView/AdminUserView";
+import AdminWorkView from "../adminView/AdminWorkView";
+import AdminConversationView from "../adminView/AdminConversationView";
 import { useRecoilValue } from "recoil";
 import { receiverNameData } from "../atom";
 
@@ -107,6 +112,61 @@ const Stack = ({ navigation }) => {
         }}
       />
       <NativeStack.Screen name="StackHistory" component={History} />
+      <NativeStack.Screen
+        name="AdminTab"
+        component={AdminTab}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <NativeStack.Screen
+        name="DetailReport"
+        component={DetailReport}
+        options={{
+          headerTitle: "신고 내역",
+          headerTitleAlign: "center",
+          headerTitleStyle: {
+            fontWeight: "800",
+            fontSize: 18,
+          },
+        }}
+      />
+      <NativeStack.Screen
+        name="AdminConversationView"
+        component={AdminConversationView}
+        options={{
+          headerTitle: "대화 내역",
+          headerTitleAlign: "center",
+          headerTitleStyle: {
+            fontWeight: "800",
+            fontSize: 18,
+          },
+        }}
+      />
+      <NativeStack.Screen
+        name="AdminWorkView"
+        component={AdminWorkView}
+        options={{
+          headerTitle: "심부름 정보",
+          headerTitleAlign: "center",
+          headerTitleStyle: {
+            fontWeight: "800",
+            fontSize: 18,
+          },
+        }}
+      />
+      <NativeStack.Screen
+        name="AdminUserView"
+        component={AdminUserView}
+        options={{
+          headerTitle: "유저 정보",
+          headerTitleAlign: "center",
+          headerTitleStyle: {
+            fontWeight: "800",
+            fontSize: 18,
+          },
+        }}
+      />
     </NativeStack.Navigator>
   );
 };

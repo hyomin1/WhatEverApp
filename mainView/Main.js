@@ -97,7 +97,7 @@ const Main = ({ navigation: { navigate }, route }) => {
 
   const getToken = async () => {
     const token = await messaging().getToken();
-    //console.log(token);
+
     axios
       .put(`${BASE_URL}/api/fcm/${token}`)
       .then((res) => {})
@@ -127,7 +127,7 @@ const Main = ({ navigation: { navigate }, route }) => {
 
         const response = data.concat(); //응답시간 순 정렬
         response.sort((a, b) => a.avgReactTime - b.avgReactTime);
-        console.log("a", response);
+
         setResponseHelper(response);
       });
 
@@ -291,7 +291,7 @@ const Main = ({ navigation: { navigate }, route }) => {
               <AlarmView />
             </View>
           ) : (
-            <NearWork nearWork={nearWork} />
+            <NearWork setNearWork={setNearWork} nearWork={nearWork} />
           )}
         </View>
       )}

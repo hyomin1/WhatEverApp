@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Modal, Pressable, ScrollView, Alert } from "react-native";
 import styled from "styled-components/native";
 import { useNavigation } from "@react-navigation/native";
@@ -58,22 +58,45 @@ const ButtonText = styled.Text`
   text-align: center;
 `;
 
-const NearWork = ({ nearWork }) => {
+const NearWork = ({ nearWork, setNearWork }) => {
   const [workVisible, setWorkVisible] = useState(false);
   const [userVisible, setUserVisible] = useState(false);
-  const [selectedWork, setSelectedWork] = useState(null);
+
   const navigation = useNavigation();
   const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
   const [chatList, setChatList] = useRecoilState(chatListData);
   const [conversation, setConversation] = useRecoilState(conversationData);
   const accessToken = useRecoilValue(accessData);
   const [userInfo, setUserInfo] = useState({});
+  const [selectedWorkDetail, setSelectedWorkDetail] = useState(null);
+  const [remainingTime, setRemainingTime] = useState([]);
 
-  const onPressWork = (work) => {
-    setSelectedWork(work);
-    setWorkVisible(true);
-  };
-  const onDetailWork = () => {
+  useEffect(() => {
+    if (nearWork) {
+      const updateRemainingTime = () => {
+        const updatedTime = nearWork.map((data) => {
+          if (!data.finished) {
+            const elapsedTime = Math.floor(
+              (new Date() - new Date(data.createdTime)) / (1000 * 60)
+            );
+            const remainingMinutes = data.deadLineTime * 60 - elapsedTime;
+            return remainingMinutes > 0 ? remainingMinutes : 0;
+          }
+          return 0;
+        });
+
+        setRemainingTime(updatedTime);
+        //setNearWork(sortedNearWork);
+      };
+      updateRemainingTime();
+      const interval = setInterval(updateRemainingTime, 60000);
+
+      return () => clearInterval(interval);
+    }
+  }, [nearWork]);
+
+  const onDetailWork = (work) => {
+    setSelectedWorkDetail(work);
     setWorkVisible(true);
   };
   const onDetailUser = async (userId) => {
@@ -107,7 +130,8 @@ const NearWork = ({ nearWork }) => {
       .catch((error) => console.log("1", error.response.data.message));
     // 진행 요청 로직
   };
-  //console.log(nearWork);
+  //console.log(nearWork[0].createdTime);
+
   return (
     <ScrollView>
       {nearWork && nearWork.length > 0 ? (
@@ -117,11 +141,10 @@ const NearWork = ({ nearWork }) => {
               <WorkInformation key={index}>
                 <View>
                   <WorkTitle>{data.title}</WorkTitle>
-                  <WorkSubtitle>마감기한 {data.date}</WorkSubtitle>
+                  <WorkSubtitle>마감시간 {remainingTime[index]}분</WorkSubtitle>
                   <HighlightedAmout>{data.reward}원</HighlightedAmout>
                 </View>
 
-                {/* 유저 정보보기 버튼 */}
                 <ButtonContainer>
                   <Button
                     bgColor="#4CAF50"
@@ -129,22 +152,26 @@ const NearWork = ({ nearWork }) => {
                   >
                     <ButtonText textColor="#ffffff">유저 정보보기</ButtonText>
                   </Button>
-                  {/* 상세보기 버튼 */}
-                  <Button bgColor="#1e90ff" onPress={onDetailWork}>
+
+                  <Button bgColor="#1e90ff" onPress={() => onDetailWork(data)}>
                     <ButtonText textColor="#ffffff">심부름 상세보기</ButtonText>
                   </Button>
                 </ButtonContainer>
               </WorkInformation>
-              <DetailWork
-                selectedWork={data}
-                workVisible={workVisible}
-                setWorkVisible={setWorkVisible}
-              />
-              <DetailUser
-                userInfo={userInfo}
-                userVisible={userVisible}
-                setUserVisible={setUserVisible}
-              />
+              {workVisible && (
+                <DetailWork
+                  selectedWork={selectedWorkDetail}
+                  workVisible={workVisible}
+                  setWorkVisible={setWorkVisible}
+                />
+              )}
+              {userVisible && (
+                <DetailUser
+                  userInfo={userInfo}
+                  userVisible={userVisible}
+                  setUserVisible={setUserVisible}
+                />
+              )}
             </View>
           ) : null
         )

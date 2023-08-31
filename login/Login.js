@@ -2,7 +2,13 @@ import { useState } from "react";
 import { View, Alert, Text } from "react-native";
 import styled from "styled-components/native";
 
-import { accessData, grantData, myIdData, adminData } from "../atom";
+import {
+  accessData,
+  grantData,
+  myIdData,
+  adminData,
+  alarmCountData,
+} from "../atom";
 import { useSetRecoilState } from "recoil";
 import { useNavigation } from "@react-navigation/native";
 import { apiClient, BASE_URL } from "../api";
@@ -72,6 +78,8 @@ function Login({ navigation: { navigate } }) {
 
   const setIsAdmin = useSetRecoilState(adminData);
 
+  const setAlarmCount = useSetRecoilState(alarmCountData);
+
   //const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
 
   const onChangeId = (payload) => {
@@ -111,8 +119,8 @@ function Login({ navigation: { navigate } }) {
           .catch((error) => Alert.alert("2222" + error));
         await axios
           .get(`${BASE_URL}/api/alarm/seenCount`)
-          .then((res) => console.log("alarmSeenCount " + res.data))
-          .catch((error) => Alert.alert("1111" + error.response.data.message));
+          .then((res) => setAlarmCount(res.data))
+          .catch((error) => Alert.alert(error.response.data.message));
 
         goMain();
       })
@@ -129,9 +137,15 @@ function Login({ navigation: { navigate } }) {
     }
   };
   //어드민 로그인
-  const onPressAdmin = () => {
-    setIsAdmin(true);
-    goMain();
+  const onPressAdmin = async () => {
+    navigation.navigate("AdminTab", { screen: "AdminView" });
+    // try {
+    //   const res = await axios.post(`${BASE_URL}/loginAdmin`);
+    //   setIsAdmin(true);
+    //   goMain();
+    // } catch (error) {
+    //   Alert.alert(error.response.data.message);
+    // }
   };
 
   return (

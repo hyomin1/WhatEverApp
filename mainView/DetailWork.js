@@ -1,4 +1,3 @@
-import React from "react";
 import { Modal, TouchableOpacity, Alert } from "react-native";
 import styled from "styled-components/native";
 import { AntDesign } from "@expo/vector-icons";
@@ -79,8 +78,11 @@ const DetailWork = ({ workVisible, setWorkVisible, selectedWork }) => {
   const setChatList = useSetRecoilState(chatListData);
   const accessToken = useRecoilValue(accessData);
   const navigation = useNavigation();
+
   const onPressProgress = async (selectedWork) => {
     const { customerId } = selectedWork;
+
+    console.log("a", customerId);
     try {
       const res = await axios.post(
         `${BASE_URL}/api/conversation/${customerId}`,
@@ -88,6 +90,7 @@ const DetailWork = ({ workVisible, setWorkVisible, selectedWork }) => {
           id: customerId,
         }
       );
+
       setConversation(res.data);
       setChatRoomList((prev) => [...prev, res.data]);
       setChatList(res.data);
@@ -102,6 +105,8 @@ const DetailWork = ({ workVisible, setWorkVisible, selectedWork }) => {
       Alert.alert(error.response.data.message);
     }
   };
+
+  console.log("2");
   return (
     <Modal animationType="slide" visible={workVisible} transparent>
       <Container>

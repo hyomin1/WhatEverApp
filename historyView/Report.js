@@ -31,6 +31,20 @@ const TitleBar = styled.View`
 const Title = styled.Text`
   font-size: 18px;
   font-weight: bold;
+  flex: 1;
+`;
+
+const InputContainer = styled.View`
+  margin-bottom: 16px;
+`;
+
+const InputField = styled.TextInput`
+  width: 100%;
+  height: 40px;
+  border-width: 1px;
+  border-color: gray;
+  border-radius: 5px;
+  padding: 0px 8px;
 `;
 
 const ReportView = styled.View`
@@ -59,27 +73,31 @@ const ReportBtnText = styled.Text`
 `;
 
 const Report = ({ reportVisible, setReportVisible }) => {
-  const [report, setReport] = useState(); //신고 사유
-  const sendWork = useRecoilValue(sendWorkData); //신고할 일의 내용
+  const [reportReason, setReportReason] = useState(); //신고 사유
+  const [reportTitle, setReportTitle] = useState(); //신고 제목
+  const work = useRecoilValue(sendWorkData); //신고할 일의 내용
 
   const onChangeReport = (payload) => {
-    setReport(payload);
+    setReportReason(payload);
   };
 
-  const onPressReportComplete = () => {
+  const onChangeTitle = (payload) => {
+    setReportTitle(payload);
+  };
+
+  const onPressReportComplete = async () => {
     //신고 완료
-    setReportVisible(!reportVisible);
-    console.log(sendWork);
-    axios
-      .post(`${BASE_URL}/api/report`, {
-        work: sendWork,
-        reportReason: report,
-      })
-      .then(({ data }) => {
-        console.log("신고완료", data);
+    try {
+      const res = await axios.post(`${BASE_URL}/api/report`, {
+        work,
+        reportTitle,
+        reportReason,
       });
+      setReportVisible(!reportVisible);
+    } catch (error) {
+      console.log(error);
+    }
   };
-
   return (
     <Modal
       animationType="slide"
@@ -90,7 +108,7 @@ const Report = ({ reportVisible, setReportVisible }) => {
       <ModalContainer>
         <ModalContent>
           <TitleBar>
-            <TouchableOpacity>
+            <TouchableOpacity style={{ flex: 1 }}>
               <Ionicons
                 onPress={() => {
                   setReportVisible(!reportVisible);
@@ -100,17 +118,22 @@ const Report = ({ reportVisible, setReportVisible }) => {
                 color="black"
               />
             </TouchableOpacity>
-
-            <Title>신고서 작성하기</Title>
-            <View />
+            <Title>신고서 작성</Title>
+            <View style={{ flex: 1 }} />
           </TitleBar>
+          <InputContainer>
+            <InputField
+              onChangeText={onChangeTitle}
+              placeholder="제목을 입력하세요..."
+              multiline
+            />
+          </InputContainer>
           <ReportView>
             <ReportInput
               onChangeText={onChangeReport}
               placeholder="신고 사유..."
               multiline
             />
-
             <ReportBtn onPress={onPressReportComplete}>
               <ReportBtnText>신고하기</ReportBtnText>
             </ReportBtn>

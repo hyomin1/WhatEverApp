@@ -81,7 +81,7 @@ const SectionHeader = styled.Text`
 `;
 
 const DetailUser = ({ userInfo, userVisible, setUserVisible }) => {
-  console.log("우ㅠ저정보 전송", userInfo);
+  console.log("1");
 
   return (
     <Modal

@@ -150,12 +150,12 @@ const Profile = () => {
   };
   const onPressReview = () => {
     setVisible(true);
-    // axios
-    //   .get(`${BASE_URL}/api/review`)
-    //   .then((res) => {
-    //     console.log(res.data);
-    //   })
-    //   .catch((e) => console.log(e));
+    axios
+      .get(`${BASE_URL}/api/review`)
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((e) => console.log(e));
   };
   const reviews = [
     {
@@ -350,6 +350,14 @@ const Profile = () => {
             위치를 등록하고 헬퍼 활동을 시작해보세요
           </Text>
         )}
+      </Section>
+      <Section>
+        <SectionHeader>리워드</SectionHeader>
+        <ButtonContainer>
+          <Button>
+            <ButtonText>출금</ButtonText>
+          </Button>
+        </ButtonContainer>
       </Section>
     </Container>
   );

@@ -6,6 +6,7 @@ import {
   conversationData,
   isTimerData,
   myIdData,
+  workProceedingStatusData,
   workStatusCodeData,
 } from "../atom";
 import axios from "axios";
@@ -115,8 +116,9 @@ const WorkChat = ({
   const myId = useRecoilValue(myIdData);
   const conversation = useRecoilValue(conversationData);
   const accessToken = useRecoilValue(accessData);
-  const [workStatusCode, setWorkStatusCode] =
-    useRecoilState(workStatusCodeData);
+  const [workProceedingStatus, setWorkProceedingStatus] = useRecoilState(
+    workProceedingStatusData
+  );
   const AcceptCard = {
     message: "Accept work",
     senderName: myName,
@@ -149,7 +151,6 @@ const WorkChat = ({
   const onPressAccept = (index) => {
     //헬퍼가 심부름 수락시
     const work = JSON.parse(chatList.chatList[index].message);
-
     axios
       .put(`${BASE_URL}/api/work/matching/${chatList._id}`, {
         id: work.id,
@@ -177,9 +178,10 @@ const WorkChat = ({
         //console.log(data.workProceedingStatus);
         if (work.deadLineTime === 1) {
           intervalId(work.id);
-          setWorkStatusCode(data.workProceedingStatus);
+          setWorkProceedingStatus(data.workProceedingStatus);
         } else {
           console.log("마감시간 1시간 초과");
+          setWorkProceedingStatus(data.workProceedingStatus);
         }
       })
       .catch((error) => {
@@ -219,6 +221,7 @@ const WorkChat = ({
           headers: { Authorization: `Bearer ${accessToken}` },
         });
 
+        axios.post(`${BASE_URL}/api/fcm/${conversation._id}`).then();
         if (work.deadLineTime === 1) {
           //마감시간 1시간일 경우
           intervalId(work.id); //서버에 현재위치 계속 보내줌
@@ -292,8 +295,7 @@ const WorkChat = ({
                 <MainDescription>보상금액: </MainDescription>
                 <MoneyText>{messageData.reward}원</MoneyText>
               </View>
-              {
-                //workStatusCode !== 1 && workStatusCode !== 2 ? (
+              {workProceedingStatus === 0 ? (
                 <ButtonContainer>
                   <WorkBtn accept={true} onPress={() => onPressAccept(index)}>
                     <WorkBtnText>수락</WorkBtnText>
@@ -303,8 +305,7 @@ const WorkChat = ({
                     <WorkBtnText>거절</WorkBtnText>
                   </WorkBtn>
                 </ButtonContainer>
-                // ) : null
-              }
+              ) : null}
             </PaddingView>
           </WorkBubble>
           <Time>

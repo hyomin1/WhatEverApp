@@ -6,10 +6,12 @@ import {
   chatRoomListData,
   conversationData,
   myIdData,
+  workProceedingStatusData,
 } from "../atom";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
+import { BASE_URL } from "../api";
 
 const Container = styled.View`
   flex: 1;
@@ -49,6 +51,17 @@ const LastMessage = styled.Text`
   color: #777;
   margin-top: 5px;
 `;
+const Badge = styled.View`
+  background-color: tomato;
+  border-radius: 10px;
+  min-width: 20px;
+  height: 20px;
+  justify-content: center;
+  align-items: center;
+`;
+const BadgeText = styled.Text`
+  color: white;
+`;
 
 const Chat = () => {
   const navigation = useNavigation();
@@ -56,11 +69,20 @@ const Chat = () => {
   const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
   const setConversation = useSetRecoilState(conversationData);
   const myId = useRecoilValue(myIdData);
+  const setWorkStatusCode = useSetRecoilState(workProceedingStatusData);
 
-  const goToChatting = (chatRoom) => {
-    navigation.navigate("Chatting", { chatRoom });
-    setConversation(chatRoom);
-    setChatList(chatRoom);
+  const goToChatting = async (chatRoom) => {
+    const workId = JSON.parse(chatRoom.chatList[0].message).id;
+
+    try {
+      const res = await axios.get(`${BASE_URL}/api/work/${workId}`);
+      navigation.navigate("Chatting", { chatRoom });
+      setWorkStatusCode(res.data.workProceedingStatus);
+      setConversation(chatRoom);
+      setChatList(chatRoom);
+    } catch (error) {
+      console.log(error);
+    }
 
     axios
       .post(`http://10.0.2.2:8080/api/conversation/seen/${chatRoom._id}`)
@@ -73,7 +95,7 @@ const Chat = () => {
           }
         });
       })
-      .catch((err) => Alert.alert(err.response.data.message));
+      .catch((error) => Alert.alert(error));
   };
 
   return (
@@ -97,15 +119,43 @@ const Chat = () => {
                     : chatRoom.creatorName}
                 </Username>
                 <LastMessage>
-                  {chatRoom.chatList[chatRoom.chatList.length - 1]
-                    ?.messageType === "Work"
-                    ? "심부름 요청서 입니다..."
-                    : chatRoom.chatList[chatRoom.chatList.length - 1]
-                        ?.messageType === "Card"
-                    ? "심부름이 수락되었습니다..."
-                    : chatRoom.chatList[chatRoom.chatList.length - 1]?.message}
+                  {(() => {
+                    const lastMessage =
+                      chatRoom?.chatList[chatRoom.chatList.length - 1];
+                    if (lastMessage?.messageType === "Work") {
+                      return "심부름 요청서 입니다";
+                    } else if (lastMessage?.messageType === "Card") {
+                      if (lastMessage?.message === "Complete work") {
+                        return "심부름이 완료되었습니다.";
+                      } else if (lastMessage?.message === "Accept work") {
+                        return "심부름이 수락되었습니다.";
+                      } else {
+                        return "기타 Card 메시지입니다.";
+                      }
+                    } else if (lastMessage?.messageType === "Chat") {
+                      return lastMessage?.message;
+                    } else {
+                      return null;
+                    }
+                  })()}
                 </LastMessage>
               </ProfileInfo>
+              {(() => {
+                const unseenCount =
+                  myId === chatRoom.creatorId
+                    ? chatRoom.chatList.length - chatRoom.seenCountByCreator
+                    : chatRoom.chatList.length -
+                      chatRoom.seenCountByParticipator;
+                if (unseenCount > 0) {
+                  return (
+                    <Badge>
+                      <BadgeText>{unseenCount}</BadgeText>
+                    </Badge>
+                  );
+                } else {
+                  return null;
+                }
+              })()}
             </ChatList>
           ))
         ) : (

@@ -37,27 +37,13 @@ const AlarmItem = styled.View`
   border-bottom-width: 1px;
   border-color: #ccc;
   padding: 10px;
+  ${({ seen }) => seen && "background-color: #f5f5f5;"}
 `;
 
 const AlarmTitle = styled.Text`
   font-size: 14px;
-  font-weight: bold;
-  color: gray;
-`;
-
-const CloseButton = styled.TouchableOpacity`
-  //background-color: #ff6b6b;
-  padding: 10px 20px;
-  border-radius: 5px;
-  align-self: center;
-
-  flex: 1;
-`;
-
-const CloseButtonText = styled.Text`
-  //color: white;
-
-  text-align: center;
+  color: ${({ seen }) => (seen ? "#999" : "#333")};
+  font-weight: ${({ seen }) => (seen ? "normal" : "bold")};
 `;
 
 const AlarmView = () => {
@@ -82,8 +68,8 @@ const AlarmView = () => {
         </TitleBar>
         <AlarmListContainer>
           {alarm?.map((data, index) => (
-            <AlarmItem key={index}>
-              <AlarmTitle>{data.title}</AlarmTitle>
+            <AlarmItem seen={data.seen} key={index}>
+              <AlarmTitle seen={data.seen}>{data.title}</AlarmTitle>
             </AlarmItem>
           ))}
         </AlarmListContainer>
