@@ -62,7 +62,7 @@ const ButtonText = styled.Text`
   margin-left: 5px;
 `;
 
-const HistoryInform = ({ data, index, onPressReport, isReport }) => {
+const HistoryInform = ({ data, index, onPressReport, isReport, isHelper }) => {
   const [isStarRating, isSetStarRating] = useState(false);
   const setHistoryWork = useSetRecoilState(historyWorkData);
   const setWorkList = useSetRecoilState(workListData);
@@ -121,7 +121,7 @@ const HistoryInform = ({ data, index, onPressReport, isReport }) => {
           </Modal>
         </ActionButtonsContainer>
       ) : null}
-      {!isReport ? (
+      {!isReport && !isHelper ? (
         <View>
           <TouchableOpacity onPress={() => onDeleteItem(data.id)}>
             <MaterialIcons name="delete" size={24} />

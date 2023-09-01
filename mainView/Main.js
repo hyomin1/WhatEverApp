@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Dimensions, ActivityIndicator, Text } from "react-native";
+import { View, Dimensions, ActivityIndicator, Text, Alert } from "react-native";
 import * as Location from "expo-location";
 import styled from "styled-components/native";
 import axios from "axios";
@@ -18,6 +18,7 @@ import {
   currentLocationData,
   chatListData,
   chatCountData,
+  nearWorkData,
 } from "../atom";
 import { MaterialIcons } from "@expo/vector-icons";
 import Order from "../components/Order";
@@ -92,7 +93,7 @@ const Main = ({ navigation: { navigate }, route }) => {
   const isAdmin = useRecoilValue(adminData);
 
   const [isMap, isSetMap] = useState(true);
-  const [nearWork, setNearWork] = useState();
+  const [nearWork, setNearWork] = useRecoilState(nearWorkData);
   const [convId, setConvId] = useState();
 
   const getToken = async () => {
@@ -108,7 +109,7 @@ const Main = ({ navigation: { navigate }, route }) => {
     //api에서 받아오는 location은 내 위치를 계속 추적함
     const { granted } = await Location.requestForegroundPermissionsAsync();
     if (!granted) {
-      setOk("error");
+      // setOk("error");
     }
     const {
       coords: { latitude, longitude },
@@ -174,10 +175,13 @@ const Main = ({ navigation: { navigate }, route }) => {
   useEffect(() => {
     getToken();
     getLocation();
-
+    if (route.params !== undefined && route.params.isNearWork) {
+      isSetMap(false);
+    }
     client.connectHeaders.Authorization = `${grant}` + " " + `${access}`;
 
     client.activate();
+
     if (subscription) {
       subscription.unsubscribe();
     }
@@ -191,7 +195,7 @@ const Main = ({ navigation: { navigate }, route }) => {
           //처음 채팅이 열렸을때 콜백 시작
           function (message) {
             const parsedMessage = JSON.parse(message.body);
-
+            console.log(parsedMessage);
             if (parsedMessage.messageType === "OpenChat") {
               console.log("오픈챗");
               const chatId =
@@ -200,6 +204,10 @@ const Main = ({ navigation: { navigate }, route }) => {
             } else if (parsedMessage.messageType === "SetConvSeenCount") {
               setChatCount(parsedMessage.data);
               console.log("개수", parsedMessage.data);
+            } else if (parsedMessage.messageType === "LogOut") {
+              //정지 당할시
+              Alert.alert(parsedMessage.data);
+              navigate("Login");
             }
           },
           headers

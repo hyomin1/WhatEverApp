@@ -125,7 +125,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
   const onPressWorkComplete = async () => {
     const { granted } = await Location.requestForegroundPermissionsAsync();
     if (!granted) {
-      setOk("error");
+      // setOk("error");
     }
     const {
       coords: { latitude, longitude },
@@ -142,7 +142,9 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
           body: JSON.stringify(completeCard),
           headers: { Authorization: `Bearer ${accessToken}` },
         });
-        axios.post(`${BASE_URL}/api/fcm/${conversation._id}`).then();
+        axios
+          .post(`${BASE_URL}/api/fcm/chatNotification/${conversation._id}`)
+          .then();
 
         setWorkProceedingStatus(data.workProceedingStatus);
       })
@@ -182,7 +184,11 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
                   body: JSON.stringify(finishCard),
                   headers: { Authorization: `Bearer ${accessToken}` },
                 });
-                axios.post(`${BASE_URL}/api/fcm/${conversation._id}`).then();
+                axios
+                  .post(
+                    `${BASE_URL}/api/fcm/chatNotification/${conversation._id}`
+                  )
+                  .then();
                 axios.get(`${BASE_URL}/api/conversations`).then(({ data }) => {
                   data.sort(
                     (a, b) => new Date(b.updateAt) - new Date(a.updateAt)

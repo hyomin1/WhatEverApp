@@ -1,6 +1,11 @@
 import axios from "axios";
 import styled from "styled-components/native";
 import { BASE_URL } from "../api";
+import { View, Text } from "react-native";
+import { useRecoilValue } from "recoil";
+import { adminTokenData } from "../atom";
+import { useState } from "react";
+import PunishmentModal from "./PunishmentModal";
 
 const Container = styled.View`
   flex: 1;
@@ -61,37 +66,75 @@ const EditButtonText = styled.Text`
   color: white;
   font-weight: 600;
 `;
-const getPunishmentLogs = async () => {
-  try {
-    const res = await axios.get(
-      `${BASE_URL}/api/admin/punishReportList/${userid}`
-    );
-    console.log(res.data); //처벌 기록 데이터
-  } catch (error) {
-    console.log(error);
-  }
-};
-const AdminUserView = () => {
+
+const AdminUserView = ({ route }) => {
+  const { user } = route.params;
+
+  const adminToken = useRecoilValue(adminTokenData);
+  const [punishmentLogs, setPunishmentLogs] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const openModal = () => {
+    setIsModalVisible(true);
+    // Call the getPunishmentLogs function here to fetch data
+  };
+
+  const closeModal = () => {
+    setIsModalVisible(false);
+  };
+  const getPunishmentLogs = async () => {
+    try {
+      const res = await axios.get(
+        `${BASE_URL}/admin/punishReportList/${user.id}`,
+        {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        }
+      );
+      setPunishmentLogs(res.data); //처벌 기록 데이터
+      openModal();
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <Container>
       <ProfileView>
         <ProfileHeader>
-          <ProfileImg />
+          <ProfileImg
+            source={
+              user.image
+                ? { uri: `data:image/png;base64,${user.image}` }
+                : require("../images/profile.jpg")
+            }
+          />
           <ProfileInfo>
-            <Name>a2</Name>
-            {/* 별점 추가 */}
+            <Name>{user.name}</Name>
+            {route.params.rating ? (
+              <Text>⭐ {route.params.rating.toFixed(1)}/5</Text>
+            ) : (
+              <Text>⭐ 0/5</Text>
+            )}
           </ProfileInfo>
         </ProfileHeader>
       </ProfileView>
 
       <Section>
         <SectionHeader>유저 소개</SectionHeader>
+        <View>
+          <Text style={{ fontSize: 14, fontWeight: "600", color: "#888" }}>
+            {user.introduce === null ? "유저 소개가 없습니다" : user.introduce}
+          </Text>
+        </View>
       </Section>
       <ButtonsContainer>
         <EditButton onPress={getPunishmentLogs}>
           <EditButtonText>처벌 기록 보기</EditButtonText>
         </EditButton>
       </ButtonsContainer>
+      <PunishmentModal
+        isVisible={isModalVisible}
+        data={punishmentLogs} // Pass your fetched data here
+        onClose={closeModal}
+      />
     </Container>
   );
 };

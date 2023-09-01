@@ -1,18 +1,19 @@
 import { useState } from "react";
 import { View, Alert, Text } from "react-native";
 import styled from "styled-components/native";
-
 import {
   accessData,
   grantData,
   myIdData,
   adminData,
   alarmCountData,
+  adminTokenData,
 } from "../atom";
 import { useSetRecoilState } from "recoil";
 import { useNavigation } from "@react-navigation/native";
 import { apiClient, BASE_URL } from "../api";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Container = styled.View`
   background-color: #0fbcf9;
@@ -70,17 +71,12 @@ const JoinText = styled.Text`
 function Login({ navigation: { navigate } }) {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
-
   const setAccess = useSetRecoilState(accessData);
   const setGrant = useSetRecoilState(grantData);
-
   const setMyId = useSetRecoilState(myIdData);
-
   const setIsAdmin = useSetRecoilState(adminData);
-
   const setAlarmCount = useSetRecoilState(alarmCountData);
-
-  //const [chatRoomList, setChatRoomList] = useRecoilState(chatRoomListData);
+  const setAdminToken = useSetRecoilState(adminTokenData);
 
   const onChangeId = (payload) => {
     setId(payload);
@@ -88,6 +84,7 @@ function Login({ navigation: { navigate } }) {
   const onChangePw = (payload) => {
     setPassword(payload);
   };
+
   const navigation = useNavigation();
   const goMain = () => {
     navigation.navigate("Tabs", { screen: "Main" });
@@ -103,7 +100,7 @@ function Login({ navigation: { navigate } }) {
         setAccess(res.data.accessToken);
         setGrant(res.data.grantType);
         setMyId(res.data.id);
-
+        await AsyncStorage.setItem("authToken", res.data.accessToken); //background token용 저장
         if (res.status === 200) {
           axios.defaults.headers.common[
             "Authorization"
@@ -121,8 +118,7 @@ function Login({ navigation: { navigate } }) {
           .get(`${BASE_URL}/api/alarm/seenCount`)
           .then((res) => setAlarmCount(res.data))
           .catch((error) => Alert.alert(error.response.data.message));
-
-        goMain();
+        goMain(); //코드 수정한번하기
       })
       .catch((error) => Alert.alert(error.response.data.message));
   };
@@ -138,14 +134,18 @@ function Login({ navigation: { navigate } }) {
   };
   //어드민 로그인
   const onPressAdmin = async () => {
-    navigation.navigate("AdminTab", { screen: "AdminView" });
-    // try {
-    //   const res = await axios.post(`${BASE_URL}/loginAdmin`);
-    //   setIsAdmin(true);
-    //   goMain();
-    // } catch (error) {
-    //   Alert.alert(error.response.data.message);
-    // }
+    try {
+      const res = await axios.post(`${BASE_URL}/loginAdmin`, {
+        userId: id,
+        password,
+      });
+      setAdminToken(res.data.accessToken);
+      setIsAdmin(true);
+      navigation.navigate("AdminTab", { screen: "AdminView" });
+    } catch (error) {
+      console.log(error);
+      Alert.alert(error.response.data.message);
+    }
   };
 
   return (

@@ -68,6 +68,7 @@ const NearWork = ({ nearWork, setNearWork }) => {
   const [conversation, setConversation] = useRecoilState(conversationData);
   const accessToken = useRecoilValue(accessData);
   const [userInfo, setUserInfo] = useState({});
+  const [userWorkList, setUserWorkList] = useState([]);
   const [selectedWorkDetail, setSelectedWorkDetail] = useState(null);
   const [remainingTime, setRemainingTime] = useState([]);
 
@@ -101,9 +102,12 @@ const NearWork = ({ nearWork, setNearWork }) => {
   };
   const onDetailUser = async (userId) => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/user/${userId}`);
-
-      setUserInfo(res.data);
+      const res1 = await axios.get(`${BASE_URL}/api/user/${userId}`);
+      setUserInfo(res1.data);
+      const res2 = await axios.get(
+        `${BASE_URL}/api/workList/byCustomer/${userId}`
+      );
+      setUserWorkList(res2.data);
       setUserVisible(true);
     } catch (error) {
       console.log(error);
@@ -170,6 +174,7 @@ const NearWork = ({ nearWork, setNearWork }) => {
                   userInfo={userInfo}
                   userVisible={userVisible}
                   setUserVisible={setUserVisible}
+                  userWorkList={userWorkList}
                 />
               )}
             </View>

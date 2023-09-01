@@ -18,7 +18,7 @@ const ModalContent = styled.View`
 `;
 
 const ModalTitle = styled.Text`
-  font-size: 22px;
+  font-size: 18px;
   font-weight: bold;
   margin-bottom: 20px;
   text-align: center;
@@ -56,12 +56,14 @@ const CloseButton = styled.TouchableOpacity`
   background-color: #3498db;
   border-radius: 8px;
   align-self: center;
+  width: 50%;
 `;
 
 const CloseButtonText = styled.Text`
   color: white;
   font-size: 16px;
   font-weight: bold;
+  text-align: center;
 `;
 
 const HelperWorkList = ({ modalVisible, setModalVisible, completedWork }) => {

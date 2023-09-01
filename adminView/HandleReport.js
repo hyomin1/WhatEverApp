@@ -1,9 +1,12 @@
+import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import { useState } from "react";
 import { Modal, Text, View } from "react-native";
 import SelectDropdown from "react-native-select-dropdown";
+import { useRecoilValue } from "recoil";
 import styled from "styled-components/native";
 import { BASE_URL } from "../api";
+import { adminTokenData } from "../atom";
 
 const ModalContainer = styled.View`
   flex: 1;
@@ -48,17 +51,35 @@ const ButtonText = styled.Text`
   font-weight: bold;
 `;
 
-const HandleReport = ({ modalVisible, setModalVisible }) => {
+const HandleReport = ({ modalVisible, setModalVisible, report }) => {
   const [reason, setReason] = useState("");
   const [code, setCode] = useState(0);
+  const adminToken = useRecoilValue(adminTokenData);
+  const navigation = useNavigation();
 
   const onHandleReport = async () => {
     setReason("");
     try {
-      const res = await axios.put(`${BASE_URL}/api/admin/report/execute`, {
-        executeDetail: reason,
-        reportExecuteCode: code,
-      });
+      const res = await axios.put(
+        `${BASE_URL}/admin/report/execute`,
+        {
+          executeDetail: reason,
+          reportExecuteCode: code,
+          conversationId: report.conversationId,
+          createdTime: report.createdTime,
+          id: report.id,
+          reportUserId: report.reportUserId,
+          reportedUserId: report.reportedUserId,
+          workId: report.workId,
+          reportReason: report.reportReason,
+          reportTitle: report.reportTitle,
+        },
+        {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        }
+      );
+      navigation.navigate("AdminTab", { screen: "AdminView" });
+      console.log(res.data);
     } catch (error) {
       console.log(error);
     }

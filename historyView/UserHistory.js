@@ -29,7 +29,7 @@ const BtnView = styled.View`
 `;
 
 const UserHistory = () => {
-  const [status, setStatus] = useState("심부름 전");
+  const [status, setStatus] = useState("심부름 중");
   const changeStatus = (newStatus) => {
     setStatus(newStatus);
   };
@@ -45,19 +45,23 @@ const UserHistory = () => {
     setIsHelper(true);
     setIsCustomer(false);
     setIsReport(false);
+    changeStatus("심부름 중");
   };
   const onPressCustomer = () => {
     setIsHelper(false);
     setIsCustomer(true);
     setIsReport(false);
+    changeStatus("심부름 전");
   };
   const onPressReport = async () => {
     setIsHelper(false);
     setIsCustomer(false);
     setIsReport(true);
+    changeStatus("처리 전");
     try {
       const res = await axios.get(`${BASE_URL}/api/report/reportList`);
       setHistoryReport(res.data);
+      //저장해서 0이면 처리전 0아닐시 처리완료
     } catch (error) {
       console.log(error);
     }

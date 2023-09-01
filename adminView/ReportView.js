@@ -27,39 +27,29 @@ const SubTitle = styled.Text`
   margin-top: 5px;
 `;
 
-const ReportView = ({ report }) => {
+const ReportView = ({ report, isHelper }) => {
   const navigation = useNavigation();
-  const temp = [
-    //삭제
-    {
-      title: "fuck",
-      createdAt: "2022-02-03",
-      content: "bad",
-      id: 1,
-    },
-    {
-      title: "fuck ass",
-      createdAt: "2022-02-04",
-      content: "hell",
-      id: 2,
-    },
-  ];
-  const onPressDetail = (temp) => {
+
+  const onPressDetail = (report) => {
     navigation.navigate("DetailReport", {
-      temp, //report로 수정
+      report, //report로 수정
+      isHelper,
     });
   };
+
   const renderItem = ({ item }) => (
     <ReportItem onPress={() => onPressDetail(item)}>
-      <Title>{item.title}</Title>
-      <SubTitle>작성일: {item.createdAt}</SubTitle>
+      <Title>{item.reportTitle}</Title>
+      <SubTitle>
+        작성일 {item.createdTime.slice(0, 10)} {item.createdTime.slice(11, 16)}
+      </SubTitle>
     </ReportItem>
   );
 
   return (
     <Container>
       <FlatList
-        data={temp} //report넣기
+        data={report} //report넣기
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
       />

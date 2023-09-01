@@ -13,7 +13,7 @@ const HelperLocation = ({ route }) => {
   const getLocation = async () => {
     const { granted } = await Location.requestForegroundPermissionsAsync();
     if (!granted) {
-      setOk("error");
+      //setOk("error");
     }
     const {
       coords: { latitude, longitude },

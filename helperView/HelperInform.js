@@ -1,4 +1,4 @@
-import { Pressable, View, Image } from "react-native";
+import { Pressable, View, Image, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import styled from "styled-components/native";
 import axios from "axios";
@@ -33,25 +33,24 @@ const HelperInform = ({ helperData }) => {
   const navigation = useNavigation();
   const { name, introduce, rating, id, image, distance, avgReactTime } =
     helperData;
-  //console.log(rating);
+
+  const onPressHelper = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/workList/byHelper/${id}`);
+      navigation.navigate("HelperProfile", {
+        name,
+        introduce,
+        rating,
+        id,
+        image,
+        completedWork: res.data,
+      });
+    } catch (error) {
+      Alert.alert(error.response.data.message);
+    }
+  };
   return (
-    <HelperInformation
-      onPress={() => {
-        axios
-          .get(`${BASE_URL}/api/workList/byHelper/${id}`)
-          .then(({ data }) => {
-            navigation.navigate("HelperProfile", {
-              name,
-              introduce,
-              rating,
-              id,
-              image,
-              completedWork: data,
-            });
-          })
-          .catch((error) => console.log(error.response.data.message));
-      }}
-    >
+    <HelperInformation onPress={onPressHelper}>
       <View
         style={{
           flex: 1,

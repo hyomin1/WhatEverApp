@@ -15,7 +15,7 @@ import { client } from "../client";
 import { Alert } from "react-native";
 import * as Location from "expo-location";
 import BackgroundTimer from "react-native-background-timer";
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "react-native-web";
 import ErrandRequest from "./ErrandRequest";
 const WorkContiainer = styled.View`
@@ -124,6 +124,7 @@ const WorkChat = ({
     senderName: myName,
     receiverName: receiverName,
   };
+  //const [ok, setOk] = useState();
 
   //const [isTimer, isSetTimer] = useRecoilState(isTimerData);
 
@@ -131,7 +132,7 @@ const WorkChat = ({
     BackgroundTimer.setInterval(async () => {
       const { granted } = await Location.requestForegroundPermissionsAsync();
       if (!granted) {
-        setOk("error");
+        //setOk("error");
       }
       const {
         coords: { latitude, longitude },
@@ -174,7 +175,9 @@ const WorkChat = ({
           body: JSON.stringify(AcceptCard),
           headers: { Authorization: `Bearer ${accessToken}` },
         });
-        axios.post(`${BASE_URL}/api/fcm/${conversation._id}`).then();
+        axios
+          .post(`${BASE_URL}/api/fcm/chatNotification/${conversation._id}`)
+          .then();
         //console.log(data.workProceedingStatus);
         if (work.deadLineTime === 1) {
           intervalId(work.id);
@@ -221,7 +224,9 @@ const WorkChat = ({
           headers: { Authorization: `Bearer ${accessToken}` },
         });
 
-        axios.post(`${BASE_URL}/api/fcm/${conversation._id}`).then();
+        axios
+          .post(`${BASE_URL}/api/fcm/chatNotification/${conversation._id}`)
+          .then();
         if (work.deadLineTime === 1) {
           //마감시간 1시간일 경우
           intervalId(work.id); //서버에 현재위치 계속 보내줌

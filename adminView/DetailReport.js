@@ -3,8 +3,10 @@ import axios from "axios";
 import React from "react";
 import { useState } from "react";
 import { View, Text, TouchableOpacity, Alert } from "react-native";
+import { useRecoilValue } from "recoil";
 import styled from "styled-components/native";
 import { BASE_URL } from "../api";
+import { adminTokenData } from "../atom";
 import HandleReport from "./HandleReport";
 
 const Container = styled.View`
@@ -27,14 +29,20 @@ const Title = styled.Text`
 
 const Content = styled.Text`
   font-size: 16px;
-  margin-top: 10px;
+  margin-top: 20px;
+  color: #888;
 `;
-
+const ButtonContainer = styled.View`
+  flex-direction: row;
+  justify-content: space-around;
+  margin-bottom: 10px;
+`;
 const Button = styled.TouchableOpacity`
   background-color: #3498db;
   padding: 10px;
   border-radius: 5px;
   margin-top: 15px;
+  width: 40%;
 `;
 
 const ButtonText = styled.Text`
@@ -44,71 +52,93 @@ const ButtonText = styled.Text`
 `;
 
 const DetailReport = ({ route }) => {
-  const temp = route.params.temp;
+  const report = route.params.report;
+  //const isHleper  추가해서 HandleReport 에 보내고 isHelper true 이면 환불 빼기
+
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
+  const adminToken = useRecoilValue(adminTokenData);
 
   const onViewConversation = async () => {
-    navigation.navigate("AdminConversationView");
     try {
       const res = await axios.get(
-        `${BASE_URL}/api/admin/conversation/${convid}`
+        `${BASE_URL}/admin/conversation/${report.conversationId}`,
+        {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        }
       );
+
+      navigation.navigate("AdminConversationView", {
+        chatList: res.data.chatList,
+      });
     } catch (error) {
       console.log(error);
-
-      //Alert.alert(error.response.data.message);
+      Alert.alert(error.response.data.message);
     }
   };
   const onViewWork = async () => {
-    navigation.navigate("AdminWorkView");
     try {
-      const res = await axios.get(`${BASE_URL}/api/admin/work/${workid}`);
+      const res = await axios.get(`${BASE_URL}/admin/work/${report.workId}`, {
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
+
+      navigation.navigate("AdminWorkView", {
+        work: res.data,
+      });
     } catch (error) {
       console.log(error);
-      //Alert.alert(error.response.data.message);
+      Alert.alert(error.response.data.message);
     }
   };
-  const onViewUser = async () => {
-    navigation.navigate("AdminUserView");
+  const onViewUser = async (userId) => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/admin/user/${userid}`);
+      const res = await axios.get(`${BASE_URL}/admin/user/${userId}`, {
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
+
+      navigation.navigate("AdminUserView", {
+        user: res.data,
+      });
       //신고자 피신고자 id만 다르게 넣으면 구분가능
     } catch (error) {
       console.log(error);
-
-      // Alert.alert(error.response.data.message);
+      Alert.alert(error.response.data.message);
     }
   };
 
   return (
     <Container>
       <ReportContainer>
-        <Title>제목: {temp.title}</Title>
-        <Content>내용: {temp.content}</Content>
+        <Title> {report.reportTitle}</Title>
+        <Content>{report.reportReason}</Content>
       </ReportContainer>
+      <ButtonContainer>
+        <Button onPress={onViewConversation}>
+          <ButtonText>대화 내역 보기</ButtonText>
+        </Button>
 
-      <Button onPress={onViewConversation}>
-        <ButtonText>대화 내역 보기</ButtonText>
-      </Button>
+        <Button onPress={onViewWork}>
+          <ButtonText>심부름 상세 보기</ButtonText>
+        </Button>
+      </ButtonContainer>
+      <ButtonContainer>
+        <Button onPress={() => onViewUser(report.reportUserId)}>
+          <ButtonText>신고자 정보 보기</ButtonText>
+        </Button>
+        <Button onPress={() => onViewUser(report.reportedUserId)}>
+          <ButtonText>피신고자 정보 보기</ButtonText>
+        </Button>
+      </ButtonContainer>
+      <ButtonContainer>
+        <Button onPress={() => setModalVisible(true)}>
+          <ButtonText>신고내역 처리하기</ButtonText>
+        </Button>
+      </ButtonContainer>
 
-      <Button onPress={onViewWork}>
-        <ButtonText>심부름 상세 보기</ButtonText>
-      </Button>
-
-      <Button onPress={onViewUser}>
-        <ButtonText>신고자 정보 보기</ButtonText>
-      </Button>
-      <Button onPress={onViewUser}>
-        <ButtonText>피신고자 정보 보기</ButtonText>
-      </Button>
-
-      <Button onPress={() => setModalVisible(true)}>
-        <ButtonText>처리하기</ButtonText>
-      </Button>
       <HandleReport
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
+        report={report}
       />
     </Container>
   );

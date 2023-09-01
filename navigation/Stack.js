@@ -13,6 +13,7 @@ import History from "../historyView/History";
 import Map from "../mainView/Map";
 import DetailReport from "../adminView/DetailReport";
 import AdminTab from "./AdminTab";
+import AdminView from "../adminView/AdminView";
 import AdminUserView from "../adminView/AdminUserView";
 import AdminWorkView from "../adminView/AdminWorkView";
 import AdminConversationView from "../adminView/AdminConversationView";

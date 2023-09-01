@@ -2,8 +2,10 @@ import axios from "axios";
 import { useEffect } from "react";
 import { useState } from "react";
 import { View, Text, Alert } from "react-native";
+import { useRecoilValue } from "recoil";
 import styled from "styled-components/native";
 import { BASE_URL } from "../api";
+import { adminTokenData } from "../atom";
 import ReportView from "./ReportView";
 const Container = styled.View`
   flex: 1;
@@ -31,28 +33,44 @@ const AdminView = () => {
   const [isHelper, setIsHelper] = useState(false);
   const [userReport, setUserReport] = useState([]);
   const [helperReport, setHelperReport] = useState([]);
-  useEffect(() => {
-    console.log("render");
-  }, []);
-  const onViewCustomer = async () => {
-    setIsHelper(false);
+  const fetchCustmoerData = async () => {
     try {
       const res = await axios.get(
-        `${BASE_URL}/api/report/reportList/writeByCustomer`
+        `${BASE_URL}/admin/reportList/writeByCustomer`,
+
+        {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        }
       );
+
       setUserReport(res.data);
     } catch (error) {
+      console.log(error);
       Alert.alert(error.response.data.message);
     }
+  };
+  useEffect(() => {
+    //naviagte로 돌아올시 useEffect 안된다..
+    fetchCustmoerData();
+  }, [userReport]);
+  const adminToken = useRecoilValue(adminTokenData);
+
+  const onViewCustomer = async () => {
+    setIsHelper(false);
+    fetchCustmoerData();
   };
   const onViewHelper = async () => {
     setIsHelper(true);
     try {
       const res = await axios.get(
-        `${BASE_URL}/api/report/reportList/writeByCustomer`
+        `${BASE_URL}/admin/reportList/writeByHelper`,
+        {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        }
       );
       setHelperReport(res.data);
     } catch (error) {
+      console.log(error);
       Alert.alert(error.response.data.message);
     }
   };
@@ -77,7 +95,10 @@ const AdminView = () => {
           <SelectText>헬퍼 신고 보기</SelectText>
         </SelectBtn>
       </SelectView>
-      <ReportView report={isHelper ? helperReport : userReport} />
+      <ReportView
+        report={isHelper ? helperReport : userReport}
+        isHelper={isHelper}
+      />
     </Container>
   );
 };

@@ -52,7 +52,7 @@ const ButtonText = styled.Text`
 
 const Join = ({ navigation: { navigate } }) => {
   const [name, setName] = useRecoilState(nameData);
-  const [id, setId] = useRecoilState(idData);
+  const [userId, setUserId] = useRecoilState(idData);
   const setPw = useSetRecoilState(pwData); //비밀번호 두개 일치 할경우 recoil pw에 저장
 
   const [pw1, setPw1] = useState(null); //비밀번호
@@ -62,7 +62,7 @@ const Join = ({ navigation: { navigate } }) => {
     setName(payload);
   };
   const onChangeId = (payload) => {
-    setId(payload);
+    setUserId(payload);
   };
   const onChangePw = (payload) => {
     setPw1(payload);
@@ -73,28 +73,24 @@ const Join = ({ navigation: { navigate } }) => {
   const sendJoin = async () => {
     try {
       const res = await axios.post(`${BASE_URL}/join`, {
-        name: name,
-        userId: id,
+        name,
+        userId,
         password: pw1,
       });
       Alert.alert("회원가입 성공");
-      console.log("회원가입 성공");
       navigate("Login");
     } catch (error) {
-      console.log(error);
+      Alert.alert(error.response.data.message);
     }
   };
   const onPressJoin = () => {
-    if (id === null) {
+    if (userId === null) {
       Alert.alert("아이디를 입력해주세요");
     } else if (pw1 === null || pw2 === null) {
       Alert.alert("비밀번호를 입력해주세요");
     } else if (pw1 !== pw2) {
       Alert.alert("비밀번호가 동일하지 않습니다");
-    } //else if (pw1.length < 8 || pw2.length < 8) {
-    //Alert.alert("8자 이상 입력해주세요.");
-    //}
-    else {
+    } else {
       setPw(pw1);
       sendJoin();
     }

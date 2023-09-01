@@ -202,8 +202,7 @@ const HelperProfile = ({ route }) => {
           body: JSON.stringify(selectWork),
           headers: { Authorization: `Bearer ${accessToken}` },
         });
-        axios.post(`${BASE_URL}/api/fcm/${data._id}`).then();
-
+        axios.post(`${BASE_URL}/api/fcm/chatNotification/${data._id}`).then();
         navigation.navigate("Chatting");
       })
       .catch((error) => Alert.alert(error.response.data.message));

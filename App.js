@@ -1,27 +1,114 @@
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { RecoilRoot } from "recoil";
+import { RecoilRoot, useRecoilValue, useSetRecoilState } from "recoil";
 import * as encoding from "text-encoding";
 import Root from "./navigation/Root";
 import messaging from "@react-native-firebase/messaging";
 import { useEffect } from "react";
 import { Alert } from "react-native";
 import axios from "axios";
-import { fcmTokenData } from "./atom";
-import { createGlobalStyle } from "styled-components/native";
-import { View } from "react-native";
-import { Platform } from "react-native";
+import {
+  chatListData,
+  historyReportData,
+  historyWorkData,
+  myImgData,
+  nearWorkData,
+  userData,
+} from "./atom";
+
+import { BASE_URL } from "./api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+let navigation;
 
 export default function App() {
-  const queryClient = new QueryClient();
+  const setChatList = useSetRecoilState(chatListData);
+  const setNearWork = useSetRecoilState(nearWorkData);
+  const setUser = useSetRecoilState(userData);
+  const setMyImg = useSetRecoilState(myImgData);
+  const setHistoryWork = useSetRecoilState(historyWorkData);
+  const setHistoryReport = useSetRecoilState(historyReportData);
 
   messaging().setBackgroundMessageHandler(async (remoteMessage) => {
     //background
-    console.log("Message handled in the background!", remoteMessage); //remoteMessage.body , remoteMessage.title\
-    if (remoteMessage.notification)
-      console.log("채팅알람", remoteMessage.notification.body);
-    else
+    const token = await AsyncStorage.getItem("authToken");
+    if (
+      remoteMessage.data.routeType === "ConversationView" ||
+      remoteMessage.data.routeType === "conversationView"
+    ) {
+      try {
+        const res = await axios.get(
+          `${BASE_URL}/api/conversation/${remoteMessage.data.routeData}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setChatList(res.data);
+        navigation.navgiate("Chatting");
+      } catch (error) {
+        console.log(error);
+        Alert.alert(error.response.data.message);
+      }
+    } else if (remoteMessage.data.routeType === "nearByView") {
+      try {
+        const res = await axios.get(`${BASE_URL}/api/workList/nearBy`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setNearWork(res.data);
+        navigation.navigate("Tabs", {
+          screen: "헬퍼보기",
+          params: {
+            isNearWork: true,
+          },
+        });
+      } catch (error) {
+        console.log(error);
+        Alert.alert(error.response.data.message);
+      }
+    } else if (remoteMessage.data.routeType === "finishWorkView") {
+      try {
+        const res = await axios.get(`${BASE_URL}/api/workList/all`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setHistoryWork(res.data);
+        navigation.navigate("Tabs", { screen: "이용내역" });
+      } catch (error) {
+        console.log(error);
+        Alert.alert(error.response.data.message);
+      }
+    } else if (remoteMessage.data.routeType === "myReviewView") {
+      try {
+        const res = await axios.get(`${BASE_URL}/api`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUser(res.data);
+        setMyImg(res.data.image);
+        navigation.navigate("Profile");
+      } catch (error) {
+        console.log(error);
+        Alert.alert(error.response.data.message);
+      }
+    } else if (remoteMessage.data.routeType === "reportView") {
+      try {
+        const res1 = await axios.get(`${BASE_URL}/api/workList/all`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setHistoryWork(res1.data);
+        const res2 = await axios.get(`${BASE_URL}/api/report/reportList`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setHistoryReport(res2.data);
+        navigation.navigate("Tabs", { screen: "이용내역" });
+      } catch (error) {
+        console.log(error);
+        Alert.alert(error.response.data.message);
+      }
+    }
+    if (remoteMessage.notification) {
+      //console.log("채팅알람fff", remoteMessage.notification.body);
+      //navigation.navigate("Chatting");
+    } else
       console.log(
         "background title : " +
           remoteMessage.data.title +
@@ -48,12 +135,8 @@ export default function App() {
     return unsubscribe;
   }, []);
   return (
-    <RecoilRoot>
-      <QueryClientProvider client={queryClient}>
-        <NavigationContainer>
-          <Root />
-        </NavigationContainer>
-      </QueryClientProvider>
-    </RecoilRoot>
+    <NavigationContainer ref={(ref) => (navigation = ref)}>
+      <Root />
+    </NavigationContainer>
   );
 }

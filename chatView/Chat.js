@@ -12,6 +12,7 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import { BASE_URL } from "../api";
+import messaging from "@react-native-firebase/messaging";
 
 const Container = styled.View`
   flex: 1;
@@ -74,16 +75,9 @@ const Chat = () => {
   const goToChatting = async (chatRoom) => {
     const workId = JSON.parse(chatRoom.chatList[0].message).id;
 
-    try {
-      const res = await axios.get(`${BASE_URL}/api/work/${workId}`);
-      navigation.navigate("Chatting", { chatRoom });
-      setWorkStatusCode(res.data.workProceedingStatus);
-      setConversation(chatRoom);
-      setChatList(chatRoom);
-    } catch (error) {
-      console.log(error);
-    }
-
+    setConversation(chatRoom);
+    setChatList(chatRoom);
+    navigation.navigate("Chatting", { chatRoom }); //수정
     axios
       .post(`http://10.0.2.2:8080/api/conversation/seen/${chatRoom._id}`)
       .then((res) => {

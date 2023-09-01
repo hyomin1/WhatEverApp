@@ -69,7 +69,7 @@ const AlarmView = () => {
         <AlarmListContainer>
           {alarm?.map((data, index) => (
             <AlarmItem seen={data.seen} key={index}>
-              <AlarmTitle seen={data.seen}>{data.title}</AlarmTitle>
+              <AlarmTitle seen={data.seen}>{data.body}</AlarmTitle>
             </AlarmItem>
           ))}
         </AlarmListContainer>

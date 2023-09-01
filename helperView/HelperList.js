@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, View, TouchableOpacity } from "react-native";
+import { Pressable, ScrollView, View, Text } from "react-native";
 import styled from "styled-components/native";
 import { useRecoilValue } from "recoil";
 import { contentData, ratingHelperData, responseHelperData } from "../atom";
@@ -31,7 +31,7 @@ const ChooseText = styled.Text`
   font-weight: 500;
 `;
 
-const HelperList = ({ helperVisible, setHelperVisible }) => {
+const HelperList = () => {
   const distanceData = useRecoilValue(contentData);
   const ratingData = useRecoilValue(ratingHelperData);
   const responseData = useRecoilValue(responseHelperData);
@@ -79,21 +79,35 @@ const HelperList = ({ helperVisible, setHelperVisible }) => {
 
           <MainBar>
             <View style={{ flex: 2, paddingHorizontal: 10 }}>
-              {distanceData && isDistance
-                ? distanceData.map((data) => (
-                    <HelperInform key={data.id} helperData={data} />
-                  ))
-                : null}
-              {ratingData && isRating
-                ? ratingData.map((data) => (
-                    <HelperInform key={data.id} helperData={data} />
-                  ))
-                : null}
-              {responseData && isResponse
-                ? responseData.map((data) => (
-                    <HelperInform key={data.id} helperData={data} />
-                  ))
-                : null}
+              {distanceData &&
+                isDistance &&
+                distanceData.map((data) => (
+                  <HelperInform key={data.id} helperData={data} />
+                ))}
+              {ratingData &&
+                isRating &&
+                ratingData.map((data) => (
+                  <HelperInform key={data.id} helperData={data} />
+                ))}
+              {responseData &&
+                isResponse &&
+                responseData.map((data) => (
+                  <HelperInform key={data.id} helperData={data} />
+                ))}
+              {distanceData.length === 0 &&
+                ratingData.length === 0 &&
+                responseData.length === 0 && (
+                  <View
+                    style={{
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text style={{ color: "#777" }}>
+                      주변에 헬퍼가 없습니다
+                    </Text>
+                  </View>
+                )}
             </View>
           </MainBar>
         </Container>

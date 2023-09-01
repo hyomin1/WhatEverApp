@@ -18,6 +18,7 @@ import axios from "axios";
 import WorkChat from "./WorkChat";
 import NormalChat from "./NormalChat";
 import CardChat from "./CardChat";
+import { BASE_URL } from "../api";
 
 const Container = styled.View`
   flex: 1;
@@ -71,12 +72,24 @@ const Chatting = () => {
   const chatRoomList = useRecoilValue(chatRoomListData);
   const access = useRecoilValue(accessData);
   const grant = useRecoilValue(grantData);
+  const setWorkStatusCode = useSetRecoilState(workProceedingStatusData);
 
   const chat = {
     senderName: myName,
     receiverName: receiverName,
     message: textInput,
   };
+  const fetchData = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/work/${chatList.workId}`);
+      setWorkStatusCode(res.data.workProceedingStatus);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const sendMsg = () => {
     if (textInput === "") {
@@ -89,7 +102,7 @@ const Chatting = () => {
         headers: { Authorization: `${grant} ${access}` },
       });
       axios
-        .post(`http://10.0.2.2:8080/api/fcm/${chatList._id}`)
+        .post(`http://10.0.2.2:8080/api/fcm/chatNotification/${chatList._id}`)
         .then((res) => {})
         .catch((error) => console.log("fcmerr", error));
     }
@@ -117,6 +130,7 @@ const Chatting = () => {
       setChatList(updatedChatList);
     }
   }, [chatRoomList]);
+
   const chatListItems = chatList?.chatList || [];
   return (
     <Container>

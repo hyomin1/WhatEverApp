@@ -1,4 +1,4 @@
-import { Modal, TouchableOpacity, View } from "react-native";
+import { Modal, TouchableOpacity, View, Alert } from "react-native";
 import styled from "styled-components/native";
 import { useState } from "react";
 import axios from "axios";
@@ -87,15 +87,17 @@ const Report = ({ reportVisible, setReportVisible }) => {
 
   const onPressReportComplete = async () => {
     //신고 완료
+    console.log(work);
     try {
       const res = await axios.post(`${BASE_URL}/api/report`, {
-        work,
+        workId: work.id,
         reportTitle,
         reportReason,
       });
+      Alert.alert("신고가 완료되었습니다.");
       setReportVisible(!reportVisible);
     } catch (error) {
-      console.log(error);
+      Alert.alert(error.response.data.message);
     }
   };
   return (

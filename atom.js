@@ -192,3 +192,11 @@ export const workProceedingStatusData = atom({
   key: "workProceedingStatus",
   default: null,
 });
+export const adminTokenData = atom({
+  key: "adminToken",
+  default: null,
+});
+export const nearWorkData = atom({
+  key: "nearWork",
+  default: null,
+});

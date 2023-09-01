@@ -50,23 +50,7 @@ const Name = styled.Text`
   font-size: 24px;
   font-weight: 700;
 `;
-const ButtonContainer = styled.View`
-  margin-top: 20px;
-  flex-direction: row;
-  justify-content: space-between;
-`;
-const EditButton = styled.TouchableOpacity`
-  background-color: #3498db;
-  padding: 10px 20px;
-  border-radius: 8px;
-  align-self: flex-start;
-  margin-top: 10px;
-`;
 
-const EditButtonText = styled.Text`
-  color: white;
-  font-weight: 600;
-`;
 const Section = styled.View`
   background-color: white;
   margin: 0 20px 20px;
@@ -79,10 +63,39 @@ const SectionHeader = styled.Text`
   font-weight: 700;
   margin-bottom: 15px;
 `;
+const CountBox = styled.View`
+  padding: 0 20px;
+  margin-top: 20px;
+`;
 
-const DetailUser = ({ userInfo, userVisible, setUserVisible }) => {
-  console.log("1");
+const CountContainer = styled.TouchableOpacity`
+  border-radius: 10px;
+  background-color: #3498db;
+  padding: 15px 20px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+`;
 
+const CountText = styled.Text`
+  font-size: 16px;
+  font-weight: 800;
+  color: white;
+`;
+
+const CountValue = styled.Text`
+  font-size: 16px;
+  color: white;
+`;
+
+const DetailUser = ({
+  userInfo,
+  userVisible,
+  setUserVisible,
+  userWorkList,
+}) => {
+  console.log(userWorkList);
   return (
     <Modal
       style={{ flex: 1 }}
@@ -136,6 +149,17 @@ const DetailUser = ({ userInfo, userVisible, setUserVisible }) => {
               {userInfo.introduce ? userInfo.introduce : "소개가 없습니다."}
             </Text>
           </View>
+        </Section>
+        <Section>
+          <SectionHeader>신청한 심부름</SectionHeader>
+          <CountBox>
+            <CountContainer>
+              <CountText>심부름 보기</CountText>
+              <CountValue>
+                {userWorkList ? `${userWorkList.length}회` : "0회"}
+              </CountValue>
+            </CountContainer>
+          </CountBox>
         </Section>
       </Container>
     </Modal>
