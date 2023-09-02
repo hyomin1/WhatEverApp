@@ -30,7 +30,6 @@ const UserHelperHistory = ({ status, historyWork }) => {
                 data={data}
                 index={index}
                 onPressReport={onPressReport}
-                isHelper={true}
               />
             ) : null
           )
@@ -45,7 +44,6 @@ const UserHelperHistory = ({ status, historyWork }) => {
                 data={data}
                 index={index}
                 onPressReport={onPressReport}
-                isHelper={true}
               />
             ) : null
           )

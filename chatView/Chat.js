@@ -89,7 +89,10 @@ const Chat = () => {
           }
         });
       })
-      .catch((error) => Alert.alert(error));
+      .catch((error) => {
+        console.log("gochatting", error);
+        Alert.alert(error);
+      });
   };
 
   return (

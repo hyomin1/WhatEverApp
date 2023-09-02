@@ -186,6 +186,7 @@ const HelperProfile = ({ route }) => {
   const navigation = useNavigation();
   const [visible, setVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [review, setReview] = useState();
 
   const onPressOrderBtn = async () => {
     //심부름 목록 본 후 선택해서 신청
@@ -208,13 +209,14 @@ const HelperProfile = ({ route }) => {
       .catch((error) => Alert.alert(error.response.data.message));
     setWorkListVisible(!workListVisible);
   };
-  const onPressReview = () => {
-    setVisible(true);
-
-    axios
-      .get(`${BASE_URL}/api/review/${route.params.id}`)
-      .then(({ data }) => console.log(data))
-      .catch((error) => console.log(error));
+  const onPressReview = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/review/${route.params.id}`);
+      setReview(res.data);
+      setVisible(true);
+    } catch (e) {
+      Alert.alert(e.response.data.message);
+    }
   };
   const onDeleteItem = (itemId) => {
     Alert.alert(
@@ -237,16 +239,7 @@ const HelperProfile = ({ route }) => {
       { cancelable: true }
     );
   };
-  const reviews = [
-    {
-      text: "good",
-      date: "1.33",
-    },
-    {
-      text: "bad",
-      date: "2.57",
-    },
-  ];
+
   const onViewWork = () => {
     setModalVisible(true);
   };
@@ -283,7 +276,7 @@ const HelperProfile = ({ route }) => {
         <ReviewModal
           visible={visible}
           setVisible={setVisible}
-          reviews={reviews}
+          review={review}
         />
       </ProfileView>
 

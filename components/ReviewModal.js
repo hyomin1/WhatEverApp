@@ -54,7 +54,7 @@ const ReviewDate = styled.Text`
   color: #888;
 `;
 
-const ReviewModal = ({ visible, setVisible, reviews }) => {
+const ReviewModal = ({ visible, setVisible, review }) => {
   return (
     <Modal animationType="slide" transparent={true} visible={visible}>
       <Background>
@@ -71,10 +71,10 @@ const ReviewModal = ({ visible, setVisible, reviews }) => {
           </TitleBar>
           <ReviewList>
             <ScrollView>
-              {reviews?.map((review, index) => (
+              {review?.map((data, index) => (
                 <ReviewItem key={index}>
-                  <ReviewText>{review.text}</ReviewText>
-                  <ReviewDate>{review.date}</ReviewDate>
+                  <ReviewText>{data.body}</ReviewText>
+                  <ReviewDate>{data.rating}</ReviewDate>
                 </ReviewItem>
               ))}
             </ScrollView>

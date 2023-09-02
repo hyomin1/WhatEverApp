@@ -175,28 +175,29 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
       [
         {
           text: "확인",
-          onPress: () => {
-            axios
+          onPress: async () => {
+            await axios
               .put(`${BASE_URL}/api/work/finish/${chatList.workId}`)
-              .then((res) => {
+              .then(async (res) => {
                 client.publish({
                   destination: `/pub/card/${conversation._id}`,
                   body: JSON.stringify(finishCard),
                   headers: { Authorization: `Bearer ${accessToken}` },
                 });
-                axios
+                await axios
                   .post(
                     `${BASE_URL}/api/fcm/chatNotification/${conversation._id}`
                   )
                   .then();
-                axios.get(`${BASE_URL}/api/conversations`).then(({ data }) => {
-                  data.sort(
-                    (a, b) => new Date(b.updateAt) - new Date(a.updateAt)
-                  );
-
-                  setChatRoomList(data);
-                  navigation.goBack();
-                });
+                await axios
+                  .get(`${BASE_URL}/api/conversations`)
+                  .then(({ data }) => {
+                    data.sort(
+                      (a, b) => new Date(b.updateAt) - new Date(a.updateAt)
+                    );
+                    setChatRoomList(data);
+                    navigation.goBack();
+                  });
               });
           },
         },

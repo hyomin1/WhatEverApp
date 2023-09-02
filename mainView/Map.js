@@ -30,7 +30,7 @@ const Map = ({ location, distanceHelper, navigate, currentLocation }) => {
         return a.avgReactTime - b.avgReactTime;
       });
       setResponseHelper(response);
-      console.log("지도 움직일때 마다 요청");
+      //  console.log("지도 움직일때 마다 요청");
     } catch (error) {
       Alert.alert(error.response.data.message);
     }

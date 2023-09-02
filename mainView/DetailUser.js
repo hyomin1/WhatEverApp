@@ -1,6 +1,8 @@
 import { Modal, TouchableOpacity, Text, View } from "react-native";
 import styled from "styled-components/native";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { useState } from "react";
+import UserWorkListModal from "./UserWorkListModal";
 
 const Container = styled.View`
   flex: 1;
@@ -95,7 +97,8 @@ const DetailUser = ({
   setUserVisible,
   userWorkList,
 }) => {
-  console.log(userWorkList);
+  const [modalVisible, setModalVisible] = useState(false);
+  console.log(1);
   return (
     <Modal
       style={{ flex: 1 }}
@@ -136,11 +139,6 @@ const DetailUser = ({
               )}
             </ProfileInfo>
           </ProfileHeader>
-          {/* <ButtonContainer>
-            <EditButton>
-              <EditButtonText></EditButtonText>
-            </EditButton>
-          </ButtonContainer> */}
         </ProfileView>
         <Section>
           <SectionHeader>유저 소개</SectionHeader>
@@ -153,13 +151,18 @@ const DetailUser = ({
         <Section>
           <SectionHeader>신청한 심부름</SectionHeader>
           <CountBox>
-            <CountContainer>
+            <CountContainer onPress={() => setModalVisible(!modalVisible)}>
               <CountText>심부름 보기</CountText>
               <CountValue>
                 {userWorkList ? `${userWorkList.length}회` : "0회"}
               </CountValue>
             </CountContainer>
           </CountBox>
+          <UserWorkListModal
+            data={userWorkList}
+            modalVisible={modalVisible}
+            setModalVisible={setModalVisible}
+          />
         </Section>
       </Container>
     </Modal>

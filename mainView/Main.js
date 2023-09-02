@@ -201,6 +201,7 @@ const Main = ({ navigation: { navigate }, route }) => {
               const chatId =
                 parsedMessage.data[parsedMessage.data.length - 1]._id; //새로운 채팅방 아이디 찾기
               subscribeToChatTopic(client, chatId, setChatRoomList);
+            } else if (parsedMessage.messageType === "HelperLocation") {
             } else if (parsedMessage.messageType === "SetConvSeenCount") {
               setChatCount(parsedMessage.data);
               console.log("개수", parsedMessage.data);

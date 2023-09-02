@@ -1,11 +1,13 @@
-import { View } from "react-native";
+import { View, ScrollView } from "react-native";
 import { myIdData, sendWorkData } from "../atom";
 import { useState } from "react";
 import Report from "./Report";
 import HistoryInform from "./HistoryInform";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components/native";
-const NoWorkText = styled.Text``;
+const ViewS = styled.View`
+  border: 1px solid black;
+`;
 
 const UserCustomerHistory = ({ historyWork, status }) => {
   const myId = useRecoilValue(myIdData);
@@ -19,8 +21,6 @@ const UserCustomerHistory = ({ historyWork, status }) => {
     setReportVisible(!reportVisible);
   };
 
-  //console.log(isHelper);
-  //console.log(status);
   //console.log("이용내역데이터", historyWork);
   return (
     <View>
@@ -30,11 +30,9 @@ const UserCustomerHistory = ({ historyWork, status }) => {
             status === "심부름 전" &&
             data.workProceedingStatus === 0 ? (
               <HistoryInform
-                key={index}
                 data={data}
                 index={index}
                 onPressReport={onPressReport}
-                isReport={false}
               />
             ) : null
           )
@@ -50,7 +48,6 @@ const UserCustomerHistory = ({ historyWork, status }) => {
                 data={data}
                 index={index}
                 onPressReport={onPressReport}
-                isReport={true}
               />
             ) : null
           )
@@ -65,7 +62,6 @@ const UserCustomerHistory = ({ historyWork, status }) => {
                 data={data}
                 index={index}
                 onPressReport={onPressReport}
-                isReport={true}
               />
             ) : null
           )

@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { Modal, FlatList, View } from "react-native";
+import React from "react";
+import { Modal, View, Text, TouchableOpacity, FlatList } from "react-native";
 import styled from "styled-components/native";
-import { FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 
 const ModalContainer = styled.View`
   flex: 1;
@@ -77,14 +77,13 @@ const CardReward = styled.Text`
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 `;
 
-const HelperWorkList = ({ modalVisible, setModalVisible, completedWork }) => {
-  console.log(completedWork);
+const UserWorkListModal = ({ modalVisible, data, setModalVisible }) => {
   return (
     <Modal
       animationType="slide"
-      transparent={true}
       visible={modalVisible}
-      onRequestClose={() => setModalVisible(false)}
+      transparent
+      onRequestClose={() => setModalVisible(!modalVisible)}
     >
       <ModalContainer>
         <ContentContainer>
@@ -92,12 +91,13 @@ const HelperWorkList = ({ modalVisible, setModalVisible, completedWork }) => {
             <CloseButton onPress={() => setModalVisible(!modalVisible)}>
               <CloseIcon name="arrow-back" />
             </CloseButton>
+
             <ModalTitle>심부름 목록</ModalTitle>
 
             <View style={{ flex: 1 }}></View>
           </HeaderContainer>
           <FlatList
-            data={completedWork}
+            data={data}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <CardContainer>
@@ -117,4 +117,4 @@ const HelperWorkList = ({ modalVisible, setModalVisible, completedWork }) => {
   );
 };
 
-export default HelperWorkList;
+export default UserWorkListModal;

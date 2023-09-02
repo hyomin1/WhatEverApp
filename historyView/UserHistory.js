@@ -1,6 +1,6 @@
 import { useState } from "react";
 import styled from "styled-components/native";
-import { View, Text } from "react-native";
+import { View, Text, FlatList } from "react-native";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { historyReportData, historyWorkData } from "../atom";
 import UserCustomerHistory from "./UserCustomerHistory";
@@ -9,6 +9,7 @@ import SelectDropdown from "react-native-select-dropdown";
 import ReportResult from "./ReportResult";
 import axios from "axios";
 import { BASE_URL } from "../api";
+import { ScrollView } from "react-native";
 
 const StatusButton = styled.TouchableHighlight`
   border-radius: 10px;

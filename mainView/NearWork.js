@@ -108,6 +108,7 @@ const NearWork = ({ nearWork, setNearWork }) => {
         `${BASE_URL}/api/workList/byCustomer/${userId}`
       );
       setUserWorkList(res2.data);
+
       setUserVisible(true);
     } catch (error) {
       console.log(error);
@@ -162,21 +163,6 @@ const NearWork = ({ nearWork, setNearWork }) => {
                   </Button>
                 </ButtonContainer>
               </WorkInformation>
-              {workVisible && (
-                <DetailWork
-                  selectedWork={selectedWorkDetail}
-                  workVisible={workVisible}
-                  setWorkVisible={setWorkVisible}
-                />
-              )}
-              {userVisible && (
-                <DetailUser
-                  userInfo={userInfo}
-                  userVisible={userVisible}
-                  setUserVisible={setUserVisible}
-                  userWorkList={userWorkList}
-                />
-              )}
             </View>
           ) : null
         )
@@ -191,6 +177,21 @@ const NearWork = ({ nearWork, setNearWork }) => {
         >
           <Text>주변에 심부름이 없습니다</Text>
         </View>
+      )}
+      {workVisible && (
+        <DetailWork
+          selectedWork={selectedWorkDetail}
+          workVisible={workVisible}
+          setWorkVisible={setWorkVisible}
+        />
+      )}
+      {userVisible && (
+        <DetailUser
+          userInfo={userInfo}
+          userVisible={userVisible}
+          setUserVisible={setUserVisible}
+          userWorkList={userWorkList}
+        />
       )}
     </ScrollView>
   );

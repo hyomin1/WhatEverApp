@@ -79,12 +79,15 @@ const Chatting = () => {
     receiverName: receiverName,
     message: textInput,
   };
+
   const fetchData = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/work/${chatList.workId}`);
+      const res = await axios.get(
+        `${BASE_URL}/api/work/${JSON.parse(chatList.chatList[0].message).id}`
+      );
       setWorkStatusCode(res.data.workProceedingStatus);
     } catch (error) {
-      console.log(error);
+      console.log("is", error);
     }
   };
   useEffect(() => {

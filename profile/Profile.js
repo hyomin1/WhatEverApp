@@ -135,7 +135,7 @@ const Profile = () => {
   //const setHelperLocation = useSetRecoilState(helperLocationData);
 
   const [user, setUser] = useRecoilState(userData);
-
+  const [review, setReview] = useState();
   const [visible, setVisible] = useState(false);
   const [address, setAddress] = useState({
     city: "",
@@ -148,25 +148,17 @@ const Profile = () => {
   const goProfileFix = () => {
     setModalVisible(!modalVisible);
   };
-  const onPressReview = () => {
-    setVisible(true);
-    axios
-      .get(`${BASE_URL}/api/review`)
-      .then((res) => {
-        console.log(res.data);
-      })
-      .catch((e) => console.log(e));
+
+  const onPressReview = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/review`);
+      setReview(res.data);
+      setVisible(true);
+    } catch (error) {
+      Alert.alert(error.response.data.message);
+    }
   };
-  const reviews = [
-    {
-      text: "good",
-      date: "1.5",
-    },
-    {
-      text: "bad",
-      date: "2.5",
-    },
-  ];
+
   //console.log(user);
   return (
     <Container>
@@ -206,11 +198,7 @@ const Profile = () => {
           </EditButton>
         </ButtonContainer>
       </ProfileView>
-      <ReviewModal
-        visible={visible}
-        setVisible={setVisible}
-        reviews={reviews}
-      />
+      <ReviewModal visible={visible} setVisible={setVisible} review={review} />
 
       <Section>
         <SectionHeader>자기소개</SectionHeader>
