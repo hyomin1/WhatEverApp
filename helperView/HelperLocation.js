@@ -28,7 +28,7 @@ const HelperLocation = ({ route }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      {isLoading ? (
+      {!location ? (
         <View>
           <ActivityIndicator />
         </View>

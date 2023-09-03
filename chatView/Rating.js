@@ -62,9 +62,7 @@ const Rating = ({ isSetStarRating, workId }) => {
         rating,
         body: review,
       })
-      .then((res) => {
-        //console.log("a", res.data);
-      })
+      .then((res) => {})
       .catch((error) => Alert.alert(error.response.data.message));
   };
 

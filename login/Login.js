@@ -8,6 +8,7 @@ import {
   adminData,
   alarmCountData,
   adminTokenData,
+  chatCountData,
 } from "../atom";
 import { useSetRecoilState } from "recoil";
 import { useNavigation } from "@react-navigation/native";
@@ -77,6 +78,7 @@ function Login({ navigation: { navigate } }) {
   const setIsAdmin = useSetRecoilState(adminData);
   const setAlarmCount = useSetRecoilState(alarmCountData);
   const setAdminToken = useSetRecoilState(adminTokenData);
+  const setChatCount = useSetRecoilState(chatCountData);
 
   const onChangeId = (payload) => {
     setId(payload);
@@ -113,7 +115,9 @@ function Login({ navigation: { navigate } }) {
         setIsAdmin(false);
         await axios
           .get(`${BASE_URL}/api/conversation/seen`)
+          .then((res) => setChatCount(res.data))
           .catch((error) => Alert.alert("2222" + error));
+
         await axios
           .get(`${BASE_URL}/api/alarm/seenCount`)
           .then((res) => setAlarmCount(res.data))

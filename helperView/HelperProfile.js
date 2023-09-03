@@ -187,7 +187,7 @@ const HelperProfile = ({ route }) => {
   const [visible, setVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [review, setReview] = useState();
-
+  console.log("sl", selectWork);
   const onPressOrderBtn = async () => {
     //심부름 목록 본 후 선택해서 신청
     axios
@@ -203,7 +203,10 @@ const HelperProfile = ({ route }) => {
           body: JSON.stringify(selectWork),
           headers: { Authorization: `Bearer ${accessToken}` },
         });
-        axios.post(`${BASE_URL}/api/fcm/chatNotification/${data._id}`).then();
+        axios
+          .post(`${BASE_URL}/api/fcm/chatNotification/${data._id}`)
+          .then()
+          .catch((error) => console.log("caca", error));
         navigation.navigate("Chatting");
       })
       .catch((error) => Alert.alert(error.response.data.message));
@@ -266,7 +269,11 @@ const HelperProfile = ({ route }) => {
         </ProfileHeader>
 
         <ButtonContainer>
-          <EditButton onPress={() => setWorkListVisible(!workListVisible)}>
+          <EditButton
+            onPress={() => {
+              setWorkListVisible(!workListVisible);
+            }}
+          >
             <EditButtonText>내 심부름 목록</EditButtonText>
           </EditButton>
           <EditButton onPress={onPressReview}>

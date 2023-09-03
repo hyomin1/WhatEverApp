@@ -71,7 +71,7 @@ const Chat = () => {
   const setConversation = useSetRecoilState(conversationData);
   const myId = useRecoilValue(myIdData);
   const setWorkStatusCode = useSetRecoilState(workProceedingStatusData);
-
+  console.log(chatRoomList);
   const goToChatting = async (chatRoom) => {
     const workId = JSON.parse(chatRoom.chatList[0].message).id;
 

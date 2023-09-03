@@ -62,7 +62,7 @@ const SendIcon = styled(Ionicons)`
   color: white;
 `;
 
-const Chatting = () => {
+const Chatting = ({ route }) => {
   const [textInput, setTextInput] = useState("");
 
   const myId = useRecoilValue(myIdData);
@@ -81,13 +81,15 @@ const Chatting = () => {
   };
 
   const fetchData = async () => {
-    try {
-      const res = await axios.get(
-        `${BASE_URL}/api/work/${JSON.parse(chatList.chatList[0].message).id}`
-      );
-      setWorkStatusCode(res.data.workProceedingStatus);
-    } catch (error) {
-      console.log("is", error);
+    if (chatList.workId !== null) {
+      try {
+        const res = await axios.get(`${BASE_URL}/api/work/${chatList.workId}`);
+        setWorkStatusCode(res.data.workProceedingStatus);
+      } catch (error) {
+        console.log("is", error);
+      }
+    } else {
+      setWorkStatusCode(0);
     }
   };
   useEffect(() => {

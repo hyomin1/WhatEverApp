@@ -179,9 +179,16 @@ const ProfileFix = ({
     setChangePw2(payload);
   };
 
-  const changePassword = () => {
+  const changePassword = async () => {
     if (changePw === changePw2 && changePw !== "" && changePw2 !== "") {
-      Alert.alert("비밀번호 변경 완료");
+      try {
+        const res = await axios.put(
+          `${BASE_URL}/api/user?password=${changePw}`
+        );
+        Alert.alert("비밀번호가 변경되었습니다.");
+      } catch (error) {
+        console.log("비번변경에러", error);
+      }
       //비밀번호 변경 버튼 누를시에도 서버에 보내줘야함 어떻게 추가할지 생각
       setUser((prev) => ({
         ...prev,

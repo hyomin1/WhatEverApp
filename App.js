@@ -1,12 +1,11 @@
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import React from "react";
-import { QueryClient, QueryClientProvider } from "react-query";
 import { RecoilRoot, useRecoilValue, useSetRecoilState } from "recoil";
 import * as encoding from "text-encoding";
 import Root from "./navigation/Root";
 import messaging from "@react-native-firebase/messaging";
 import { useEffect } from "react";
-import { Alert } from "react-native";
+import { Alert, LogBox } from "react-native";
 import axios from "axios";
 import {
   chatListData,

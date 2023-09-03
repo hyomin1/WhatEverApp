@@ -200,3 +200,7 @@ export const nearWorkData = atom({
   key: "nearWork",
   default: null,
 });
+export const hourMoreLocationData = atom({
+  key: "hourMoreLocation",
+  default: null,
+});

@@ -19,6 +19,7 @@ import {
   chatListData,
   chatCountData,
   nearWorkData,
+  hourMoreLocationData,
 } from "../atom";
 import { MaterialIcons } from "@expo/vector-icons";
 import Order from "../components/Order";
@@ -95,6 +96,7 @@ const Main = ({ navigation: { navigate }, route }) => {
   const [isMap, isSetMap] = useState(true);
   const [nearWork, setNearWork] = useRecoilState(nearWorkData);
   const [convId, setConvId] = useState();
+  const setHourMoreLocation = useSetRecoilState(hourMoreLocationData);
 
   const getToken = async () => {
     const token = await messaging().getToken();
@@ -202,6 +204,7 @@ const Main = ({ navigation: { navigate }, route }) => {
                 parsedMessage.data[parsedMessage.data.length - 1]._id; //새로운 채팅방 아이디 찾기
               subscribeToChatTopic(client, chatId, setChatRoomList);
             } else if (parsedMessage.messageType === "HelperLocation") {
+              setHourMoreLocation(parsedMessage.data); //마감시간 1시간 초과 수락한 헬퍼 위치
             } else if (parsedMessage.messageType === "SetConvSeenCount") {
               setChatCount(parsedMessage.data);
               console.log("개수", parsedMessage.data);

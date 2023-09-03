@@ -127,7 +127,7 @@ const WorkChat = ({
   //const [ok, setOk] = useState();
 
   //const [isTimer, isSetTimer] = useRecoilState(isTimerData);
-
+  console.log(workProceedingStatus);
   const intervalId = (id) => {
     BackgroundTimer.setInterval(async () => {
       const { granted } = await Location.requestForegroundPermissionsAsync();

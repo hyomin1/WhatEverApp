@@ -7,6 +7,7 @@ import {
   accessData,
   chatRoomListData,
   conversationData,
+  hourMoreLocationData,
   isTimerData,
   myIdData,
   workProceedingStatusData,
@@ -119,6 +120,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
   const [isTimer, isSetTimer] = useRecoilState(isTimerData);
   const messageData = JSON.parse(chatList.chatList[0].message);
   const setChatRoomList = useSetRecoilState(chatRoomListData);
+  const hourMoreLocation = useRecoilValue(hourMoreLocationData);
   const [workProceedingStatus, setWorkProceedingStatus] = useRecoilState(
     workProceedingStatusData
   );
@@ -165,6 +167,9 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
         });
     } else {
       //여기에서 한시간 초과되는 심부름 점 하나 찍어서 보여줌
+      navigation.navigate("HelperLocation", {
+        location: hourMoreLocation,
+      });
       console.log("마감시간 한시간 초과");
     }
   };

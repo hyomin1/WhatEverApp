@@ -1,7 +1,9 @@
 import { registerRootComponent } from "expo";
 import { RecoilRoot } from "recoil";
+import { LogBox } from "react-native";
 
 import App from "./App";
+LogBox.ignoreLogs(["new NativeEventEmitter"]);
 
 const AppWithRecoil = () => (
   <RecoilRoot>

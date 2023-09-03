@@ -119,7 +119,7 @@ const Order = ({
   divide,
   navigation,
 }) => {
-  const hours = ["1시간", "2시간", "3시간", "4시간"];
+  const hours = ["1시간", "3시간", "6시간", "12시간", "24시간"];
 
   const [title, setTitle] = useState();
   const [context, setContext] = useState();
@@ -178,7 +178,7 @@ const Order = ({
             .then((res) => console.log(res.data))
             .catch((error) => Alert.alert(error.response.data.message));
         })
-        .catch((error) => console.log("심부름 신청에러", error));
+        .catch((error) => Alert.alert(error.response.data.message));
     } else {
       //심부름 수정시
       setOrderVisible(!orderVisible);
@@ -403,7 +403,11 @@ const Order = ({
                 }}
                 data={hours}
                 onSelect={(hour, index) => {
-                  setDeadLineTime(index + 1);
+                  if (index === 0) setDeadLineTime(1);
+                  else if (index === 1) setDeadLineTime(3);
+                  else if (index === 2) setDeadLineTime(6);
+                  else if (index === 3) setDeadLineTime(12);
+                  else if (index === 4) setDeadLineTime(24);
                 }}
                 buttonTextAfterSelection={(item) => {
                   return item;
