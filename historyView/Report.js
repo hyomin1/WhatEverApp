@@ -72,7 +72,7 @@ const ReportBtnText = styled.Text`
   font-weight: bold;
 `;
 
-const Report = ({ reportVisible, setReportVisible }) => {
+const Report = ({ reportVisible, setReportVisible, id }) => {
   const [reportReason, setReportReason] = useState(); //신고 사유
   const [reportTitle, setReportTitle] = useState(); //신고 제목
   const work = useRecoilValue(sendWorkData); //신고할 일의 내용
@@ -87,10 +87,10 @@ const Report = ({ reportVisible, setReportVisible }) => {
 
   const onPressReportComplete = async () => {
     //신고 완료
-    console.log(work);
+
     try {
       const res = await axios.post(`${BASE_URL}/api/report`, {
-        workId: work.id,
+        workId: work !== null ? work.id : id,
         reportTitle,
         reportReason,
       });

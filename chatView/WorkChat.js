@@ -1,4 +1,4 @@
-import { Pressable, View, Text } from "react-native";
+import { Pressable, View, Text, TouchableOpacity } from "react-native";
 import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components/native";
 import {
@@ -18,6 +18,10 @@ import BackgroundTimer from "react-native-background-timer";
 import React, { useState } from "react";
 import { Button } from "react-native-web";
 import ErrandRequest from "./ErrandRequest";
+import DetailWork from "../mainView/DetailWork";
+import DetailWorkChat from "./DetailWorkChat";
+import { useEffect } from "react";
+import { useNavigation } from "@react-navigation/native";
 const WorkContiainer = styled.View`
   width: 100%;
   flex-direction: row;
@@ -48,7 +52,9 @@ const WorkTitle = styled.Text`
   margin-left: 6px;
 `;
 const PaddingView = styled.View`
+  //padding: 20px 10px;
   padding: 20px 10px;
+  justify-content: center;
 `;
 const MainText = styled.Text`
   color: #888;
@@ -63,14 +69,21 @@ const Divider = styled.View`
   border-bottom-color: #f0f0f0;
   margin: 8px 0;
 `;
-const MainDescription = styled.Text`
+const LocationBtn = styled.TouchableOpacity`
+  background-color: lightgray;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  margin-top: 10px;
+  padding: 5px 0px;
+`;
+const LocationText = styled.Text`
+  color: #666;
   font-size: 13px;
-  color: #555;
+  padding: 1px 0px;
   font-weight: bold;
 `;
-const MoneyText = styled(MainDescription)`
-  color: #007bff;
-`;
+
 const WorkText = styled.Text`
   color: #555;
   font-size: 14px;
@@ -79,7 +92,7 @@ const WorkText = styled.Text`
 
 const ButtonContainer = styled.View`
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: center;
   margin-top: 10px;
 `;
 const Spacer = styled.View`
@@ -119,83 +132,17 @@ const WorkChat = ({
   const [workProceedingStatus, setWorkProceedingStatus] = useRecoilState(
     workProceedingStatusData
   );
+  const [detailModal, setDetailModal] = useState(false);
+  const [address, setAddress] = useState({
+    city: "",
+    borough: "",
+    quarter: "",
+    road: "",
+  });
   const AcceptCard = {
     message: "Accept work",
     senderName: myName,
     receiverName: receiverName,
-  };
-  //const [ok, setOk] = useState();
-
-  //const [isTimer, isSetTimer] = useRecoilState(isTimerData);
-  console.log(workProceedingStatus);
-  const intervalId = (id) => {
-    BackgroundTimer.setInterval(async () => {
-      const { granted } = await Location.requestForegroundPermissionsAsync();
-      if (!granted) {
-        //setOk("error");
-      }
-      const {
-        coords: { latitude, longitude },
-      } = await Location.getCurrentPositionAsync({ accuracy: 5 });
-      // console.log(latitude, longitude);
-      axios
-        .post(`${BASE_URL}/api/location/helperLocation/${id}`, {
-          latitude,
-          longitude,
-        })
-        .then((res) => {
-          //console.log("위치데이터", res.data);
-        })
-        .catch((error) => console.log(error));
-    }, 10000);
-  };
-  const onPressAccept = (index) => {
-    //헬퍼가 심부름 수락시
-    const work = JSON.parse(chatList.chatList[index].message);
-    axios
-      .put(`${BASE_URL}/api/work/matching/${chatList._id}`, {
-        id: work.id,
-        title: work.title,
-        context: work.context,
-        deadLineTime: work.deadLineTime,
-        reward: work.reward,
-        latitude: work.latitude,
-        longitude: work.longitude,
-        proceeding: work.proceeding,
-        customerId: work.customerId,
-        helperId:
-          work.customerId === conversation.participantId
-            ? conversation.creatorId
-            : conversation.participantId,
-        finished: work.finished,
-      })
-      .then(({ data }) => {
-        client.publish({
-          destination: `/pub/card/${conversation._id}`,
-          body: JSON.stringify(AcceptCard),
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-        axios
-          .post(`${BASE_URL}/api/fcm/chatNotification/${conversation._id}`)
-          .then();
-        //console.log(data.workProceedingStatus);
-        if (work.deadLineTime === 1) {
-          intervalId(work.id);
-          setWorkProceedingStatus(data.workProceedingStatus);
-        } else {
-          console.log("마감시간 1시간 초과");
-          setWorkProceedingStatus(data.workProceedingStatus);
-        }
-      })
-      .catch((error) => {
-        Alert.alert(error.response.data.message);
-        console.log(error.response.data.message);
-      });
-  };
-  const onPressDeny = () => {
-    if (chatList.participatorName === myName) {
-      Alert.alert("거절되었습니다.");
-    }
   };
 
   const onPressCheck = () => {
@@ -212,20 +159,20 @@ const WorkChat = ({
         proceeding: work.proceeding,
         customerId: work.customerId,
         helperId:
-          work.customerId === conversation.participantId
-            ? conversation.creatorId
-            : conversation.participantId,
+          work.customerId === chatList.participantId
+            ? chatList.creatorId
+            : chatList.participantId,
         finished: work.finished,
       })
       .then((res) => {
         client.publish({
-          destination: `/pub/card/${conversation._id}`,
+          destination: `/pub/card/${chatList._id}`,
           body: JSON.stringify(AcceptCard),
           headers: { Authorization: `Bearer ${accessToken}` },
         });
 
         axios
-          .post(`${BASE_URL}/api/fcm/chatNotification/${conversation._id}`)
+          .post(`${BASE_URL}/api/fcm/chatNotification/${chatList._id}`)
           .then();
         if (work.deadLineTime === 1) {
           //마감시간 1시간일 경우
@@ -235,6 +182,7 @@ const WorkChat = ({
       .catch((error) => Alert.alert(error.response.data.message));
   };
   const customerId = JSON.parse(data.message).customerId;
+  const navigation = useNavigation();
 
   return (
     <View
@@ -254,9 +202,26 @@ const WorkChat = ({
             </Time>
             <WorkBubble>
               <WorkTitleWrapper>
-                <WorkTitle>심부름 요청서 도착</WorkTitle>
+                <WorkTitle>심부름 요청서 전송</WorkTitle>
               </WorkTitleWrapper>
-              <ErrandRequest messageData={messageData} />
+              <PaddingView>
+                <MainText>심부름 요청서</MainText>
+                <MainTitle>{messageData.title}</MainTitle>
+                <Divider />
+                {workProceedingStatus === 0 ? (
+                  <LocationBtn onPress={() => setDetailModal(!detailModal)}>
+                    <LocationText>상세보기</LocationText>
+                  </LocationBtn>
+                ) : null}
+                <DetailWorkChat
+                  detailModal={detailModal}
+                  setDetailModal={setDetailModal}
+                  messageData={messageData}
+                  address={address}
+                  myName={myName}
+                  receiverName={receiverName}
+                />
+              </PaddingView>
             </WorkBubble>
           </WorkContiainer>
         ) : (
@@ -291,26 +256,19 @@ const WorkChat = ({
               <MainText>심부름 요청서</MainText>
               <MainTitle>{messageData.title}</MainTitle>
               <Divider />
-              <MainText>상세 정보입니다</MainText>
-              <MainDescription>{messageData.context}</MainDescription>
-              <MainDescription>
-                마감시간 : {messageData.deadLineTime}시간
-              </MainDescription>
-              <View style={{ flexDirection: "row" }}>
-                <MainDescription>보상금액: </MainDescription>
-                <MoneyText>{messageData.reward}원</MoneyText>
-              </View>
               {workProceedingStatus === 0 ? (
-                <ButtonContainer>
-                  <WorkBtn accept={true} onPress={() => onPressAccept(index)}>
-                    <WorkBtnText>수락</WorkBtnText>
-                  </WorkBtn>
-                  <Spacer />
-                  <WorkBtn accept={false} onPress={onPressDeny}>
-                    <WorkBtnText>거절</WorkBtnText>
-                  </WorkBtn>
-                </ButtonContainer>
+                <LocationBtn onPress={() => setDetailModal(!detailModal)}>
+                  <LocationText>상세보기</LocationText>
+                </LocationBtn>
               ) : null}
+              <DetailWorkChat
+                detailModal={detailModal}
+                setDetailModal={setDetailModal}
+                messageData={messageData}
+                address={address}
+                myName={myName}
+                receiverName={receiverName}
+              />
             </PaddingView>
           </WorkBubble>
           <Time>

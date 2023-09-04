@@ -78,7 +78,6 @@ const CardReward = styled.Text`
 `;
 
 const HelperWorkList = ({ modalVisible, setModalVisible, completedWork }) => {
-  console.log(completedWork);
   return (
     <Modal
       animationType="slide"

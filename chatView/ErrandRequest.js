@@ -34,7 +34,7 @@ const ErrandRequest = ({ messageData }) => {
       <MainText>심부름 요청서</MainText>
       <MainTitle>{messageData.title}</MainTitle>
       <Divider />
-      <MainText mb={true}>상세 정보입니다</MainText>
+      <MainText mb={true}>상세 정보</MainText>
       <MainDescription>{messageData.context}</MainDescription>
       <MainDescription>
         마감시간 : {messageData.deadLineTime}시간

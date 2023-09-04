@@ -17,6 +17,7 @@ import AdminView from "../adminView/AdminView";
 import AdminUserView from "../adminView/AdminUserView";
 import AdminWorkView from "../adminView/AdminWorkView";
 import AdminConversationView from "../adminView/AdminConversationView";
+import WorkMap from "../mainView/WorkMap";
 import { useRecoilValue } from "recoil";
 import { receiverNameData } from "../atom";
 
@@ -46,6 +47,18 @@ const Stack = ({ navigation }) => {
         component={Profile}
         options={{
           headerTitle: "내 정보",
+          headerTitleAlign: "center",
+          headerTitleStyle: {
+            fontWeight: "800",
+            fontSize: 18,
+          },
+        }}
+      />
+      <NativeStack.Screen
+        name="WorkMap"
+        component={WorkMap}
+        options={{
+          headerTitle: "심부름 장소 보기",
           headerTitleAlign: "center",
           headerTitleStyle: {
             fontWeight: "800",

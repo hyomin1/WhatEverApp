@@ -18,6 +18,8 @@ import styled from "styled-components/native";
 
 import * as Location from "expo-location";
 import { Text } from "react-native";
+import DetailWorkChat from "./DetailWorkChat";
+import { useState } from "react";
 const CardContiainer = styled.View`
   width: 100%;
   flex-direction: row;
@@ -77,16 +79,17 @@ const MoneyText = styled(MainDescription)`
 const ButtonContainer = styled.View`
   flex-direction: row;
   justify-content: space-between;
-  margin-top: 40px;
+  align-items: center;
+  margin-top: 5px;
 `;
 
 const ActionButton = styled.TouchableOpacity`
-  background-color: #3498db;
+  background-color: lightgray;
   padding: 10px;
   border-radius: 10px;
   align-items: center;
   flex: 1;
-  margin: 0 4px;
+  margin-top: 20px;
 `;
 
 const ButtonText = styled.Text`
@@ -117,49 +120,22 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
     receiverName: receiverName,
   };
 
-  const [isTimer, isSetTimer] = useRecoilState(isTimerData);
   const messageData = JSON.parse(chatList.chatList[0].message);
   const setChatRoomList = useSetRecoilState(chatRoomListData);
   const hourMoreLocation = useRecoilValue(hourMoreLocationData);
   const [workProceedingStatus, setWorkProceedingStatus] = useRecoilState(
     workProceedingStatusData
   );
-  const onPressWorkComplete = async () => {
-    const { granted } = await Location.requestForegroundPermissionsAsync();
-    if (!granted) {
-      // setOk("error");
-    }
-    const {
-      coords: { latitude, longitude },
-    } = await Location.getCurrentPositionAsync({ accuracy: 5 });
+  const [detailModal, setDetailModal] = useState(false);
 
-    await axios
-      .put(`${BASE_URL}/api/work/success/${chatList.workId}`, {
-        latitude,
-        longitude,
-      })
-      .then(({ data }) => {
-        client.publish({
-          destination: `/pub/card/${conversation._id}`,
-          body: JSON.stringify(completeCard),
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-        axios
-          .post(`${BASE_URL}/api/fcm/chatNotification/${conversation._id}`)
-          .then();
-
-        setWorkProceedingStatus(data.workProceedingStatus);
-      })
-      .catch((error) => {
-        Alert.alert(error.response.data.message);
-      });
+  const onPressDetail = () => {
+    setDetailModal(!detailModal);
   };
-
   //진행상황 보기
-  const onPressView = () => {
+  const onPressView = async () => {
     if (messageData.deadLineTime === 1) {
       axios
-        .get(`${BASE_URL}/api/location/helperLocation/${messageData.id}`)
+        .get(`${BASE_URL}/api/location/helperLocations/${messageData.id}`)
         .then((res) => {
           navigation.navigate("HelperLocation", {
             location: res.data,
@@ -167,10 +143,14 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
         });
     } else {
       //여기에서 한시간 초과되는 심부름 점 하나 찍어서 보여줌
-      navigation.navigate("HelperLocation", {
-        location: hourMoreLocation,
-      });
-      console.log("마감시간 한시간 초과");
+      // navigation.navigate("HelperLocation", {
+      //   location: hourMoreLocation,
+      // });
+      try {
+        const res = await axios.get(
+          `${BASE_URL}/api/location/helperLocation/${messageData.id}`
+        );
+      } catch (error) {}
     }
   };
   const handleConfrim = () => {
@@ -213,7 +193,6 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
       ]
     );
   };
-
   const isCustomer = myId === messageData.customerId;
   return (
     <View>
@@ -233,22 +212,20 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
 
               <MainTitle>{messageData.title}</MainTitle>
               <Divider />
-              <MainText mb={true}>상세 정보입니다</MainText>
-              <MainDescription>{messageData.context}</MainDescription>
-              <MainDescription>
-                마감시간 : {messageData.deadLineTime}시간
-              </MainDescription>
-              <View style={{ flexDirection: "row" }}>
-                <MainDescription>보상금액: </MainDescription>
-                <MoneyText>{messageData.reward}원</MoneyText>
-              </View>
+              <DetailWorkChat
+                messageData={messageData}
+                detailModal={detailModal}
+                setDetailModal={setDetailModal}
+                myName={myName}
+                receiverName={receiverName}
+              />
               {workProceedingStatus === 1 ? (
                 <ButtonContainer>
                   <ActionButton
-                    onPress={isCustomer ? onPressView : onPressWorkComplete}
+                    onPress={isCustomer ? onPressView : onPressDetail}
                   >
                     <ButtonText>
-                      {isCustomer ? "진행상황 보기" : "심부름 완료하기"}
+                      {isCustomer ? "진행상황 보기" : "상세보기"}
                     </ButtonText>
                   </ActionButton>
                 </ButtonContainer>
@@ -329,32 +306,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
             </CardBubble>
           </CardContiainer>
         )
-      ) : // ) : data.message === "Finish Work" ? (
-      //   <CardContainer>
-      //     <CardTitle>심부름 종료</CardTitle>
-      //     <Divider />
-      //     {
-      //       myId !== messageData.customerId ? (
-      //         <ButtonContainer>
-      //           <ActionButton>
-      //             <ButtonText>헬퍼 입장 종료</ButtonText>
-      //           </ActionButton>
-      //         </ButtonContainer>
-      //       ) : null
-      // <ButtonContainer>
-      //   <ActionButton onPress={() => isSetStarRating((cur) => !cur)}>
-      //     <ButtonText>후기 작성</ButtonText>
-      //   </ActionButton>
-      //   <Modal animationType="slide" visible={isStarRating}>
-      //     <Rating
-      //       workId={chatList.workId}
-      //       isSetStarRating={isSetStarRating}
-      //     />
-      //   </Modal>
-      // </ButtonContainer>
-
-      //</View>/ </CardContainer>
-      null}
+      ) : null}
     </View>
   );
 };

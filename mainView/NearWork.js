@@ -71,6 +71,12 @@ const NearWork = ({ nearWork, setNearWork }) => {
   const [userWorkList, setUserWorkList] = useState([]);
   const [selectedWorkDetail, setSelectedWorkDetail] = useState(null);
   const [remainingTime, setRemainingTime] = useState([]);
+  const [address, setAddress] = useState({
+    city: "",
+    borough: "",
+    quarter: "",
+    road: "",
+  });
 
   useEffect(() => {
     if (nearWork) {
@@ -96,9 +102,27 @@ const NearWork = ({ nearWork, setNearWork }) => {
     }
   }, [nearWork]);
 
-  const onDetailWork = (work) => {
+  const onDetailWork = async (work) => {
     setSelectedWorkDetail(work);
     setWorkVisible(true);
+    try {
+      const res = await axios.get(
+        `https://nominatim.openstreetmap.org/reverse`,
+        {
+          params: {
+            format: "json",
+            lat: work.latitude,
+            lon: work.longitude,
+            "accept-language": "ko",
+          },
+        }
+      );
+
+      const { city, borough, quarter, road } = res.data.address;
+      setAddress({ city, borough, quarter, road });
+    } catch (error) {
+      Alert.alert(error);
+    }
   };
   const onDetailUser = async (userId) => {
     try {
@@ -183,6 +207,7 @@ const NearWork = ({ nearWork, setNearWork }) => {
           selectedWork={selectedWorkDetail}
           workVisible={workVisible}
           setWorkVisible={setWorkVisible}
+          address={address}
         />
       )}
       {userVisible && (

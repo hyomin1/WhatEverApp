@@ -175,7 +175,7 @@ const Order = ({
           setOrderVisible(!orderVisible);
           axios
             .post(`${BASE_URL}/api/fcm/sendNearbyHelper`, res.data)
-            .then((res) => console.log(res.data))
+            .then()
             .catch((error) => Alert.alert(error.response.data.message));
         })
         .catch((error) => Alert.alert(error.response.data.message));
@@ -240,7 +240,7 @@ const Order = ({
 
   const onPayment = (res) => {
     setPayVisible(true);
-    console.log(res);
+
     if (res.imp_success) {
       setPayVisible(false);
       //navigation.replace("Main");
@@ -299,7 +299,7 @@ const Order = ({
             <AddressBox>
               <AddressInfo>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <MainText>심부름 시킬장소</MainText>
+                  <MainText>심부름 하는장소</MainText>
                   <MainText style={{ color: "red" }}>(필수)</MainText>
                 </View>
                 <AddressInputButton
@@ -347,7 +347,7 @@ const Order = ({
           <Section>
             <AddressBox>
               <AddressInfo>
-                <MainText>심부름 받을장소</MainText>
+                <MainText>심부름 받는장소</MainText>
                 <AddressInputButton
                   onPress={() => setReceiveAddress(!receiveAddress)}
                 >

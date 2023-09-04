@@ -108,7 +108,7 @@ const HistoryInform = ({ data, index, onPressReport }) => {
       { cancelable: true }
     );
   };
-  console.log(data);
+
   return (
     <HistoryInformation>
       <View>

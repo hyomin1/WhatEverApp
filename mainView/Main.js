@@ -91,11 +91,9 @@ const Main = ({ navigation: { navigate }, route }) => {
 
   const setHelperLocation = useSetRecoilState(helperLocationData);
 
-  const isAdmin = useRecoilValue(adminData);
-
   const [isMap, isSetMap] = useState(true);
   const [nearWork, setNearWork] = useRecoilState(nearWorkData);
-  const [convId, setConvId] = useState();
+
   const setHourMoreLocation = useSetRecoilState(hourMoreLocationData);
 
   const getToken = async () => {
@@ -203,7 +201,10 @@ const Main = ({ navigation: { navigate }, route }) => {
               const chatId =
                 parsedMessage.data[parsedMessage.data.length - 1]._id; //새로운 채팅방 아이디 찾기
               subscribeToChatTopic(client, chatId, setChatRoomList);
+            } else if (parsedMessage.messageType === "SendLocation") {
+              console.log("sendLocation");
             } else if (parsedMessage.messageType === "HelperLocation") {
+              console.log("acd", parsedMessage);
               setHourMoreLocation(parsedMessage.data); //마감시간 1시간 초과 수락한 헬퍼 위치
             } else if (parsedMessage.messageType === "SetConvSeenCount") {
               setChatCount(parsedMessage.data);

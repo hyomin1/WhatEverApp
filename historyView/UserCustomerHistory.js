@@ -21,7 +21,6 @@ const UserCustomerHistory = ({ historyWork, status }) => {
     setReportVisible(!reportVisible);
   };
 
-  //console.log("이용내역데이터", historyWork);
   return (
     <View>
       {historyWork

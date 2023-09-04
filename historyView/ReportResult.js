@@ -1,8 +1,10 @@
 import React from "react";
+import { useState } from "react";
 import { View, Text } from "react-native";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components/native";
 import { historyReportData } from "../atom";
+import Report from "./Report";
 
 const Container = styled.View`
   flex: 1;
@@ -43,10 +45,25 @@ const HistoryDescription = styled.Text`
   color: #888888;
   margin-bottom: 10px;
 `;
+const Btn = styled.TouchableOpacity`
+  background-color: #3498db;
+  width: 80px;
+  height: 30px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  margin-top: 10px;
+`;
+
+const BtnText = styled.Text`
+  color: white;
+  font-weight: 600;
+`;
 
 const ReportResult = ({ status }) => {
   const historyReport = useRecoilValue(historyReportData);
-
+  const [reportVisible, setReportVisible] = useState(false);
+  const onDeleteReport = () => {};
   return (
     <View>
       {historyReport?.map((data, index) =>
@@ -58,6 +75,21 @@ const ReportResult = ({ status }) => {
               신고일 {data.createdTime.slice(0, 10)}
               {data.createdTime.slice(11, 16)}
             </HistoryDescription>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-around" }}
+            >
+              <Btn onPress={() => setReportVisible(!reportVisible)}>
+                <BtnText>수정</BtnText>
+              </Btn>
+              <Btn onPress={onDeleteReport}>
+                <BtnText>삭제</BtnText>
+              </Btn>
+              <Report
+                reportVisible={reportVisible}
+                setReportVisible={setReportVisible}
+                id={data.id}
+              />
+            </View>
           </HistoryInformation>
         ) : (
           data.reportExecuteCode !== 0 &&

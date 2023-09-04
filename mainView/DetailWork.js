@@ -1,4 +1,4 @@
-import { Modal, TouchableOpacity, Alert } from "react-native";
+import { Modal, TouchableOpacity, Alert, Text } from "react-native";
 import styled from "styled-components/native";
 import { AntDesign } from "@expo/vector-icons";
 import axios from "axios";
@@ -72,7 +72,7 @@ const ProgressButtonText = styled.Text`
   color: #ffffff;
 `;
 
-const DetailWork = ({ workVisible, setWorkVisible, selectedWork }) => {
+const DetailWork = ({ workVisible, setWorkVisible, selectedWork, address }) => {
   const setConversation = useSetRecoilState(conversationData);
   const setChatRoomList = useSetRecoilState(chatRoomListData);
   const setChatList = useSetRecoilState(chatListData);
@@ -82,7 +82,6 @@ const DetailWork = ({ workVisible, setWorkVisible, selectedWork }) => {
   const onPressProgress = async (selectedWork) => {
     const { customerId } = selectedWork;
 
-    console.log("a", customerId);
     try {
       const res = await axios.post(
         `${BASE_URL}/api/conversation/${customerId}`,
@@ -106,7 +105,6 @@ const DetailWork = ({ workVisible, setWorkVisible, selectedWork }) => {
     }
   };
 
-  console.log("2");
   return (
     <Modal animationType="slide" visible={workVisible} transparent>
       <Container>
@@ -134,6 +132,23 @@ const DetailWork = ({ workVisible, setWorkVisible, selectedWork }) => {
               <Content>{selectedWork.deadLineTime}시간</Content>
               <Label>상세 내용</Label>
               <Content>{selectedWork.context}</Content>
+              <Label>심부름 하는장소</Label>
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate("WorkMap", {
+                    work: selectedWork,
+                  });
+                  setWorkVisible(false);
+                }}
+              >
+                <Text>지도 보기</Text>
+              </TouchableOpacity>
+              <Content>
+                {address.city} {address.borough} {address.quarter}{" "}
+                {address.road}
+              </Content>
+              <Label>심부름 받는장소</Label>
+              <Content></Content>
               <ProgressButton onPress={() => onPressProgress(selectedWork)}>
                 <ProgressButtonText>진행 요청</ProgressButtonText>
               </ProgressButton>

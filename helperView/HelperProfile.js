@@ -187,7 +187,8 @@ const HelperProfile = ({ route }) => {
   const [visible, setVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [review, setReview] = useState();
-  console.log("sl", selectWork);
+
+  const onViewMyWorkList = async () => {};
   const onPressOrderBtn = async () => {
     //심부름 목록 본 후 선택해서 신청
     axios
@@ -272,6 +273,7 @@ const HelperProfile = ({ route }) => {
           <EditButton
             onPress={() => {
               setWorkListVisible(!workListVisible);
+              onViewMyWorkList();
             }}
           >
             <EditButtonText>내 심부름 목록</EditButtonText>
