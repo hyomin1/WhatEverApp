@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Modal, FlatList, View } from "react-native";
+import { Modal, FlatList, View, Text } from "react-native";
 import styled from "styled-components/native";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 
@@ -13,22 +13,23 @@ const ModalContainer = styled.View`
 const ContentContainer = styled.View`
   width: 85%;
   background-color: #ffffff;
-  border-radius: 20px;
-  padding: 20px;
+  border-radius: 10px;
   max-height: 500px;
 `;
 
 const HeaderContainer = styled.View`
   flex-direction: row;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #3498db;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 `;
 
 const ModalTitle = styled.Text`
   font-size: 18px;
   font-weight: bold;
-  color: #333;
+  color: white;
   text-align: center;
   flex: 1;
 `;
@@ -40,7 +41,7 @@ const CloseButton = styled.TouchableOpacity`
 
 const CloseIcon = styled(Ionicons)`
   font-size: 30px;
-  color: #333;
+  color: white;
 `;
 
 const CardContainer = styled.View`
@@ -95,21 +96,34 @@ const HelperWorkList = ({ modalVisible, setModalVisible, completedWork }) => {
 
             <View style={{ flex: 1 }}></View>
           </HeaderContainer>
-          <FlatList
-            data={completedWork}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <CardContainer>
-                <CardText>
-                  {item.createdTime.slice(5, 7)}월{" "}
-                  {item.createdTime.slice(8, 10)}일
-                </CardText>
-                <CardTitle>{item.title}</CardTitle>
-                <CardDescription>{item.context}</CardDescription>
-                <CardReward>금액 {item.reward}원</CardReward>
-              </CardContainer>
-            )}
-          />
+          {completedWork && completedWork.length > 0 ? (
+            <FlatList
+              data={completedWork}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => (
+                <CardContainer>
+                  <CardText>
+                    {item.createdTime.slice(5, 7)}월{" "}
+                    {item.createdTime.slice(8, 10)}일
+                  </CardText>
+                  <CardTitle>{item.title}</CardTitle>
+                  <CardDescription>{item.context}</CardDescription>
+                  <CardReward>금액 {item.reward}원</CardReward>
+                </CardContainer>
+              )}
+            />
+          ) : (
+            <Text
+              style={{
+                alignSelf: "center",
+                color: "#888",
+                padding: 10,
+                fontSize: 15,
+              }}
+            >
+              수행한 심부름이 존재하지 않습니다
+            </Text>
+          )}
         </ContentContainer>
       </ModalContainer>
     </Modal>

@@ -220,7 +220,6 @@ const ProfileFix = ({
       .then((res) => console.log("유저 정보 데이터 전송 성공"));
   };
   const onChangeIntroduce = (payload) => {
-    console.log(payload);
     setUser((prev) => ({
       ...prev,
       introduce: payload,

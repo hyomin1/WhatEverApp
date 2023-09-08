@@ -43,12 +43,16 @@ const HighlightedAmout = styled.Text`
   color: #ffa500;
   font-weight: bold;
 `;
-const ButtonContainer = styled.View``;
+const ButtonContainer = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 20px;
+`;
 const Button = styled.TouchableOpacity`
   background-color: ${({ bgColor }) => bgColor || "#1e90ff"};
   border-radius: 8px;
-  padding: 12px 20px;
-  margin-top: 20px;
+  padding: 10px 20px;
+  margin: 0px 10px;
 `;
 
 const ButtonText = styled.Text`
@@ -72,6 +76,12 @@ const NearWork = ({ nearWork, setNearWork }) => {
   const [selectedWorkDetail, setSelectedWorkDetail] = useState(null);
   const [remainingTime, setRemainingTime] = useState([]);
   const [address, setAddress] = useState({
+    city: "",
+    borough: "",
+    quarter: "",
+    road: "",
+  });
+  const [address2, setAddress2] = useState({
     city: "",
     borough: "",
     quarter: "",
@@ -103,8 +113,9 @@ const NearWork = ({ nearWork, setNearWork }) => {
   }, [nearWork]);
 
   const onDetailWork = async (work) => {
+    // console.log(work);
     setSelectedWorkDetail(work);
-    setWorkVisible(true);
+
     try {
       const res = await axios.get(
         `https://nominatim.openstreetmap.org/reverse`,
@@ -117,9 +128,27 @@ const NearWork = ({ nearWork, setNearWork }) => {
           },
         }
       );
+      if (work.receiveLatitude !== 0 && work.receiveLongitude !== 0) {
+        const res2 = await axios.get(
+          `https://nominatim.openstreetmap.org/reverse`,
+          {
+            params: {
+              format: "json",
+              lat: work.receiveLatitude,
+              lon: work.receiveLongitude,
+              "accept-language": "ko",
+            },
+          }
+        );
+        const { city, borough, quarter, road } = res2.data.address;
+        setAddress2({ city, borough, quarter, road });
+      } else {
+        setAddress2({ city: "", borough: "", quarter: "", road: "" });
+      }
 
       const { city, borough, quarter, road } = res.data.address;
       setAddress({ city, borough, quarter, road });
+      setWorkVisible(true);
     } catch (error) {
       Alert.alert(error);
     }
@@ -172,20 +201,24 @@ const NearWork = ({ nearWork, setNearWork }) => {
                   <WorkTitle>{data.title}</WorkTitle>
                   <WorkSubtitle>마감시간 {remainingTime[index]}분</WorkSubtitle>
                   <HighlightedAmout>{data.reward}원</HighlightedAmout>
+                  <ButtonContainer>
+                    <Button
+                      bgColor="#4CAF50"
+                      onPress={() => onDetailUser(data.customerId)}
+                    >
+                      <ButtonText textColor="#ffffff">유저 정보보기</ButtonText>
+                    </Button>
+
+                    <Button
+                      bgColor="#1e90ff"
+                      onPress={() => onDetailWork(data)}
+                    >
+                      <ButtonText textColor="#ffffff">
+                        심부름 상세보기
+                      </ButtonText>
+                    </Button>
+                  </ButtonContainer>
                 </View>
-
-                <ButtonContainer>
-                  <Button
-                    bgColor="#4CAF50"
-                    onPress={() => onDetailUser(data.customerId)}
-                  >
-                    <ButtonText textColor="#ffffff">유저 정보보기</ButtonText>
-                  </Button>
-
-                  <Button bgColor="#1e90ff" onPress={() => onDetailWork(data)}>
-                    <ButtonText textColor="#ffffff">심부름 상세보기</ButtonText>
-                  </Button>
-                </ButtonContainer>
               </WorkInformation>
             </View>
           ) : null
@@ -208,6 +241,7 @@ const NearWork = ({ nearWork, setNearWork }) => {
           workVisible={workVisible}
           setWorkVisible={setWorkVisible}
           address={address}
+          address2={address2}
         />
       )}
       {userVisible && (

@@ -73,7 +73,6 @@ const Chat = () => {
   const setWorkStatusCode = useSetRecoilState(workProceedingStatusData);
   const goToChatting = async (chatRoom) => {
     const workId = JSON.parse(chatRoom.chatList[0].message).id;
-
     setConversation(chatRoom);
     setChatList(chatRoom);
     navigation.navigate("Chatting", { chatRoom }); //수정
@@ -97,7 +96,7 @@ const Chat = () => {
   return (
     <Container>
       <ScrollView>
-        {chatRoomList.length !== 0 ? (
+        {chatRoomList && chatRoomList.length !== 0 ? (
           chatRoomList.map((chatRoom, index) => (
             <ChatList
               key={index}
@@ -109,49 +108,68 @@ const Chat = () => {
                 <Text>사진</Text>
               </ProfileImage>
               <ProfileInfo>
-                <Username>
-                  {myId === chatRoom.creatorId
-                    ? chatRoom.participatorName
-                    : chatRoom.creatorName}
-                </Username>
-                <LastMessage>
-                  {(() => {
-                    const lastMessage =
-                      chatRoom?.chatList[chatRoom.chatList.length - 1];
-                    if (lastMessage?.messageType === "Work") {
-                      return "심부름 요청서 입니다";
-                    } else if (lastMessage?.messageType === "Card") {
-                      if (lastMessage?.message === "Complete work") {
-                        return "심부름이 완료되었습니다.";
-                      } else if (lastMessage?.message === "Accept work") {
-                        return "심부름이 수락되었습니다.";
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <Username>
+                    {myId === chatRoom.creatorId
+                      ? chatRoom.participatorName
+                      : chatRoom.creatorName}
+                  </Username>
+                  <LastMessage style={{ marginRight: 20 }}>
+                    {chatRoom.updatedAt ? chatRoom.updatedAt.slice(11, 16) : ""}
+                  </LastMessage>
+                </View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <LastMessage>
+                    {(() => {
+                      const lastMessage =
+                        chatRoom?.chatList[chatRoom.chatList.length - 1];
+                      if (lastMessage?.messageType === "Work") {
+                        return "심부름 요청서 입니다";
+                      } else if (lastMessage?.messageType === "Card") {
+                        if (lastMessage?.message === "Complete work") {
+                          return "심부름이 완료되었습니다.";
+                        } else if (lastMessage?.message === "Accept work") {
+                          return "심부름이 수락되었습니다.";
+                        } else {
+                          return "기타 Card 메시지입니다.";
+                        }
+                      } else if (lastMessage?.messageType === "Chat") {
+                        return lastMessage?.message;
                       } else {
-                        return "기타 Card 메시지입니다.";
+                        return null;
                       }
-                    } else if (lastMessage?.messageType === "Chat") {
-                      return lastMessage?.message;
+                    })()}
+                  </LastMessage>
+                  {(() => {
+                    const unseenCount =
+                      myId === chatRoom.creatorId
+                        ? chatRoom.chatList.length - chatRoom.seenCountByCreator
+                        : chatRoom.chatList.length -
+                          chatRoom.seenCountByParticipator;
+                    if (unseenCount > 0) {
+                      return (
+                        <Badge style={{ marginRight: 25, marginTop: 5 }}>
+                          <BadgeText>{unseenCount}</BadgeText>
+                        </Badge>
+                      );
                     } else {
                       return null;
                     }
                   })()}
-                </LastMessage>
+                </View>
               </ProfileInfo>
-              {(() => {
-                const unseenCount =
-                  myId === chatRoom.creatorId
-                    ? chatRoom.chatList.length - chatRoom.seenCountByCreator
-                    : chatRoom.chatList.length -
-                      chatRoom.seenCountByParticipator;
-                if (unseenCount > 0) {
-                  return (
-                    <Badge>
-                      <BadgeText>{unseenCount}</BadgeText>
-                    </Badge>
-                  );
-                } else {
-                  return null;
-                }
-              })()}
             </ChatList>
           ))
         ) : (

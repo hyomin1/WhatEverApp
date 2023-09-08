@@ -25,31 +25,30 @@ const HistoryInformation = styled.View`
   margin-top: 15px;
   flex: 1;
   background-color: white;
-  border-radius: 20px;
   padding: 20px 20px;
-  border: 1px solid #888888;
-  margin-bottom: 20px;
+  border-radius: 10px;
+  margin: 5px 20px;
 `;
 
 const HistoryText = styled.Text`
-  font-size: 17px;
+  font-size: 13px;
   margin-bottom: 10px;
+  font-weight: bold;
+  color: #888;
+`;
+const HistoryTitle = styled(HistoryText)`
+  font-size: 20px;
   font-weight: bold;
   color: black;
 `;
-const HistoryTitle = styled(HistoryText)`
-  font-style: italic;
-  font-size: 20px;
-`;
 const HistoryDescription = styled.Text`
   font-size: 14px;
-  color: black;
-
-  margin-bottom: 10px;
+  color: #666;
+  margin-bottom: 2px;
+  font-weight: bold;
 `;
 const HistoryMoney = styled.Text`
-  font-size: 18px;
-  text-align: center;
+  font-size: 15px;
   color: #ffa500;
   font-weight: bold;
 `;
@@ -112,16 +111,14 @@ const HistoryInform = ({ data, index, onPressReport }) => {
   return (
     <HistoryInformation>
       <View>
-        <HistoryText style={{ textAlign: "center" }}>
+        <HistoryText>
           {data.createdTime.slice(0, 4)}년 {data.createdTime.slice(5, 7)}월{" "}
           {data.createdTime.slice(8, 10)}일
         </HistoryText>
         <HistoryTitle> {data.title} </HistoryTitle>
         <HistoryDescription> {data.context} </HistoryDescription>
-        <HistoryDescription>
-          마감시간 : {data.deadLineTime}시간
-        </HistoryDescription>
-        <HistoryMoney>금액 {data.reward}원</HistoryMoney>
+        <HistoryDescription>마감시간 : {data.deadLineTime}H</HistoryDescription>
+        <HistoryMoney> {data.reward}원</HistoryMoney>
       </View>
 
       <ActionButtonsContainer>

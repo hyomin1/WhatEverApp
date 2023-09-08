@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, TextInput, Alert } from "react-native";
+import { ScrollView, TextInput, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import styled from "styled-components/native";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
@@ -7,10 +7,7 @@ import {
   chatListData,
   myIdData,
   chatRoomListData,
-  conversationData,
   receiverNameData,
-  accessData,
-  grantData,
   workProceedingStatusData,
 } from "../atom";
 import { client } from "../client";
@@ -19,6 +16,7 @@ import WorkChat from "./WorkChat";
 import NormalChat from "./NormalChat";
 import CardChat from "./CardChat";
 import { BASE_URL } from "../api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Container = styled.View`
   flex: 1;
@@ -64,14 +62,11 @@ const SendIcon = styled(Ionicons)`
 
 const Chatting = ({ route }) => {
   const [textInput, setTextInput] = useState("");
-
   const myId = useRecoilValue(myIdData);
   const [myName, setMyName] = useState("");
   const [receiverName, setReceiverName] = useRecoilState(receiverNameData);
   const [chatList, setChatList] = useRecoilState(chatListData);
   const chatRoomList = useRecoilValue(chatRoomListData);
-  const access = useRecoilValue(accessData);
-  const grant = useRecoilValue(grantData);
   const setWorkStatusCode = useSetRecoilState(workProceedingStatusData);
 
   const chat = {
@@ -81,7 +76,7 @@ const Chatting = ({ route }) => {
   };
 
   const fetchData = async () => {
-    if (chatList.workId !== null) {
+    if (chatList.workId !== 0) {
       try {
         const res = await axios.get(`${BASE_URL}/api/work/${chatList.workId}`);
         setWorkStatusCode(res.data.workProceedingStatus);
@@ -96,15 +91,16 @@ const Chatting = ({ route }) => {
     fetchData();
   }, []);
 
-  const sendMsg = () => {
+  const sendMsg = async () => {
     if (textInput === "") {
       Alert.alert("내용을 입력해주세요");
     } else {
+      const token = await AsyncStorage.getItem("authToken");
       setTextInput("");
       client.publish({
         destination: `/pub/chat/${chatList._id}`,
         body: JSON.stringify(chat),
-        headers: { Authorization: `${grant} ${access}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       axios
         .post(`http://10.0.2.2:8080/api/fcm/chatNotification/${chatList._id}`)

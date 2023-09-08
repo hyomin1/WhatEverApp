@@ -4,14 +4,11 @@ import { BASE_URL } from "../api";
 import { client } from "../client";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
-  accessData,
   chatRoomListData,
   conversationData,
   hourMoreLocationData,
-  isTimerData,
   myIdData,
   workProceedingStatusData,
-  workStatusCodeData,
 } from "../atom";
 import { useNavigation } from "@react-navigation/native";
 import styled from "styled-components/native";
@@ -20,6 +17,7 @@ import * as Location from "expo-location";
 import { Text } from "react-native";
 import DetailWorkChat from "./DetailWorkChat";
 import { useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const CardContiainer = styled.View`
   width: 100%;
   flex-direction: row;
@@ -89,7 +87,6 @@ const ActionButton = styled.TouchableOpacity`
   border-radius: 10px;
   align-items: center;
   flex: 1;
-  margin-top: 20px;
 `;
 
 const ButtonText = styled.Text`
@@ -108,7 +105,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
   const conversation = useRecoilValue(conversationData);
 
   const myId = useRecoilValue(myIdData);
-  const accessToken = useRecoilValue(accessData);
+
   const completeCard = {
     message: "Complete work",
     senderName: myName,
@@ -127,7 +124,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
     workProceedingStatusData
   );
   const [detailModal, setDetailModal] = useState(false);
-
+  console.log(workProceedingStatus);
   const onPressDetail = () => {
     setDetailModal(!detailModal);
   };
@@ -150,6 +147,8 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
         const res = await axios.get(
           `${BASE_URL}/api/location/helperLocation/${messageData.id}`
         );
+        console.log(res.data);
+        //navigation.navigate("HelperLocation",{})
       } catch (error) {}
     }
   };
@@ -164,10 +163,11 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
             await axios
               .put(`${BASE_URL}/api/work/finish/${chatList.workId}`)
               .then(async (res) => {
+                const token = await AsyncStorage.getItem("authToken");
                 client.publish({
                   destination: `/pub/card/${conversation._id}`,
                   body: JSON.stringify(finishCard),
-                  headers: { Authorization: `Bearer ${accessToken}` },
+                  headers: { Authorization: `Bearer ${token}` },
                 });
                 await axios
                   .post(
@@ -197,7 +197,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
   return (
     <View>
       {data.message === "Accept work" ? (
-        <CardContiainer>
+        <CardContiainer style={{ marginTop: 10 }}>
           <Time>
             {data.sendTime
               ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(11, 16)}`
@@ -209,7 +209,6 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
             </CardTitleWrapper>
             <PaddingView>
               <MainText>심부름 요청서</MainText>
-
               <MainTitle>{messageData.title}</MainTitle>
               <Divider />
               <DetailWorkChat
@@ -231,7 +230,6 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
                 </ButtonContainer>
               ) : null}
             </PaddingView>
-            <Divider />
           </CardBubble>
         </CardContiainer>
       ) : data.message === "Complete work" ? (
@@ -274,12 +272,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
             </CardBubble>
           </CardContiainer>
         ) : (
-          <CardContiainer>
-            <Time>
-              {data.sendTime
-                ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(11, 16)}`
-                : null}
-            </Time>
+          <CardContiainer style={{ justifyContent: "flex-start" }}>
             <CardBubble>
               <CardTitleWrapper>
                 <CardTitle>심부름 완료 확인</CardTitle>
@@ -304,6 +297,11 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
                 </ButtonContainer>
               </PaddingView>
             </CardBubble>
+            <Time>
+              {data.sendTime
+                ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(11, 16)}`
+                : null}
+            </Time>
           </CardContiainer>
         )
       ) : null}

@@ -1,4 +1,4 @@
-import { Modal, TouchableOpacity, Alert, View } from "react-native";
+import { Modal, TouchableOpacity, Alert, View, Text } from "react-native";
 import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components/native";
 import { chatListData, myIdData, workProceedingStatusData } from "../atom";
@@ -13,70 +13,88 @@ import * as Location from "expo-location";
 import { useState } from "react";
 import { useEffect } from "react";
 
-const ModalContainer = styled.View`
+const Container = styled.View`
   flex: 1;
-  justify-content: center;
-  align-items: center;
   background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-`;
-const TitleBar = styled.View`
-  background-color: white;
-  flex-direction: row;
   justify-content: center;
   align-items: center;
 `;
-const Title = styled.Text`
-  font-weight: bold;
-`;
+
 const ModalContent = styled.View`
   width: 80%;
   background-color: white;
   border-radius: 10px;
   padding: 20px;
 `;
-const RowView = styled.View`
+
+const TitleBar = styled.View`
   flex-direction: row;
-`;
-const Btn = styled.TouchableOpacity`
-  background-color: #3498db;
-  width: 40%;
-  height: 30px;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  border-radius: 5px;
-  margin-bottom: 10px;
 `;
 
-const BtnText = styled.Text`
-  color: white;
-  font-weight: 600;
+const Title = styled.Text`
+  font-weight: bold;
+  font-size: 18px;
 `;
+
+const MainTitle = styled.Text`
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 10px;
+`;
+
 const MainDescription = styled.Text`
   font-size: 15px;
   color: #555;
   font-weight: bold;
-  margin-bottom: 3px;
+  margin-top: 5px;
 `;
+
 const AddressDescription = styled(MainDescription)`
   color: #333;
   font-size: 13px;
-  margin-bottom: 10px;
+  margin-top: 10px;
   text-align: center;
 `;
+
 const MoneyText = styled(MainDescription)`
   color: #007bff;
 `;
+
+const RowView = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+`;
+
+const Btn = styled.TouchableOpacity`
+  background-color: #3498db;
+  width: 40%;
+  height: 40px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+`;
+
+const BtnText = styled.Text`
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+`;
+
 const LocationBtn = styled.TouchableOpacity`
   background-color: lightgray;
   justify-content: center;
   align-items: center;
   border-radius: 5px;
-  margin-bottom: 5px;
+  margin-top: 5px;
 `;
+
 const LocationText = styled.Text`
   color: #666;
-  font-size: 11px;
-  padding: 1px 0px;
+  font-size: 12px;
   font-weight: bold;
 `;
 
@@ -86,6 +104,7 @@ const DetailWorkChat = ({
   messageData,
   myName,
   receiverName,
+  validate,
 }) => {
   const [workProceedingStatus, setWorkProceedingStatus] = useRecoilState(
     workProceedingStatusData
@@ -101,20 +120,13 @@ const DetailWorkChat = ({
     quarter: "",
     road: "",
   });
-  const sendData = {
-    id: work.id,
-    title: work.title,
-    context: work.context,
-    deadLineTime: work.deadLineTime,
-    reward: work.reward,
-    latitude: work.latitude,
-    longitude: work.longitude,
-    customerId: work.customerId,
-    helperId:
-      work.customerId === chatList.participantId
-        ? chatList.creatorId
-        : chatList.participantId,
-  };
+  const [address2, setAddress2] = useState({
+    city: "",
+    borough: "",
+    quarter: "",
+    road: "",
+  });
+
   const AcceptCard = {
     message: "Accept work",
     senderName: myName,
@@ -122,6 +134,11 @@ const DetailWorkChat = ({
   };
   const completeCard = {
     message: "Complete work",
+    senderName: myName,
+    receiverName: receiverName,
+  };
+  const DenyCard = {
+    message: "Deny Work",
     senderName: myName,
     receiverName: receiverName,
   };
@@ -141,8 +158,28 @@ const DetailWorkChat = ({
           }
         );
 
+        const res2 = await axios.get(
+          `https://nominatim.openstreetmap.org/reverse`,
+          {
+            params: {
+              format: "json",
+              lat: messageData.receiveLatitude,
+              lon: messageData.receiveLongitude,
+              "accept-language": "ko",
+            },
+          }
+        );
+
         const { city, borough, quarter, road } = res.data.address;
+        const add2 = res2.data.address;
+
         setAddress({ city, borough, quarter, road });
+        setAddress2({
+          city: add2.city,
+          borough: add2.borough,
+          quarter: add2.quarter,
+          road: add2.road,
+        });
       } catch (error) {
         Alert.alert(error);
       }
@@ -169,7 +206,7 @@ const DetailWorkChat = ({
       } = await Location.getCurrentPositionAsync({ accuracy: 5 });
       try {
         const res = axios.post(
-          `${BASE_URL}/api/location/helperLocation/${id}`,
+          `${BASE_URL}/api/location/helperLocations/${id}`, //id => workId
           {
             latitude,
             longitude,
@@ -185,7 +222,48 @@ const DetailWorkChat = ({
       stopInterval();
     }
   };
+  const onPressCheck = async () => {
+    const work = JSON.parse(chatList.chatList[0].message);
+    try {
+      const res = await axios.put(
+        `${BASE_URL}/api/work/matching/${chatList._id}`,
+        {
+          id: work.id,
+          title: work.title,
+          context: work.context,
+          deadLineTime: work.deadLineTime,
+          reward: work.reward,
+          latitude: work.latitude,
+          longitude: work.longitude,
+          proceeding: work.proceeding,
+          customerId: work.customerId,
+          helperId:
+            work.customerId === chatList.participantId
+              ? chatList.creatorId
+              : chatList.participantId,
+          finished: work.finished,
+        }
+      );
+      const token = await AsyncStorage.getItem("authToken");
+      client.publish({
+        destination: `/pub/card/${chatList._id}`,
+        body: JSON.stringify(AcceptCard),
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
+      const res2 = await axios.post(
+        `${BASE_URL}/api/fcm/chatNotification/${chatList._id}`
+      );
+
+      setWorkProceedingStatus(res.data.workProceedingStatus);
+      if (work.deadLineTime === 1) {
+        intervalId(work.id);
+      }
+      setDetailModal(!detailModal);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const onAcceptWork = async () => {
     //심부름 수락
     const token = await AsyncStorage.getItem("authToken");
@@ -218,21 +296,26 @@ const DetailWorkChat = ({
       setWorkProceedingStatus(res1.data.workProceedingStatus);
       if (work.deadLineTime === 1) {
         intervalId(work.id); //1초마다 헬퍼 위치 보내줌 , 실시간 헬퍼 위치 파악
-      } else {
-        console.log("마감시간 1시간 초과");
       }
       setDetailModal(!detailModal);
     } catch (error) {
       Alert.alert(error.response.data.message);
     }
   };
-  const onPressDeny = () => {
+  const onPressDeny = async () => {
     //심부름 거절
     if (chatList.participatorName === myName) {
-      Alert.alert("거절되었습니다.");
+      const token = await AsyncStorage.getItem("authToken");
+      client.publish({
+        destination: `/pub/card/${chatList._id}`,
+        body: JSON.stringify(DenyCard),
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      Alert.alert("거절하였습니다");
     }
   };
   const onWorkComplete = async () => {
+    //심부름 완료하기
     const { granted } = await Location.requestForegroundPermissionsAsync();
     if (!granted) return;
     const {
@@ -269,7 +352,7 @@ const DetailWorkChat = ({
       visible={detailModal}
       onRequestClose={() => setDetailModal(!detailModal)}
     >
-      <ModalContainer>
+      <Container>
         <ModalContent>
           <TitleBar>
             <TouchableOpacity
@@ -281,59 +364,83 @@ const DetailWorkChat = ({
             <Title>상세 정보</Title>
             <View style={{ flex: 1 }}></View>
           </TitleBar>
-          {myId === messageData.customerId ||
-          messageData.helperId === null ||
-          myId === messageData.helperId ? (
-            <View>
-              <MainDescription>{messageData.context}</MainDescription>
-              <MainDescription>
-                마감시간 : {messageData.deadLineTime}시간
-              </MainDescription>
-              <RowView>
-                <MainDescription>보상금액 : </MainDescription>
-                <MoneyText>{messageData.reward}원</MoneyText>
-              </RowView>
 
-              <RowView style={{ justifyContent: "space-between" }}>
-                <MainDescription>심부름 하는 장소</MainDescription>
-                <LocationBtn
-                  onPress={() => {
-                    navigation.navigate("WorkMap", {
-                      work: messageData,
-                    });
-                    setDetailModal(!detailModal);
-                  }}
-                >
-                  <LocationText>위치 보기</LocationText>
-                </LocationBtn>
-              </RowView>
-              <AddressDescription>
-                {address.city} {address.borough} {address.quarter}{" "}
-                {address.road}
-              </AddressDescription>
-              <RowView style={{ justifyContent: "space-between" }}>
-                <MainDescription>심부름 받는 장소</MainDescription>
-                <LocationBtn>
-                  <LocationText>위치 보기</LocationText>
-                </LocationBtn>
-              </RowView>
-              <AddressDescription></AddressDescription>
-            </View>
-          ) : (
+          <View>
+            <MainTitle>{messageData.title}</MainTitle>
+            <MainDescription>{messageData.context}</MainDescription>
             <MainDescription>
-              다른 헬퍼가 이미 심부름을 진행중입니다.
+              마감시간 : {messageData.deadLineTime}H
             </MainDescription>
-          )}
 
-          {workProceedingStatus === 0 && myId !== work.customerId ? (
             <RowView style={{ justifyContent: "space-between" }}>
-              <Btn onPress={onAcceptWork}>
-                <BtnText>수락</BtnText>
+              <MainDescription>도착지</MainDescription>
+              <LocationBtn
+                onPress={() => {
+                  navigation.navigate("WorkMap", {
+                    work: messageData,
+                    destination: true,
+                  });
+                  setDetailModal(!detailModal);
+                }}
+              >
+                <LocationText>위치 보기</LocationText>
+              </LocationBtn>
+            </RowView>
+            <AddressDescription>
+              {address.city} {address.borough} {address.quarter} {address.road}
+            </AddressDescription>
+
+            {address2.city &&
+            address2.borough &&
+            address2.quarter &&
+            address2.road ? (
+              <View>
+                <RowView style={{ justifyContent: "space-between" }}>
+                  <MainDescription>심부름 장소</MainDescription>
+                  <LocationBtn>
+                    <LocationText>위치 보기</LocationText>
+                  </LocationBtn>
+                </RowView>
+                <AddressDescription>
+                  {address2.city} {address2.borough} {address2.quarter}{" "}
+                  {address2.road}
+                </AddressDescription>
+              </View>
+            ) : null}
+
+            <MainDescription>보상금액 : {messageData.reward}원</MainDescription>
+          </View>
+          {workProceedingStatus === 0 &&
+          myId === work.customerId &&
+          validate ? (
+            <RowView style={{ justifyContent: "space-between" }}>
+              <Btn onPress={onPressCheck}>
+                <BtnText>승낙</BtnText>
               </Btn>
-              <Btn onPress={onPressDeny} style={{ backgroundColor: "red" }}>
+              <Btn>
                 <BtnText>거절</BtnText>
               </Btn>
             </RowView>
+          ) : (
+            ""
+          )}
+          {workProceedingStatus === 0 && myId !== work.customerId ? (
+            validate ? (
+              <Text
+                style={{ color: "#888", alignSelf: "center", marginTop: 10 }}
+              >
+                검증 대기중
+              </Text>
+            ) : (
+              <RowView style={{ justifyContent: "space-between" }}>
+                <Btn onPress={onAcceptWork}>
+                  <BtnText>수락</BtnText>
+                </Btn>
+                <Btn onPress={onPressDeny} style={{ backgroundColor: "red" }}>
+                  <BtnText>거절</BtnText>
+                </Btn>
+              </RowView>
+            )
           ) : null}
           {workProceedingStatus === 1 ? (
             <RowView style={{ justifyContent: "center" }}>
@@ -343,7 +450,7 @@ const DetailWorkChat = ({
             </RowView>
           ) : null}
         </ModalContent>
-      </ModalContainer>
+      </Container>
     </Modal>
   );
 };

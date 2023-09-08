@@ -12,6 +12,7 @@ import {
   nameData,
   ratingData,
   IntroduceData,
+  addressData,
 } from "../atom";
 import Postcode from "@actbase/react-daum-postcode";
 import * as Location from "expo-location";
@@ -137,12 +138,9 @@ const Profile = () => {
   const [user, setUser] = useRecoilState(userData);
   const [review, setReview] = useState();
   const [visible, setVisible] = useState(false);
-  const [address, setAddress] = useState({
-    city: "",
-    borough: "",
-    quarter: "",
-    road: "",
-  });
+
+  const [address, setAddress] = useRecoilState(addressData);
+  const [loc, setLoc] = useState();
 
   const API_KEY = Config.GOOGLE_MAPS_API_KEY;
   const goProfileFix = () => {
@@ -159,7 +157,6 @@ const Profile = () => {
     }
   };
 
-  //console.log(user);
   return (
     <Container>
       <ProfileView>
@@ -265,14 +262,16 @@ const Profile = () => {
                     },
                   }
                 );
+                // console.log(res1.data);
 
                 const res2 = await axios.put(`${BASE_URL}/api/userLocation`, {
                   latitude: res1.data.addresses[0].y,
                   longitude: res1.data.addresses[0].x,
                 });
+                console.log("2", res2.data);
 
                 const { latitude, longitude } = res2.data;
-                setLocation({ latitude, longitude });
+                setLoc({ latitude, longitude });
                 setCurrentLocation({ latitude, longitude });
                 const res3 = await axios.get(
                   `https://nominatim.openstreetmap.org/reverse`,
@@ -285,44 +284,13 @@ const Profile = () => {
                     },
                   }
                 );
-                //console.log(res3.data);
+
                 const { city, borough, quarter, road } = res3.data.address;
                 setAddress({ city, borough, quarter, road });
                 setRegisterVisible(!registerVisible);
               } catch (error) {
                 Alert.alert(error);
               }
-              // const location = await Location.geocodeAsync(data.query);
-              // setLatitude(location[0].latitude); //여기서 location[0].latitude 바로 보내주면됨
-              // setLongitude(location[0].longitude);
-              // setRegisterVisible(!registerVisible);
-              // axios
-              //   .put("http://10.0.2.2:8080/api/userLocation", {
-              //     latitude: location[0].latitude,
-              //     longitude: location[0].longitude,
-              //   })
-              //   .then(async ({ data: { latitude, longitude } }) => {
-              //     setLocation({ latitude, longitude });
-              //     setCurrentLocation({ latitude, longitude });
-              //     await axios
-              //       .get(`https://nominatim.openstreetmap.org/reverse`, {
-              //         params: {
-              //           format: "json",
-              //           lat: latitude,
-              //           lon: longitude,
-              //           "accept-language": "ko",
-              //         },
-              //       })
-              //       .then((res) => {
-              //         const { city, borough, quarter, road } = res.data.address;
-              //         setAddress({
-              //           city,
-              //           borough,
-              //           quarter,
-              //           road,
-              //         });
-              //       });
-              //   });
             }}
           />
         </Modal>

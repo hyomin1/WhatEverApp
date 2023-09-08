@@ -8,7 +8,6 @@ import {
   chatRoomListData,
   conversationData,
   indexData,
-  accessData,
   myIdData,
 } from "../atom";
 import axios from "axios";
@@ -20,6 +19,7 @@ import Order from "../components/Order";
 import { BASE_URL } from "../api";
 import ReviewModal from "../components/ReviewModal";
 import HelperWorkList from "./HelperWorkList";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Container = styled.View`
   flex: 1;
@@ -173,7 +173,6 @@ const HelperProfile = ({ route }) => {
   const [chatList, setChatList] = useRecoilState(chatListData);
   const [conversation, setConversation] = useRecoilState(conversationData);
   const myId = useRecoilValue(myIdData);
-  const accessToken = useRecoilValue(accessData);
 
   const [workList, setWorkList] = useRecoilState(workListData);
   const [workListVisible, setWorkListVisible] = useState(false);
@@ -195,14 +194,15 @@ const HelperProfile = ({ route }) => {
       .post(`${BASE_URL}/api/conversation/${route.params.id}`, {
         id: selectWork.id,
       })
-      .then(({ data }) => {
+      .then(async ({ data }) => {
         setConversation(data);
         setChatRoomList([...chatRoomList, data]); //채팅방 목록 보여주기 위함
         setChatList(data);
+        const token = await AsyncStorage.getItem("authToken");
         client.publish({
           destination: `/pub/work/${data._id}`,
           body: JSON.stringify(selectWork),
-          headers: { Authorization: `Bearer ${accessToken}` },
+          headers: { Authorization: `Bearer ${token}` },
         });
         axios
           .post(`${BASE_URL}/api/fcm/chatNotification/${data._id}`)
@@ -271,9 +271,16 @@ const HelperProfile = ({ route }) => {
 
         <ButtonContainer>
           <EditButton
-            onPress={() => {
+            onPress={async () => {
               setWorkListVisible(!workListVisible);
               onViewMyWorkList();
+              try {
+                const res = await axios.get(`${BASE_URL}/api/workList`);
+                setWorkList(res.data);
+                console.log(res.data);
+              } catch (error) {
+                console.log(error);
+              }
             }}
           >
             <EditButtonText>내 심부름 목록</EditButtonText>
@@ -357,58 +364,74 @@ const HelperProfile = ({ route }) => {
               paddingHorizontal: 15,
             }}
           >
-            {workList.map((data, index) => {
-              // myId와 data.customerId가 같을 때에만 렌더링
-              const isCustomer = myId === data.customerId;
-              return isCustomer ? (
-                <ErrandList
-                  key={data.id}
-                  isSelected={selectWork === data}
-                  onPress={() => {
-                    setSelectWork(data);
-                  }}
-                >
-                  <View style={{ flex: 1 }}>
-                    <ListItemText isSelected={selectWork === data}>
-                      {data.title}
-                    </ListItemText>
-                    <ListItemTime isSelected={selectWork === data}>
-                      {data.context}
-                    </ListItemTime>
-                    <ListItemTime isSelected={selectWork === data}>
-                      마감시간 : {data.deadLineTime}시간
-                    </ListItemTime>
-                  </View>
-                  <ButtonsContainer>
-                    <IconButton
-                      onPress={() => {
-                        setOrderVisible(!orderVisible);
-                        setIndexValue(index);
-                      }}
-                    >
-                      <MaterialIcons
-                        name="edit"
-                        size={24}
-                        color={selectWork === data ? "#2196f3" : "#333333"}
-                      />
-                    </IconButton>
-                    <IconButton onPress={() => onDeleteItem(data.id)}>
-                      <MaterialIcons
-                        name="delete"
-                        size={24}
-                        color={selectWork === data ? "#2196f3" : "#333333"}
-                      />
-                    </IconButton>
-                  </ButtonsContainer>
-                </ErrandList>
-              ) : null;
-            })}
-
-            <OrderButton onPress={onPressOrderBtn}>
-              <Text style={{ color: "white", fontWeight: "600", fontSize: 15 }}>
-                신청하기
+            {workList && workList.length > 0 ? (
+              workList.map((data, index) => {
+                // myId와 data.customerId가 같을 때에만 렌더링
+                const isCustomer = myId === data.customerId;
+                return isCustomer ? (
+                  <ErrandList
+                    key={data.id}
+                    isSelected={selectWork === data}
+                    onPress={() => {
+                      setSelectWork(data);
+                    }}
+                  >
+                    <View style={{ flex: 1 }}>
+                      <ListItemText isSelected={selectWork === data}>
+                        {data.title}
+                      </ListItemText>
+                      <ListItemTime isSelected={selectWork === data}>
+                        {data.context}
+                      </ListItemTime>
+                      <ListItemTime isSelected={selectWork === data}>
+                        마감시간 : {data.deadLineTime}시간
+                      </ListItemTime>
+                      <ListItemTime>금액 {data.reward}원</ListItemTime>
+                    </View>
+                    <ButtonsContainer>
+                      <IconButton
+                        onPress={() => {
+                          setOrderVisible(!orderVisible);
+                          setIndexValue(index);
+                        }}
+                      >
+                        <MaterialIcons
+                          name="edit"
+                          size={24}
+                          color={selectWork === data ? "#2196f3" : "#333333"}
+                        />
+                      </IconButton>
+                      <IconButton onPress={() => onDeleteItem(data.id)}>
+                        <MaterialIcons
+                          name="delete"
+                          size={24}
+                          color={selectWork === data ? "#2196f3" : "#333333"}
+                        />
+                      </IconButton>
+                    </ButtonsContainer>
+                  </ErrandList>
+                ) : null;
+              })
+            ) : (
+              <Text
+                style={{
+                  color: "#888",
+                  alignSelf: "center",
+                  paddingVertical: 15,
+                }}
+              >
+                작성한 심부름이 없습니다
               </Text>
-            </OrderButton>
+            )}
+            {workList && workList.length > 0 ? (
+              <OrderButton onPress={onPressOrderBtn}>
+                <Text
+                  style={{ color: "white", fontWeight: "600", fontSize: 15 }}
+                >
+                  신청하기
+                </Text>
+              </OrderButton>
+            ) : null}
           </ScrollView>
         </View>
       </Modal>

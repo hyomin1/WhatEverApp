@@ -43,17 +43,6 @@ const ErrandRequest = ({ messageData }) => {
         <MainDescription>보상금액: </MainDescription>
         <MoneyText>{messageData.reward}원</MoneyText>
       </View>
-      {/* {status === 0 ? (
-        <ButtonContainer>
-          <WorkBtn accept={true} onPress={() => onPressAccept(index)}>
-            <WorkBtnText>수락</WorkBtnText>
-          </WorkBtn>
-          <Spacer />
-          <WorkBtn accept={false} onPress={onPressDeny}>
-            <WorkBtnText>거절</WorkBtnText>
-          </WorkBtn>
-        </ButtonContainer>
-      ) : null} */}
     </PaddingView>
   );
 };

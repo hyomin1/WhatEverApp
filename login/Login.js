@@ -2,19 +2,19 @@ import { useState } from "react";
 import { View, Alert, Text } from "react-native";
 import styled from "styled-components/native";
 import {
-  accessData,
-  grantData,
   myIdData,
   adminData,
   alarmCountData,
   adminTokenData,
   chatCountData,
+  accessData,
 } from "../atom";
-import { useSetRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { useNavigation } from "@react-navigation/native";
 import { apiClient, BASE_URL } from "../api";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect } from "react";
 
 const Container = styled.View`
   background-color: #0fbcf9;
@@ -72,13 +72,13 @@ const JoinText = styled.Text`
 function Login({ navigation: { navigate } }) {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
-  const setAccess = useSetRecoilState(accessData);
-  const setGrant = useSetRecoilState(grantData);
+
   const setMyId = useSetRecoilState(myIdData);
   const setIsAdmin = useSetRecoilState(adminData);
   const setAlarmCount = useSetRecoilState(alarmCountData);
   const setAdminToken = useSetRecoilState(adminTokenData);
   const setChatCount = useSetRecoilState(chatCountData);
+  const setAccess = useSetRecoilState(accessData);
 
   const onChangeId = (payload) => {
     setId(payload);
@@ -99,10 +99,9 @@ function Login({ navigation: { navigate } }) {
         password,
       })
       .then(async (res) => {
-        setAccess(res.data.accessToken);
-        setGrant(res.data.grantType);
         setMyId(res.data.id);
         await AsyncStorage.setItem("authToken", res.data.accessToken); //background token용 저장
+        setAccess(res.data.accessToken);
         if (res.status === 200) {
           axios.defaults.headers.common[
             "Authorization"
@@ -111,7 +110,6 @@ function Login({ navigation: { navigate } }) {
             "Authorization"
           ] = `Bearer ${res.data.accessToken}`;
         }
-
         setIsAdmin(false);
         await axios
           .get(`${BASE_URL}/api/conversation/seen`)

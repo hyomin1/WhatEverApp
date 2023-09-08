@@ -6,14 +6,12 @@ import axios from "axios";
 import { useRecoilValue, useRecoilState, useSetRecoilState } from "recoil";
 import {
   accessData,
-  grantData,
   contentData,
   myIdData,
   ratingHelperData,
   responseHelperData,
   chatRoomListData,
   helperLocationData,
-  adminData,
   locationData,
   currentLocationData,
   chatListData,
@@ -30,8 +28,8 @@ import Map from "./Map";
 import RequestBtn from "./RequestBtn";
 import SearchBar from "./SearchBar";
 import NearWork from "./NearWork";
-import { parse } from "react-native-svg";
 import AlarmView from "./AlarmView";
+import { FontAwesome } from "@expo/vector-icons";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
@@ -74,9 +72,6 @@ const Main = ({ navigation: { navigate }, route }) => {
   const [ok, setOk] = useState();
   const [isLoading, setLoading] = useState(true);
 
-  const access = useRecoilValue(accessData);
-  const grant = useRecoilValue(grantData);
-
   const myId = useRecoilValue(myIdData); //웹소켓 연결시 구독을 위한 본인 고유 id 데이터
 
   const [distanceHelper, setDistanceHelper] = useRecoilState(contentData); //거리순으로 헬퍼데이터  (default)
@@ -95,7 +90,7 @@ const Main = ({ navigation: { navigate }, route }) => {
   const [nearWork, setNearWork] = useRecoilState(nearWorkData);
 
   const setHourMoreLocation = useSetRecoilState(hourMoreLocationData);
-
+  const access = useRecoilValue(accessData);
   const getToken = async () => {
     const token = await messaging().getToken();
 
@@ -107,42 +102,51 @@ const Main = ({ navigation: { navigate }, route }) => {
 
   const getLocation = async () => {
     //api에서 받아오는 location은 내 위치를 계속 추적함
-    const { granted } = await Location.requestForegroundPermissionsAsync();
-    if (!granted) {
-      // setOk("error");
+    try {
+      const { granted } = await Location.requestForegroundPermissionsAsync();
+      if (!granted) {
+        // setOk("error");
+        throw new Error("Location permission not granted");
+      }
+      const {
+        coords: { latitude, longitude },
+      } = await Location.getCurrentPositionAsync({ accuracy: 5 });
+      const res = await axios.put(
+        `${BASE_URL}/api/location/findHelper/distance`,
+        {
+          latitude,
+          longitude,
+        }
+      );
+      const data = res.data;
+      setDistanceHelper(data);
+      const rating = data.concat();
+      rating.sort((a, b) => b.rating - a.rating);
+      setRatingHelper(rating);
+      const response = data.concat();
+      response.sort((a, b) => b.avgReactTime - a.avgReactTime);
+      setResponseHelper(response);
+      setLocation({ latitude, longitude });
+      setCurrentLocation({ latitude, longitude });
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
     }
-    const {
-      coords: { latitude, longitude },
-    } = await Location.getCurrentPositionAsync({ accuracy: 5 });
-    axios //서버에서 헬퍼 정보 받아오기
-      .put(`${BASE_URL}/api/location/findHelper/distance`, {
-        latitude,
-        longitude,
-      })
-      .then(({ data }) => {
-        setDistanceHelper(data); //거리순 데이터
-
-        const rating = data.concat(); //평점 순 정렬
-        rating.sort((a, b) => b.rating - a.rating);
-        setRatingHelper(rating);
-
-        const response = data.concat(); //응답시간 순 정렬
-        response.sort((a, b) => a.avgReactTime - b.avgReactTime);
-
-        setResponseHelper(response);
-      });
-
-    setLocation({ latitude, longitude }); //내 위치 저장하기 위함
-    setCurrentLocation({ latitude, longitude });
-    setLoading(false);
+  };
+  const handleLocationChange = async (event) => {
+    if (event && event.coords) {
+      const { latitude, longitude } = event.coords;
+      setLocation({ latitude, longitude });
+      setCurrentLocation({ latitude, longitude });
+      setLoading(false);
+    }
   };
   const headers = {
-    Authorization: `${grant}` + " " + `${access}`,
+    Authorization: `Bearer` + " " + `${access}`,
   };
 
   client.onConnect = function (frame) {
     console.log("웹소켓 연결완료");
-    //client.activate();
   };
   client.onStompError = function (frame) {
     console.log("Broker reported error: " + frame.headers["message"]);
@@ -171,17 +175,26 @@ const Main = ({ navigation: { navigate }, route }) => {
       }
     );
   };
+  const handleRefresh = () => {
+    //새로고침 함수
+    getLocation();
+  };
 
   useEffect(() => {
     getToken();
     getLocation();
+    const locationEvent = Location.watchPositionAsync(
+      {
+        accuracy: 5,
+        timeInterval: 10000,
+      },
+      handleLocationChange
+    );
     if (route.params !== undefined && route.params.isNearWork) {
       isSetMap(false);
     }
-    client.connectHeaders.Authorization = `${grant}` + " " + `${access}`;
-
     client.activate();
-
+    client.connectHeaders.Authorization = `Bearer ${access}`;
     if (subscription) {
       subscription.unsubscribe();
     }
@@ -193,7 +206,7 @@ const Main = ({ navigation: { navigate }, route }) => {
         subscription = client.subscribe(
           `/queue/${myId}`,
           //처음 채팅이 열렸을때 콜백 시작
-          function (message) {
+          async function (message) {
             const parsedMessage = JSON.parse(message.body);
             console.log(parsedMessage);
             if (parsedMessage.messageType === "OpenChat") {
@@ -203,6 +216,14 @@ const Main = ({ navigation: { navigate }, route }) => {
               subscribeToChatTopic(client, chatId, setChatRoomList);
             } else if (parsedMessage.messageType === "SendLocation") {
               console.log("sendLocation");
+              try {
+                const res = await axios.post(
+                  `${BASE_URL}/api/location/sendToCustomer/${parsedMessage.data.id}`,
+                  { latitude, longitude }
+                );
+              } catch (error) {
+                console.log(error);
+              }
             } else if (parsedMessage.messageType === "HelperLocation") {
               console.log("acd", parsedMessage);
               setHourMoreLocation(parsedMessage.data); //마감시간 1시간 초과 수락한 헬퍼 위치
@@ -213,6 +234,8 @@ const Main = ({ navigation: { navigate }, route }) => {
               //정지 당할시
               Alert.alert(parsedMessage.data);
               navigate("Login");
+            } else if (parsedMessage.messageType === "DeleteConv") {
+              subscription.unsubscribe();
             }
           },
           headers
@@ -280,7 +303,7 @@ const Main = ({ navigation: { navigate }, route }) => {
                 navigate={navigate}
                 currentLocation={currentLocation}
               />
-              <SearchBar />
+              <SearchBar handleRefresh={handleRefresh} />
               <RequestBtn
                 setOrderVisible={setOrderVisible}
                 orderVisible={orderVisible}

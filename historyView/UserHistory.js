@@ -11,22 +11,25 @@ import axios from "axios";
 import { BASE_URL } from "../api";
 import { ScrollView } from "react-native";
 
-const StatusButton = styled.TouchableHighlight`
-  border-radius: 10px;
-  padding: 10px 20px;
-  background-color: ${(props) => (props.isSelected ? "#0fbcf9" : "#fff")};
-  border: 2px solid #0fbcf9;
-`;
-const StatusButtonText = styled.Text`
-  color: ${(props) => (props.isSelected ? "#fff" : "#0fbcf9")};
-  font-weight: bold;
-`;
-
 const BtnView = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: space-around;
-  padding: 10px 0px;
+`;
+const StatusButton = styled.TouchableHighlight`
+  flex: 1;
+  border-radius: 2px;
+  height: 40px;
+  justify-content: center;
+  align-items: center;
+  background-color: #0fbcf9;
+  border: 1px solid white;
+  border-bottom-width: ${(props) => (props.isSelected ? "2px" : "0px")};
+`;
+const StatusButtonText = styled.Text`
+  color: white;
+  font-weight: bold;
+  text-align: center;
 `;
 
 const UserHistory = () => {
@@ -70,36 +73,7 @@ const UserHistory = () => {
 
   return (
     <View>
-      <View style={{ alignItems: "flex-end", padding: 10 }}>
-        <SelectDropdown
-          buttonStyle={{
-            borderWidth: 1,
-            backgroundColor: "white",
-            borderColor: "lightgray",
-            borderRadius: 10,
-            height: 30,
-            width: 155,
-          }}
-          buttonTextStyle={{
-            fontSize: 14,
-          }}
-          data={["도와준 심부름", "이용한 심부름", "신고 내역"]}
-          onSelect={(selectedItem, index) => {
-            if (index === 0) {
-              onPressHelper();
-            } else if (index === 1) {
-              onPressCustomer();
-            } else if (index === 2) {
-              onPressReport();
-            }
-          }}
-          buttonTextAfterSelection={(selectedItem) => selectedItem}
-          renderDropdownIcon={() => <Text style={{ fontSize: 16 }}>▼</Text>}
-          defaultButtonText="도와준 심부름"
-        />
-      </View>
-
-      <View style={{ paddingHorizontal: 20 }}>
+      <View>
         <BtnView>
           {isHelper
             ? null
@@ -158,6 +132,34 @@ const UserHistory = () => {
             </>
           ) : null}
         </BtnView>
+        <View style={{ alignItems: "flex-end", padding: 10 }}>
+          <SelectDropdown
+            buttonStyle={{
+              borderWidth: 1,
+              backgroundColor: "white",
+              borderColor: "lightgray",
+              borderRadius: 10,
+              height: 30,
+              width: 155,
+            }}
+            buttonTextStyle={{
+              fontSize: 14,
+            }}
+            data={["도와준 심부름", "이용한 심부름", "신고 내역"]}
+            onSelect={(selectedItem, index) => {
+              if (index === 0) {
+                onPressHelper();
+              } else if (index === 1) {
+                onPressCustomer();
+              } else if (index === 2) {
+                onPressReport();
+              }
+            }}
+            buttonTextAfterSelection={(selectedItem) => selectedItem}
+            renderDropdownIcon={() => <Text style={{ fontSize: 16 }}>▼</Text>}
+            defaultButtonText="도와준 심부름"
+          />
+        </View>
         {isHelper && !isCustomer && !isReport && (
           <UserHelperHistory status={status} historyWork={historyWork} />
         )}

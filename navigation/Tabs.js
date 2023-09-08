@@ -12,6 +12,7 @@ import {
 import axios from "axios";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
+  addressData,
   adminData,
   alarmCountData,
   alarmData,
@@ -67,6 +68,7 @@ const Tabs = ({ navigation: { navigate } }) => {
   const setMyImg = useSetRecoilState(myImgData); //내 프로필 사진 데이터
   const setReportList = useSetRecoilState(reportData);
   const setUser = useSetRecoilState(userData);
+  const setLoc = useSetRecoilState(addressData);
 
   const [historyWork, setHistoryWork] = useRecoilState(historyWorkData);
 
@@ -76,6 +78,7 @@ const Tabs = ({ navigation: { navigate } }) => {
 
   const [visible, setVisible] = useRecoilState(alarmViewData);
   const [alarmCount, setAlarmCount] = useRecoilState(alarmCountData);
+  const setAddress = useSetRecoilState(addressData);
 
   const onPressAlarm = async () => {
     //알람데이터 확인
@@ -130,7 +133,7 @@ const Tabs = ({ navigation: { navigate } }) => {
 
                   axios
                     .get("http://10.0.2.2:8080/api/userInfo")
-                    .then((res) => {
+                    .then(async (res) => {
                       setUser(res.data);
                       setPw(res.data.password);
                       setDistance(res.data.distance);
@@ -140,7 +143,27 @@ const Tabs = ({ navigation: { navigate } }) => {
                       setRating(res.data.rating);
                       setUniqueId(res.data.id);
                       setMyImg(res.data.image);
-                      navigate("Profile");
+
+                      try {
+                        navigate("Profile");
+                        const res1 = await axios.get(
+                          `https://nominatim.openstreetmap.org/reverse`,
+                          {
+                            params: {
+                              format: "json",
+                              lat: res.data.latitude,
+                              lon: res.data.longitude,
+                              "accept-language": "ko",
+                            },
+                          }
+                        );
+                        const { city, borough, quarter, road } =
+                          res1.data.address;
+
+                        setAddress({ city, borough, quarter, road });
+                      } catch (error) {
+                        console.log(error);
+                      }
                     })
                     .catch((error) => console.log("f", error));
                 }}

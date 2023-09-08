@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { View, Text } from "react-native";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components/native";
 import { historyReportData } from "../atom";
 import Report from "./Report";
+import axios from "axios";
+import { BASE_URL } from "../api";
+import { Alert } from "react-native";
 
 const Container = styled.View`
   flex: 1;
@@ -61,9 +64,19 @@ const BtnText = styled.Text`
 `;
 
 const ReportResult = ({ status }) => {
-  const historyReport = useRecoilValue(historyReportData);
+  const [historyReport, setHistoryReport] = useRecoilState(historyReportData);
+
   const [reportVisible, setReportVisible] = useState(false);
-  const onDeleteReport = () => {};
+  const onDeleteReport = async (id) => {
+    try {
+      const res = await axios.delete(`${BASE_URL}/api/report/${id}`);
+      setHistoryReport(res.data);
+      Alert.alert("삭제 완료");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  console.log("h", historyReport);
   return (
     <View>
       {historyReport?.map((data, index) =>
@@ -81,13 +94,14 @@ const ReportResult = ({ status }) => {
               <Btn onPress={() => setReportVisible(!reportVisible)}>
                 <BtnText>수정</BtnText>
               </Btn>
-              <Btn onPress={onDeleteReport}>
+              <Btn onPress={() => onDeleteReport(data.id)}>
                 <BtnText>삭제</BtnText>
               </Btn>
               <Report
                 reportVisible={reportVisible}
                 setReportVisible={setReportVisible}
                 id={data.id}
+                fix={true}
               />
             </View>
           </HistoryInformation>

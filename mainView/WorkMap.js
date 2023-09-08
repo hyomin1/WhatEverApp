@@ -9,7 +9,8 @@ const WorkMap = ({ route }) => {
     longitude: null,
   });
   const loc = route.params.work;
-
+  const isDestination = route.params.destination;
+  console.log(loc, isDestination);
   useEffect(() => {
     const getLocation = async () => {
       const { granted } = await Location.requestForegroundPermissionsAsync();
@@ -45,14 +46,14 @@ const WorkMap = ({ route }) => {
         region={{
           latitude: location.latitude || 0,
           longitude: location.longitude || 0,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
+          latitudeDelta: 0.06,
+          longitudeDelta: 0.06,
         }}
       >
         <Marker
           coordinate={{
-            latitude: loc.latitude,
-            longitude: loc.longitude,
+            latitude: isDestination ? loc.latitude : loc.receiveLatitude,
+            longitude: isDestination ? loc.longitude : loc.receiveLongitude,
           }}
         />
       </MapView>

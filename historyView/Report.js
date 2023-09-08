@@ -3,8 +3,8 @@ import styled from "styled-components/native";
 import { useState } from "react";
 import axios from "axios";
 import { BASE_URL } from "../api";
-import { useRecoilValue } from "recoil";
-import { sendWorkData } from "../atom";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { historyReportData, sendWorkData } from "../atom";
 import { Ionicons } from "@expo/vector-icons";
 
 const ModalContainer = styled.View`
@@ -72,11 +72,11 @@ const ReportBtnText = styled.Text`
   font-weight: bold;
 `;
 
-const Report = ({ reportVisible, setReportVisible, id }) => {
+const Report = ({ reportVisible, setReportVisible, id, fix }) => {
   const [reportReason, setReportReason] = useState(); //신고 사유
   const [reportTitle, setReportTitle] = useState(); //신고 제목
   const work = useRecoilValue(sendWorkData); //신고할 일의 내용
-
+  const [historyReport, setHistoryReport] = useRecoilState(historyReportData);
   const onChangeReport = (payload) => {
     setReportReason(payload);
   };
@@ -89,11 +89,22 @@ const Report = ({ reportVisible, setReportVisible, id }) => {
     //신고 완료
 
     try {
-      const res = await axios.post(`${BASE_URL}/api/report`, {
-        workId: work !== null ? work.id : id,
-        reportTitle,
-        reportReason,
-      });
+      if (fix === true) {
+        const res = await axios.put(`${BASE_URL}/api/report`, {
+          id,
+          workId: work !== null ? work.id : id,
+          reportTitle,
+          reportReason,
+        });
+        setHistoryReport(res.data);
+      } else {
+        const res = await axios.post(`${BASE_URL}/api/report`, {
+          workId: work !== null ? work.id : id,
+          reportTitle,
+          reportReason,
+        });
+      }
+
       Alert.alert("신고가 완료되었습니다.");
       setReportVisible(!reportVisible);
     } catch (error) {

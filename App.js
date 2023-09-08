@@ -28,7 +28,7 @@ export default function App() {
   const setMyImg = useSetRecoilState(myImgData);
   const setHistoryWork = useSetRecoilState(historyWorkData);
   const setHistoryReport = useSetRecoilState(historyReportData);
-
+  const instance = axios.create();
   messaging().setBackgroundMessageHandler(async (remoteMessage) => {
     //background
     const token = await AsyncStorage.getItem("authToken");
@@ -132,6 +132,40 @@ export default function App() {
         );
     });
     return unsubscribe;
+  }, []);
+  useEffect(() => {
+    axios.interceptors.response.use(
+      (response) => {
+        return response;
+      },
+      async (error) => {
+        //console.log(error.response);
+        const status = error.response ? error.response.status : null;
+
+        if (status === 401 && error.response.data.message === "ReIssueToken") {
+          delete error.config.headers.Authorization;
+          try {
+            const res = await axios.put(`${BASE_URL}/reIssueToken`);
+            if (res.status === 200) {
+              axios.defaults.headers.common[
+                "Authorization"
+              ] = `Bearer ${res.data.accessToken}`;
+              await AsyncStorage.setItem("authToken", res.data.accessToken);
+              return axios.request(error.config);
+            }
+          } catch (error) {
+            //console.log(error);
+          }
+        } else if (status === 403) {
+          delete error.config.headers.Authorization;
+          // console.log("403 ", error);
+          navigation.navigate("Login");
+        }
+
+        //console.log("asdfasdf");
+        return Promise.reject(error);
+      }
+    );
   }, []);
   return (
     <NavigationContainer ref={(ref) => (navigation = ref)}>

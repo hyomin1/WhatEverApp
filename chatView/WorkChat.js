@@ -1,14 +1,7 @@
 import { Pressable, View, Text, TouchableOpacity } from "react-native";
 import { useRecoilState, useRecoilValue } from "recoil";
 import styled from "styled-components/native";
-import {
-  accessData,
-  conversationData,
-  isTimerData,
-  myIdData,
-  workProceedingStatusData,
-  workStatusCodeData,
-} from "../atom";
+import { conversationData, myIdData, workProceedingStatusData } from "../atom";
 import axios from "axios";
 import { BASE_URL } from "../api";
 import { client } from "../client";
@@ -22,6 +15,7 @@ import DetailWork from "../mainView/DetailWork";
 import DetailWorkChat from "./DetailWorkChat";
 import { useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const WorkContiainer = styled.View`
   width: 100%;
   flex-direction: row;
@@ -59,6 +53,7 @@ const PaddingView = styled.View`
 const MainText = styled.Text`
   color: #888;
   font-size: 12px;
+  font-weight: bold;
 `;
 const MainTitle = styled.Text`
   font-size: 18px;
@@ -95,22 +90,6 @@ const ButtonContainer = styled.View`
   justify-content: center;
   margin-top: 10px;
 `;
-const Spacer = styled.View`
-  width: 2%;
-`;
-const WorkBtn = styled.TouchableOpacity`
-  background-color: ${(props) => (props.accept ? "#3498db" : "#e74c3c")};
-  width: 80px;
-  height: 30px;
-  justify-content: center;
-  align-items: center;
-  border-radius: 5px;
-`;
-
-const WorkBtnText = styled.Text`
-  color: white;
-  font-weight: 600;
-`;
 const Time = styled.Text`
   color: gray;
   margin-bottom: 10px;
@@ -128,7 +107,7 @@ const WorkChat = ({
   const messageData = JSON.parse(data.message);
   const myId = useRecoilValue(myIdData);
   const conversation = useRecoilValue(conversationData);
-  const accessToken = useRecoilValue(accessData);
+
   const [workProceedingStatus, setWorkProceedingStatus] = useRecoilState(
     workProceedingStatusData
   );
@@ -139,50 +118,46 @@ const WorkChat = ({
     quarter: "",
     road: "",
   });
-  const AcceptCard = {
-    message: "Accept work",
-    senderName: myName,
-    receiverName: receiverName,
-  };
 
-  const onPressCheck = () => {
-    const work = JSON.parse(chatList.chatList[index].message);
-    axios
-      .put(`${BASE_URL}/api/work/matching/${chatList._id}`, {
-        id: work.id,
-        title: work.title,
-        context: work.context,
-        deadLineTime: work.deadLineTime,
-        reward: work.reward,
-        latitude: work.latitude,
-        longitude: work.longitude,
-        proceeding: work.proceeding,
-        customerId: work.customerId,
-        helperId:
-          work.customerId === chatList.participantId
-            ? chatList.creatorId
-            : chatList.participantId,
-        finished: work.finished,
-      })
-      .then((res) => {
-        client.publish({
-          destination: `/pub/card/${chatList._id}`,
-          body: JSON.stringify(AcceptCard),
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
+  // const onPressCheck = () => {
+  //   const work = JSON.parse(chatList.chatList[0].message);
+  //   console.log("a", work);
+  //   axios
+  //     .put(`${BASE_URL}/api/work/matching/${chatList._id}`, {
+  //       id: work.id,
+  //       title: work.title,
+  //       context: work.context,
+  //       deadLineTime: work.deadLineTime,
+  //       reward: work.reward,
+  //       latitude: work.latitude,
+  //       longitude: work.longitude,
+  //       proceeding: work.proceeding,
+  //       customerId: work.customerId,
+  //       helperId:
+  //         work.customerId === chatList.participantId
+  //           ? chatList.creatorId
+  //           : chatList.participantId,
+  //       finished: work.finished,
+  //     })
+  //     .then(async (res) => {
+  //       const token = await AsyncStorage.getItem("authToken");
+  //       client.publish({
+  //         destination: `/pub/card/${chatList._id}`,
+  //         body: JSON.stringify(AcceptCard),
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       });
 
-        axios
-          .post(`${BASE_URL}/api/fcm/chatNotification/${chatList._id}`)
-          .then();
-        if (work.deadLineTime === 1) {
-          //마감시간 1시간일 경우
-          intervalId(work.id); //서버에 현재위치 계속 보내줌
-        }
-      })
-      .catch((error) => Alert.alert(error.response.data.message));
-  };
+  //       axios
+  //         .post(`${BASE_URL}/api/fcm/chatNotification/${chatList._id}`)
+  //         .then();
+  //       if (work.deadLineTime === 1) {
+  //         //마감시간 1시간일 경우
+  //         intervalId(work.id); //서버에 현재위치 계속 보내줌
+  //       }
+  //     })
+  //     .catch((error) => Alert.alert(error.response.data.message));
+  // };
   const customerId = JSON.parse(data.message).customerId;
-  const navigation = useNavigation();
 
   return (
     <View
@@ -209,7 +184,11 @@ const WorkChat = ({
                 <MainTitle>{messageData.title}</MainTitle>
                 <Divider />
                 {workProceedingStatus === 0 ? (
-                  <LocationBtn onPress={() => setDetailModal(!detailModal)}>
+                  <LocationBtn
+                    onPress={() => {
+                      setDetailModal(!detailModal);
+                    }}
+                  >
                     <LocationText>상세보기</LocationText>
                   </LocationBtn>
                 ) : null}
@@ -220,6 +199,7 @@ const WorkChat = ({
                   address={address}
                   myName={myName}
                   receiverName={receiverName}
+                  validate={false}
                 />
               </PaddingView>
             </WorkBubble>
@@ -228,16 +208,31 @@ const WorkChat = ({
           <WorkContiainer>
             <WorkBubble>
               <WorkTitleWrapper>
-                <WorkTitle>심부름 검증서</WorkTitle>
+                <WorkTitle>심부름 검증서 도착</WorkTitle>
               </WorkTitleWrapper>
-              <ErrandRequest messageData={messageData} />
-              <ButtonContainer
-                style={{ justifyContent: "center", padding: 20 }}
-              >
-                <WorkBtn onPress={onPressCheck} accept={true}>
-                  <WorkBtnText>승낙</WorkBtnText>
-                </WorkBtn>
-              </ButtonContainer>
+              <PaddingView>
+                <MainText>심부름 검증서</MainText>
+                <MainTitle>{messageData.title}</MainTitle>
+                <Divider />
+                {workProceedingStatus === 0 ? (
+                  <LocationBtn
+                    onPress={() => {
+                      setDetailModal(!detailModal);
+                    }}
+                  >
+                    <LocationText>상세보기</LocationText>
+                  </LocationBtn>
+                ) : null}
+                <DetailWorkChat
+                  detailModal={detailModal}
+                  setDetailModal={setDetailModal}
+                  messageData={messageData}
+                  address={address}
+                  myName={myName}
+                  receiverName={receiverName}
+                  validate={true}
+                />
+              </PaddingView>
             </WorkBubble>
             <Time>
               {data.sendTime
@@ -257,7 +252,22 @@ const WorkChat = ({
               <MainTitle>{messageData.title}</MainTitle>
               <Divider />
               {workProceedingStatus === 0 ? (
-                <LocationBtn onPress={() => setDetailModal(!detailModal)}>
+                <LocationBtn
+                  onPress={async () => {
+                    try {
+                      const res = await axios.get(
+                        `${BASE_URL}/api/work/${messageData.id}`
+                      );
+                      if (res.data.workProceedingStatus === 1) {
+                        Alert.alert("다른 헬퍼가 심부름을 진행 중 입니다.");
+                      } else {
+                        setDetailModal(!detailModal);
+                      }
+                    } catch (error) {
+                      console.log(error);
+                    }
+                  }}
+                >
                   <LocationText>상세보기</LocationText>
                 </LocationBtn>
               ) : null}
@@ -268,6 +278,7 @@ const WorkChat = ({
                 address={address}
                 myName={myName}
                 receiverName={receiverName}
+                validate={false}
               />
             </PaddingView>
           </WorkBubble>
@@ -278,19 +289,42 @@ const WorkChat = ({
           </Time>
         </WorkContiainer>
       ) : (
-        <WorkContiainer>
-          <WorkBubble>
-            <WorkTitleWrapper>
-              <WorkTitle>심부름 검증서</WorkTitle>
-            </WorkTitleWrapper>
-            <ErrandRequest messageData={messageData} />
-            <WorkText style={{ textAlign: "center" }}>검증 대기중...</WorkText>
-          </WorkBubble>
+        <WorkContiainer style={{ justifyContent: "flex-end" }}>
           <Time>
             {data.sendTime
               ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(11, 16)}`
               : null}
           </Time>
+          <WorkBubble>
+            <WorkTitleWrapper>
+              <WorkTitle>심부름 검증서 전송</WorkTitle>
+            </WorkTitleWrapper>
+            <PaddingView>
+              <MainText>심부름 검증서</MainText>
+              <MainTitle>{messageData.title}</MainTitle>
+              <Divider />
+
+              {workProceedingStatus === 0 ? (
+                <LocationBtn
+                  onPress={() => {
+                    setDetailModal(!detailModal);
+                  }}
+                  style={{ width: "80%", alignSelf: "center" }}
+                >
+                  <LocationText>상세보기</LocationText>
+                  <DetailWorkChat
+                    detailModal={detailModal}
+                    setDetailModal={setDetailModal}
+                    messageData={messageData}
+                    address={address}
+                    myName={myName}
+                    receiverName={receiverName}
+                    validate={true}
+                  />
+                </LocationBtn>
+              ) : null}
+            </PaddingView>
+          </WorkBubble>
         </WorkContiainer>
       )}
     </View>

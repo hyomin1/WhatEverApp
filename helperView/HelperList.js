@@ -35,7 +35,7 @@ const HelperList = () => {
   const distanceData = useRecoilValue(contentData);
   const ratingData = useRecoilValue(ratingHelperData);
   const responseData = useRecoilValue(responseHelperData);
-
+  console.log(responseData);
   const [isDistance, setIsDistance] = useState(true);
   const [isRating, setIsRating] = useState(false);
   const [isResponse, setIsResponse] = useState(false);

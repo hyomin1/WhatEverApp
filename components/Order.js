@@ -299,8 +299,8 @@ const Order = ({
             <AddressBox>
               <AddressInfo>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <MainText>심부름 하는장소</MainText>
-                  <MainText style={{ color: "red" }}>(필수)</MainText>
+                  <MainText>도착지</MainText>
+                  <MainText style={{ color: "red" }}>(필수 입력)</MainText>
                 </View>
                 <AddressInputButton
                   onPress={() => setOrderAddress(!orderAddress)}
@@ -347,7 +347,7 @@ const Order = ({
           <Section>
             <AddressBox>
               <AddressInfo>
-                <MainText>심부름 받는장소</MainText>
+                <MainText>심부름 장소</MainText>
                 <AddressInputButton
                   onPress={() => setReceiveAddress(!receiveAddress)}
                 >

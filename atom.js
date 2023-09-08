@@ -4,10 +4,6 @@ export const accessData = atom({
   key: "access",
   default: null,
 }); //토큰 데이터
-export const grantData = atom({
-  key: "grant",
-  default: null,
-}); //토큰 데이터
 export const imgData = atom({
   key: "profileImg",
   default:
@@ -203,4 +199,17 @@ export const nearWorkData = atom({
 export const hourMoreLocationData = atom({
   key: "hourMoreLocation",
   default: null,
+});
+export const addressData = atom({
+  key: "address",
+  default: {
+    city: "",
+    borough: "",
+    quarter: "",
+    road: "",
+  },
+});
+export const isLoginPageData = atom({
+  key: "isLoginPage",
+  default: false,
 });

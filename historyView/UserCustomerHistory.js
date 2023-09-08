@@ -29,6 +29,7 @@ const UserCustomerHistory = ({ historyWork, status }) => {
             status === "심부름 전" &&
             data.workProceedingStatus === 0 ? (
               <HistoryInform
+                key={index}
                 data={data}
                 index={index}
                 onPressReport={onPressReport}

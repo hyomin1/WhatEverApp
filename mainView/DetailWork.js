@@ -1,4 +1,4 @@
-import { Modal, TouchableOpacity, Alert, Text } from "react-native";
+import { Modal, TouchableOpacity, Alert, Text, View } from "react-native";
 import styled from "styled-components/native";
 import { AntDesign } from "@expo/vector-icons";
 import axios from "axios";
@@ -40,7 +40,7 @@ const TitleWrapper = styled.View`
 `;
 
 const Title = styled.Text`
-  font-size: 24px;
+  font-size: 22px;
   font-weight: bold;
   color: #333;
 `;
@@ -57,6 +57,7 @@ const Content = styled.Text`
   font-size: 16px;
   color: #666;
   margin-bottom: 20px;
+  margin-left: 5px;
 `;
 
 const ProgressButton = styled.Pressable`
@@ -71,8 +72,23 @@ const ProgressButtonText = styled.Text`
   font-weight: bold;
   color: #ffffff;
 `;
+const MapBtnView = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`;
+const MapBtnText = styled.Text`
+  color: blue;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+`;
 
-const DetailWork = ({ workVisible, setWorkVisible, selectedWork, address }) => {
+const DetailWork = ({
+  workVisible,
+  setWorkVisible,
+  selectedWork,
+  address,
+  address2,
+}) => {
   const setConversation = useSetRecoilState(conversationData);
   const setChatRoomList = useSetRecoilState(chatRoomListData);
   const setChatList = useSetRecoilState(chatListData);
@@ -80,16 +96,15 @@ const DetailWork = ({ workVisible, setWorkVisible, selectedWork, address }) => {
   const navigation = useNavigation();
 
   const onPressProgress = async (selectedWork) => {
-    const { customerId } = selectedWork;
+    const { customerId, id } = selectedWork;
 
     try {
       const res = await axios.post(
         `${BASE_URL}/api/conversation/${customerId}`,
         {
-          id: customerId,
+          id,
         }
       );
-
       setConversation(res.data);
       setChatRoomList((prev) => [...prev, res.data]);
       setChatList(res.data);
@@ -129,26 +144,58 @@ const DetailWork = ({ workVisible, setWorkVisible, selectedWork, address }) => {
               <Label>제목</Label>
               <Content>{selectedWork.title}</Content>
               <Label>마감 시간</Label>
-              <Content>{selectedWork.deadLineTime}시간</Content>
+              <Content>{selectedWork.deadLineTime}H</Content>
               <Label>상세 내용</Label>
               <Content>{selectedWork.context}</Content>
-              <Label>심부름 하는장소</Label>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate("WorkMap", {
-                    work: selectedWork,
-                  });
-                  setWorkVisible(false);
-                }}
-              >
-                <Text>지도 보기</Text>
-              </TouchableOpacity>
+              <Label>금액</Label>
+              <Content>{selectedWork.reward}원</Content>
+              <MapBtnView>
+                <Label>도착지</Label>
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate("WorkMap", {
+                      work: selectedWork,
+                      destination: true,
+                    });
+                    setWorkVisible(false);
+                  }}
+                >
+                  <MapBtnText>지도 보기</MapBtnText>
+                </TouchableOpacity>
+              </MapBtnView>
+
               <Content>
                 {address.city} {address.borough} {address.quarter}{" "}
                 {address.road}
               </Content>
-              <Label>심부름 받는장소</Label>
-              <Content></Content>
+              {address2.city !== "" &&
+              address2.borough !== "" &&
+              address2.quarter !== "" &&
+              address2.road !== "" ? (
+                <View>
+                  <MapBtnView>
+                    <Label>심부름 장소</Label>
+                    <TouchableOpacity
+                      onPress={() => {
+                        navigation.navigate("WorkMap", {
+                          work: selectedWork,
+                          destination: false,
+                        });
+                        setWorkVisible(false);
+                      }}
+                    >
+                      <MapBtnText>지도 보기</MapBtnText>
+                    </TouchableOpacity>
+                  </MapBtnView>
+
+                  <Content>
+                    {" "}
+                    {address2.city} {address2.borough} {address2.quarter}{" "}
+                    {address2.road}
+                  </Content>
+                </View>
+              ) : null}
+
               <ProgressButton onPress={() => onPressProgress(selectedWork)}>
                 <ProgressButtonText>진행 요청</ProgressButtonText>
               </ProgressButton>
