@@ -311,6 +311,7 @@ const DetailWorkChat = ({
         body: JSON.stringify(DenyCard),
         headers: { Authorization: `Bearer ${token}` },
       });
+      setDetailModal(!detailModal);
       Alert.alert("거절하였습니다");
     }
   };

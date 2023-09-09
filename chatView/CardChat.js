@@ -304,6 +304,40 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
             </Time>
           </CardContiainer>
         )
+      ) : data.message === "Deny Work" ? (
+        myId !== messageData.customerId ? (
+          <CardContiainer>
+            <Time>
+              {data.sendTime
+                ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(11, 16)}`
+                : null}
+            </Time>
+            <CardBubble>
+              <CardTitleWrapper>
+                <CardTitle>심부름 거절</CardTitle>
+              </CardTitleWrapper>
+              <PaddingView>
+                <MainText>심부름을 거절하였습니다</MainText>
+              </PaddingView>
+            </CardBubble>
+          </CardContiainer>
+        ) : (
+          <CardContiainer style={{ justifyContent: "flex-start" }}>
+            <CardBubble>
+              <CardTitleWrapper>
+                <CardTitle>심부름 거절</CardTitle>
+              </CardTitleWrapper>
+              <PaddingView>
+                <MainText>심부름이 거절되었습니다</MainText>
+              </PaddingView>
+            </CardBubble>
+            <Time>
+              {data.sendTime
+                ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(11, 16)}`
+                : null}
+            </Time>
+          </CardContiainer>
+        )
       ) : null}
     </View>
   );
