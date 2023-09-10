@@ -9,6 +9,7 @@ import {
   conversationData,
   indexData,
   myIdData,
+  chatIdData,
 } from "../atom";
 import axios from "axios";
 import { useState } from "react";
@@ -186,6 +187,7 @@ const HelperProfile = ({ route }) => {
   const [visible, setVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [review, setReview] = useState();
+  const setChatId = useSetRecoilState(chatIdData);
 
   const onViewMyWorkList = async () => {};
   const onPressOrderBtn = async () => {
@@ -196,7 +198,7 @@ const HelperProfile = ({ route }) => {
       })
       .then(async ({ data }) => {
         setConversation(data);
-        setChatRoomList([...chatRoomList, data]); //채팅방 목록 보여주기 위함
+        setChatRoomList([...chatRoomList, data]);
         setChatList(data);
         const token = await AsyncStorage.getItem("authToken");
         client.publish({
@@ -208,9 +210,10 @@ const HelperProfile = ({ route }) => {
           .post(`${BASE_URL}/api/fcm/chatNotification/${data._id}`)
           .then()
           .catch((error) => console.log("caca", error));
+        navigation.navigate("Tabs", { screen: "채팅" });
         navigation.navigate("Chatting");
       })
-      .catch((error) => Alert.alert(error.response.data.message));
+      .catch((error) => console.log("심부름신청에러", error));
     setWorkListVisible(!workListVisible);
   };
   const onPressReview = async () => {
@@ -277,7 +280,6 @@ const HelperProfile = ({ route }) => {
               try {
                 const res = await axios.get(`${BASE_URL}/api/workList`);
                 setWorkList(res.data);
-                console.log(res.data);
               } catch (error) {
                 console.log(error);
               }

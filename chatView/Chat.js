@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Text, View, Pressable, ScrollView, Alert } from "react-native";
 import styled from "styled-components/native";
 import {
@@ -6,6 +6,7 @@ import {
   chatRoomListData,
   conversationData,
   myIdData,
+  onChattingData,
   workProceedingStatusData,
 } from "../atom";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
@@ -13,6 +14,7 @@ import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import { BASE_URL } from "../api";
 import messaging from "@react-native-firebase/messaging";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Container = styled.View`
   flex: 1;
@@ -75,6 +77,7 @@ const Chat = () => {
     const workId = JSON.parse(chatRoom.chatList[0].message).id;
     setConversation(chatRoom);
     setChatList(chatRoom);
+
     navigation.navigate("Chatting", { chatRoom }); //수정
     axios
       .post(`http://10.0.2.2:8080/api/conversation/seen/${chatRoom._id}`)
@@ -93,6 +96,12 @@ const Chat = () => {
       });
   };
 
+  const setChatId = async () => {
+    await AsyncStorage.setItem("chatId", "0");
+  };
+  useEffect(() => {
+    setChatId();
+  }, []);
   return (
     <Container>
       <ScrollView>

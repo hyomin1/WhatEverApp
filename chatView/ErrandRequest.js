@@ -28,7 +28,6 @@ const MoneyText = styled(MainDescription)`
 `;
 
 const ErrandRequest = ({ messageData }) => {
-  //console.log(messageData);
   return (
     <PaddingView>
       <MainText>심부름 요청서</MainText>

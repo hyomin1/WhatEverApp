@@ -15,6 +15,7 @@ import { apiClient, BASE_URL } from "../api";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect } from "react";
+import { client } from "../client";
 
 const Container = styled.View`
   background-color: #0fbcf9;
@@ -110,7 +111,11 @@ function Login({ navigation: { navigate } }) {
             "Authorization"
           ] = `Bearer ${res.data.accessToken}`;
         }
+        client.connectHeaders = {
+          Authorization: `Bearer ${res.data.accessToken}`,
+        };
         setIsAdmin(false);
+
         await axios
           .get(`${BASE_URL}/api/conversation/seen`)
           .then((res) => setChatCount(res.data))

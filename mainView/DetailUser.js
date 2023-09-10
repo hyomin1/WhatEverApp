@@ -98,7 +98,7 @@ const DetailUser = ({
   userWorkList,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  console.log(1);
+
   return (
     <Modal
       style={{ flex: 1 }}

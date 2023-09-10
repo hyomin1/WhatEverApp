@@ -213,3 +213,11 @@ export const isLoginPageData = atom({
   key: "isLoginPage",
   default: false,
 });
+export const onChattingData = atom({
+  key: "onChatting",
+  default: null,
+});
+export const chatIdData = atom({
+  key: "chatId",
+  default: null,
+});

@@ -76,7 +76,7 @@ const ReportResult = ({ status }) => {
       console.log(error);
     }
   };
-  console.log("h", historyReport);
+
   return (
     <View>
       {historyReport?.map((data, index) =>

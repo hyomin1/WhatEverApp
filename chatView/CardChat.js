@@ -124,7 +124,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
     workProceedingStatusData
   );
   const [detailModal, setDetailModal] = useState(false);
-  console.log(workProceedingStatus);
+
   const onPressDetail = () => {
     setDetailModal(!detailModal);
   };
@@ -136,20 +136,15 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
         .then((res) => {
           navigation.navigate("HelperLocation", {
             location: res.data,
+            isHour: true,
           });
         });
     } else {
       //여기에서 한시간 초과되는 심부름 점 하나 찍어서 보여줌
-      // navigation.navigate("HelperLocation", {
-      //   location: hourMoreLocation,
-      // });
-      try {
-        const res = await axios.get(
-          `${BASE_URL}/api/location/helperLocation/${messageData.id}`
-        );
-        console.log(res.data);
-        //navigation.navigate("HelperLocation",{})
-      } catch (error) {}
+
+      navigation.navigate("HelperLocation", {
+        isHour: false,
+      });
     }
   };
   const handleConfrim = () => {

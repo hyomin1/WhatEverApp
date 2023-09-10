@@ -18,6 +18,7 @@ import {
   chatCountData,
   nearWorkData,
   hourMoreLocationData,
+  onChattingData,
 } from "../atom";
 import { MaterialIcons } from "@expo/vector-icons";
 import Order from "../components/Order";
@@ -29,7 +30,9 @@ import RequestBtn from "./RequestBtn";
 import SearchBar from "./SearchBar";
 import NearWork from "./NearWork";
 import AlarmView from "./AlarmView";
-import { FontAwesome } from "@expo/vector-icons";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigationState, useRoute } from "@react-navigation/native";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const Loader = styled.View`
@@ -91,6 +94,10 @@ const Main = ({ navigation: { navigate }, route }) => {
 
   const setHourMoreLocation = useSetRecoilState(hourMoreLocationData);
   const access = useRecoilValue(accessData);
+  const routes = useRoute();
+  const nState = useNavigationState((state) => state);
+  const onChatting = useRecoilValue(onChattingData);
+
   const getToken = async () => {
     const token = await messaging().getToken();
 
@@ -141,38 +148,87 @@ const Main = ({ navigation: { navigate }, route }) => {
       setLoading(false);
     }
   };
-  const headers = {
-    Authorization: `Bearer` + " " + `${access}`,
+
+  const createHeaders = async () => {
+    const token = await AsyncStorage.getItem("authToken");
+    //console.log("tkn", token);
+    if (token) {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+      return headers;
+    } else {
+      return null;
+    }
   };
+  const headers = { Authorization: `Bearer ${access}` };
 
   client.onConnect = function (frame) {
     console.log("웹소켓 연결완료");
   };
-  client.onStompError = function (frame) {
-    console.log("Broker reported error: " + frame.headers["message"]);
-    console.log("Additional details: " + frame.body);
+
+  client.onStompError = async function (frame) {
+    console.log("프레임 정보", frame);
+    console.log("스톰프 에러: " + frame.headers);
+    console.log("스톰프 에러 디테일: " + frame.body);
+    if (frame.headers["message"] === "ReIssueJwt") {
+      try {
+        const res = await axios.put(`${BASE_URL}/reIssueToken`);
+        await AsyncStorage.setItem("authToken", res.data.accessToken);
+        client.connectHeaders.Authorization = `Bearer ${res.data.accessToken}}`;
+        // return client.publish({
+        //   destination: `/`,
+        // });
+      } catch (error) {}
+      if (frame.headers["CONNECT"]) {
+      } else if (frame.headers["SEND"]) {
+      } else if (frame.headers["SUBSCRIBE"]) {
+      }
+    } else if (frame.headers["message"] === "UNAUTHORIZED") {
+      client.deactivate();
+      navigate("Login");
+    }
   };
+
   const subscribeToChatTopic = (client, chatId, setChatRoomList) => {
     const subscription = client.subscribe(
       `/topic/chat/${chatId}`,
-      function (message) {
-        isSubscribed = true;
-        console.log("새로운 챗방 열기 또는 채팅 보내기");
-        const conversationData = JSON.parse(message.body).data;
-        setChatRoomList((prev) => {
-          const updatedConv = prev.map((conv) =>
-            conv._id === conversationData._id ? conversationData : conv
-          );
-          if (!updatedConv.some((conv) => conv._id === conversationData._id))
-            //아이디 비교했을때 일치하는게 없으면 새로운 채팅방추가
-            updatedConv.push(conversationData);
-          updatedConv.sort(
-            (a, b) =>
-              new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-          );
-          return [...updatedConv];
-        });
-      }
+      async function (message) {
+        const parsedMessage = JSON.parse(message.body);
+        const chatIds = await AsyncStorage.getItem("chatId");
+
+        if (parsedMessage.messageType === "DeleteConv") {
+          const convId = parsedMessage.data;
+
+          axios.get(`${BASE_URL}/api/conversations`).then(({ data }) => {
+            data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+            setChatRoomList(data);
+          });
+          if (chatIds === convId) {
+            navigate("Tabs", { screen: "Chat" });
+          }
+          subscription.unsubscribe();
+        } else {
+          isSubscribed = true;
+          console.log("새로운 챗방 열기 또는 채팅 보내기");
+          const conversationData = JSON.parse(message.body).data;
+          setChatRoomList((prev) => {
+            const updatedConv = prev.map((conv) =>
+              conv._id === conversationData._id ? conversationData : conv
+            );
+            if (!updatedConv.some((conv) => conv._id === conversationData._id))
+              //아이디 비교했을때 일치하는게 없으면 새로운 채팅방추가
+              updatedConv.push(conversationData);
+            updatedConv.sort(
+              (a, b) =>
+                new Date(b.updatedAt).getTime() -
+                new Date(a.updatedAt).getTime()
+            );
+            return [...updatedConv];
+          });
+        }
+      },
+      headers
     );
   };
   const handleRefresh = () => {
@@ -194,23 +250,25 @@ const Main = ({ navigation: { navigate }, route }) => {
       isSetMap(false);
     }
     client.activate();
-    client.connectHeaders.Authorization = `Bearer ${access}`;
+
     if (subscription) {
       subscription.unsubscribe();
     }
     let subscription;
     setTimeout(() => {
-      console.log("연결됨");
       try {
         console.log("로그인 웹소켓");
         subscription = client.subscribe(
           `/queue/${myId}`,
           //처음 채팅이 열렸을때 콜백 시작
           async function (message) {
+            const token = await AsyncStorage.getItem("authToken");
+            console.log("token", token);
             const parsedMessage = JSON.parse(message.body);
-            console.log(parsedMessage);
+
             if (parsedMessage.messageType === "OpenChat") {
               console.log("오픈챗");
+
               const chatId =
                 parsedMessage.data[parsedMessage.data.length - 1]._id; //새로운 채팅방 아이디 찾기
               subscribeToChatTopic(client, chatId, setChatRoomList);
@@ -219,23 +277,22 @@ const Main = ({ navigation: { navigate }, route }) => {
               try {
                 const res = await axios.post(
                   `${BASE_URL}/api/location/sendToCustomer/${parsedMessage.data.id}`,
-                  { latitude, longitude }
+                  {
+                    latitude: currentLocation.latitude,
+                    longitude: currentLocation.longitude,
+                  }
                 );
               } catch (error) {
                 console.log(error);
               }
             } else if (parsedMessage.messageType === "HelperLocation") {
-              console.log("acd", parsedMessage);
               setHourMoreLocation(parsedMessage.data); //마감시간 1시간 초과 수락한 헬퍼 위치
             } else if (parsedMessage.messageType === "SetConvSeenCount") {
               setChatCount(parsedMessage.data);
-              console.log("개수", parsedMessage.data);
             } else if (parsedMessage.messageType === "LogOut") {
               //정지 당할시
               Alert.alert(parsedMessage.data);
               navigate("Login");
-            } else if (parsedMessage.messageType === "DeleteConv") {
-              subscription.unsubscribe();
             }
           },
           headers
@@ -243,6 +300,7 @@ const Main = ({ navigation: { navigate }, route }) => {
         axios.get(`${BASE_URL}/api/conversations`).then(({ data }) => {
           data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
           setChatRoomList(data);
+          console.log("확인용", data);
           const subscribedChatIds = new Set();
           data.forEach((chat) => {
             if (!subscribedChatIds.has(chat._id)) {
@@ -254,7 +312,7 @@ const Main = ({ navigation: { navigate }, route }) => {
       } catch (error) {
         console.error("웹소켓 에러", error);
       }
-    }, 1000);
+    }, 500);
     return () => {
       if (subscription) {
         subscription.unsubscribe();

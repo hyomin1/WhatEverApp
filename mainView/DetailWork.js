@@ -12,6 +12,7 @@ import {
 } from "../atom";
 import { client } from "../client";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Container = styled.View`
   flex: 1;
@@ -108,11 +109,17 @@ const DetailWork = ({
       setConversation(res.data);
       setChatRoomList((prev) => [...prev, res.data]);
       setChatList(res.data);
+      const token = await AsyncStorage.getItem("authToken");
       client.publish({
         destination: `/pub/work/${res.data._id}`,
         body: JSON.stringify(selectedWork),
-        headers: { Authorization: `Bearer ${accessToken}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
+      const res2 = await axios.post(
+        `${BASE_URL}/api/fcm/chatNotification/${res.data._id}`
+      );
+      console.log("진행요청", res.data);
+      navigation.navigate("Tabs", { screen: "채팅" });
       navigation.navigate("Chatting");
     } catch (error) {
       console.log("진행요청", error);

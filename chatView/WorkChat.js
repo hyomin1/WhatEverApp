@@ -119,44 +119,6 @@ const WorkChat = ({
     road: "",
   });
 
-  // const onPressCheck = () => {
-  //   const work = JSON.parse(chatList.chatList[0].message);
-  //   console.log("a", work);
-  //   axios
-  //     .put(`${BASE_URL}/api/work/matching/${chatList._id}`, {
-  //       id: work.id,
-  //       title: work.title,
-  //       context: work.context,
-  //       deadLineTime: work.deadLineTime,
-  //       reward: work.reward,
-  //       latitude: work.latitude,
-  //       longitude: work.longitude,
-  //       proceeding: work.proceeding,
-  //       customerId: work.customerId,
-  //       helperId:
-  //         work.customerId === chatList.participantId
-  //           ? chatList.creatorId
-  //           : chatList.participantId,
-  //       finished: work.finished,
-  //     })
-  //     .then(async (res) => {
-  //       const token = await AsyncStorage.getItem("authToken");
-  //       client.publish({
-  //         destination: `/pub/card/${chatList._id}`,
-  //         body: JSON.stringify(AcceptCard),
-  //         headers: { Authorization: `Bearer ${token}` },
-  //       });
-
-  //       axios
-  //         .post(`${BASE_URL}/api/fcm/chatNotification/${chatList._id}`)
-  //         .then();
-  //       if (work.deadLineTime === 1) {
-  //         //마감시간 1시간일 경우
-  //         intervalId(work.id); //서버에 현재위치 계속 보내줌
-  //       }
-  //     })
-  //     .catch((error) => Alert.alert(error.response.data.message));
-  // };
   const customerId = JSON.parse(data.message).customerId;
 
   return (

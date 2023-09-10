@@ -1,7 +1,12 @@
 import { Modal, TouchableOpacity, Alert, View, Text } from "react-native";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components/native";
-import { chatListData, myIdData, workProceedingStatusData } from "../atom";
+import {
+  chatListData,
+  myIdData,
+  onChattingData,
+  workProceedingStatusData,
+} from "../atom";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
@@ -113,6 +118,7 @@ const DetailWorkChat = ({
   const navigation = useNavigation();
   const work = JSON.parse(chatList.chatList[0].message);
   const myId = useRecoilValue(myIdData);
+  const setOnChatting = useSetRecoilState(onChattingData);
 
   const [address, setAddress] = useState({
     city: "",
@@ -304,16 +310,25 @@ const DetailWorkChat = ({
   };
   const onPressDeny = async () => {
     //심부름 거절
-    if (chatList.participatorName === myName) {
-      const token = await AsyncStorage.getItem("authToken");
-      client.publish({
-        destination: `/pub/card/${chatList._id}`,
-        body: JSON.stringify(DenyCard),
-        headers: { Authorization: `Bearer ${token}` },
+    const work = JSON.parse(chatList.chatList[0].message);
+    try {
+      const res = await axios.put(`${BASE_URL}/api/work/deny/${chatList._id}`, {
+        id: work.id,
+        title: work.title,
+        context: work.context,
+        deadLineTime: work.deadLineTime,
+        reward: work.reward,
+        latitude: work.latitude,
+        longitude: work.longitude,
+        customerId: work.customerId,
+        helperId:
+          work.customerId === chatList.participantId
+            ? chatList.creatorId
+            : chatList.participantId,
       });
       setDetailModal(!detailModal);
-      Alert.alert("거절하였습니다");
-    }
+      setOnChatting(1);
+    } catch (error) {}
   };
   const onWorkComplete = async () => {
     //심부름 완료하기
@@ -418,7 +433,7 @@ const DetailWorkChat = ({
               <Btn onPress={onPressCheck}>
                 <BtnText>승낙</BtnText>
               </Btn>
-              <Btn>
+              <Btn onPress={onPressDeny}>
                 <BtnText>거절</BtnText>
               </Btn>
             </RowView>

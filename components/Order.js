@@ -173,17 +173,18 @@ const Order = ({
           setWork(res.data);
           setWorkList((prev) => [res.data, ...prev]);
           setOrderVisible(!orderVisible);
+          Alert.alert("심부름이 등록되었습니다");
           axios
             .post(`${BASE_URL}/api/fcm/sendNearbyHelper`, res.data)
             .then()
-            .catch((error) => Alert.alert(error.response.data.message));
+            .catch((error) => console.log("심부름 등록 에러", error));
         })
-        .catch((error) => Alert.alert(error.response.data.message));
+        .catch((error) => console.log("심부름 등록ㅇ ㅔ러"));
     } else {
       //심부름 수정시
       setOrderVisible(!orderVisible);
       const copiedWorkList = [...workList];
-      //console.log("wl", workList);
+
       copiedWorkList[indexValue].title = title
         ? title
         : copiedWorkList[indexValue].title;

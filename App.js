@@ -103,6 +103,8 @@ export default function App() {
         console.log(error);
         Alert.alert(error.response.data.message);
       }
+    } else if (remoteMessage.data.routeType === "MAIN_VIEW") {
+      navigation.navgiate("Tabs", { screen: "헬퍼보기" });
     }
     if (remoteMessage.notification) {
       //console.log("채팅알람fff", remoteMessage.notification.body);

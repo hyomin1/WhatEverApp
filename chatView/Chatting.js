@@ -9,6 +9,7 @@ import {
   chatRoomListData,
   receiverNameData,
   workProceedingStatusData,
+  onChattingData,
 } from "../atom";
 import { client } from "../client";
 import axios from "axios";
@@ -17,6 +18,7 @@ import NormalChat from "./NormalChat";
 import CardChat from "./CardChat";
 import { BASE_URL } from "../api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigationState, useRoute } from "@react-navigation/native";
 
 const Container = styled.View`
   flex: 1;
@@ -69,6 +71,10 @@ const Chatting = ({ route }) => {
   const chatRoomList = useRecoilValue(chatRoomListData);
   const setWorkStatusCode = useSetRecoilState(workProceedingStatusData);
 
+  const [onChatting, setOnChatting] = useRecoilState(onChattingData);
+
+  const routes = useRoute();
+
   const chat = {
     senderName: myName,
     receiverName: receiverName,
@@ -87,8 +93,21 @@ const Chatting = ({ route }) => {
       setWorkStatusCode(0);
     }
   };
+  const setChatIds = async () => {
+    await AsyncStorage.setItem("chatId", chatList._id);
+  };
+
   useEffect(() => {
     fetchData();
+    setOnChatting(1);
+    setChatIds();
+    if (myId === chatList.creatorId) {
+      setMyName(chatList.creatorName);
+      setReceiverName(chatList.participatorName);
+    } else {
+      setMyName(chatList.participatorName);
+      setReceiverName(chatList.creatorName);
+    }
   }, []);
 
   const sendMsg = async () => {
@@ -112,16 +131,6 @@ const Chatting = ({ route }) => {
   const onChangeMyMsg = (payload) => {
     setTextInput(payload);
   };
-
-  useEffect(() => {
-    if (myId === chatList.creatorId) {
-      setMyName(chatList.creatorName);
-      setReceiverName(chatList.participatorName);
-    } else {
-      setMyName(chatList.participatorName);
-      setReceiverName(chatList.creatorName);
-    }
-  }, []);
 
   useEffect(() => {
     const updatedChatList = chatRoomList.find(
