@@ -106,6 +106,7 @@ export default function App() {
     } else if (remoteMessage.data.routeType === "MAIN_VIEW") {
       navigation.navgiate("Tabs", { screen: "헬퍼보기" });
     }
+
     if (remoteMessage.notification) {
       //console.log("채팅알람fff", remoteMessage.notification.body);
       //navigation.navigate("Chatting");
@@ -141,9 +142,8 @@ export default function App() {
         return response;
       },
       async (error) => {
-        //console.log(error.response);
         const status = error.response ? error.response.status : null;
-
+        //console.log(error.response);
         if (status === 401 && error.response.data.message === "ReIssueToken") {
           delete error.config.headers.Authorization;
           try {
@@ -156,15 +156,15 @@ export default function App() {
               return axios.request(error.config);
             }
           } catch (error) {
-            //console.log(error);
+            console.log(error);
           }
         } else if (status === 403) {
           delete error.config.headers.Authorization;
-          // console.log("403 ", error);
+          console.log("403 ", error);
           navigation.navigate("Login");
         }
 
-        //console.log("asdfasdf");
+        console.log("asdfasdf");
         return Promise.reject(error);
       }
     );

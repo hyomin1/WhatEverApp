@@ -221,3 +221,11 @@ export const chatIdData = atom({
   key: "chatId",
   default: null,
 });
+export const adminWorkData = atom({
+  key: "adminWork",
+  default: null,
+});
+export const selectReportData = atom({
+  key: "selectReport",
+  default: null,
+});

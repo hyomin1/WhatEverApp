@@ -1,5 +1,9 @@
 import { ScrollView, View, Text } from "react-native";
+import { useRecoilValue } from "recoil";
 import styled from "styled-components/native";
+import { adminWorkData } from "../atom";
+import { useEffect } from "react";
+import { useState } from "react";
 
 const Container = styled.View`
   flex: 1;
@@ -87,26 +91,50 @@ const Time = styled.Text`
 `;
 
 const AdminConversationView = ({ route }) => {
-  const { chatList } = route.params;
-  console.log(chatList);
+  const chatList = route.params.chatList;
+  const adminWork = useRecoilValue(adminWorkData);
+  const report = route.params.report;
+  const { reportedUserId, reportUserId } = report;
+
+  const [isCreator, setIsCreator] = useState(false);
+  const [myName, setMyName] = useState("");
+
+  useEffect(() => {
+    if (chatList.creatorId == reportUserId) {
+      setIsCreator(true);
+    }
+
+    if (isCreator == true) {
+      setMyName(chatList.creatorName);
+    } else {
+      setMyName(chatList.participatorName);
+    }
+  }, []);
+
   return (
     <Container>
       <ScrollView>
         <ChatView>
-          {chatList.map((data, index) =>
+          {chatList.chatList.map((data, index) =>
             data.messageType === "Work" ? (
               <WorkContiainer
                 key={index}
-                style={{ justifyContent: "flex-end" }}
+                style={{
+                  justifyContent:
+                    data.senderName === myName ? "flex-end" : "flex-start",
+                }}
               >
-                <Time>
-                  {data.sendTime
-                    ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(
-                        11,
-                        16
-                      )}`
-                    : null}
-                </Time>
+                {data.senderName === myName ? (
+                  <Time>
+                    {data.sendTime
+                      ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(
+                          11,
+                          16
+                        )}`
+                      : null}
+                  </Time>
+                ) : null}
+
                 <WorkBubble key={index}>
                   <WorkTitleWrapper>
                     <WorkTitle>심부름 요청서</WorkTitle>
@@ -120,7 +148,7 @@ const AdminConversationView = ({ route }) => {
                       {JSON.parse(data.message).context}
                     </MainDescription>
                     <MainDescription>
-                      마감시간 : {JSON.parse(data.message).deadLineTime}시간
+                      마감시간 : {JSON.parse(data.message).deadLineTime}H
                     </MainDescription>
                     <View style={{ flexDirection: "row" }}>
                       <MainDescription>보상금액: </MainDescription>
@@ -128,22 +156,42 @@ const AdminConversationView = ({ route }) => {
                     </View>
                   </PaddingView>
                 </WorkBubble>
+                {data.senderName === myName ? null : (
+                  <Time>
+                    {data.sendTime
+                      ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(
+                          11,
+                          16
+                        )}`
+                      : null}
+                  </Time>
+                )}
+                <Text>{myName}</Text>
               </WorkContiainer>
             ) : data.messageType === "Chat" ? (
               <View key={index}>
                 <View
                   style={{
-                    justifyContent: "flex-end",
+                    justifyContent:
+                      data.senderName === myName ? "flex-end" : "flex-start",
                     flexDirection: "row",
                     alignItems: "flex-end",
                   }}
                 >
-                  <Time style={{ marginRight: 3, marginBottom: 10 }}>
-                    {data.sendTime.slice(0, 10)} {data.sendTime.slice(11, 16)}
-                  </Time>
+                  {data.senderName === myName ? (
+                    <Time style={{ marginRight: 3, marginBottom: 10 }}>
+                      {data.sendTime.slice(0, 10)} {data.sendTime.slice(11, 16)}
+                    </Time>
+                  ) : null}
+
                   <ChatWrapper>
                     <ChatText>{data.message ? data.message : null}</ChatText>
                   </ChatWrapper>
+                  {data.senderName === myName ? null : (
+                    <Time style={{ marginRight: 3, marginBottom: 10 }}>
+                      {data.sendTime.slice(0, 10)} {data.sendTime.slice(11, 16)}
+                    </Time>
+                  )}
                 </View>
               </View>
             ) : (
@@ -151,62 +199,140 @@ const AdminConversationView = ({ route }) => {
               (data.message === "Accept work" ? (
                 <WorkContiainer
                   key={index}
-                  style={{ justifyContent: "flex-end" }}
+                  style={{
+                    justifyContent:
+                      data.senderName === myName ? "flex-end" : "flex-start",
+                  }}
                 >
-                  <Time>
-                    {data.sendTime
-                      ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(
-                          11,
-                          16
-                        )}`
-                      : null}
-                  </Time>
+                  {data.senderName === myName ? (
+                    <Time>
+                      {data.sendTime
+                        ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(
+                            11,
+                            16
+                          )}`
+                        : null}
+                    </Time>
+                  ) : null}
                   <WorkBubble key={index}>
                     <WorkTitleWrapper>
                       <WorkTitle>심부름 수락</WorkTitle>
                     </WorkTitleWrapper>
-                    <PaddingView></PaddingView>
+                    <PaddingView>
+                      <MainTitle>{adminWork.title}</MainTitle>
+                      <Divider />
+                      <MainDescription>{adminWork.context}</MainDescription>
+                      <MainDescription>
+                        마감시간 : {adminWork.deadLineTime}H
+                      </MainDescription>
+                      <View style={{ flexDirection: "row" }}>
+                        <MainDescription>보상금액: </MainDescription>
+                        <MoneyText>{adminWork.reward}원</MoneyText>
+                      </View>
+                    </PaddingView>
                   </WorkBubble>
+                  {data.senderName === myName ? null : (
+                    <Time>
+                      {data.sendTime
+                        ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(
+                            11,
+                            16
+                          )}`
+                        : null}
+                    </Time>
+                  )}
                 </WorkContiainer>
               ) : data.message === "Complete work" ? (
                 <WorkContiainer
                   key={index}
-                  style={{ justifyContent: "flex-end" }}
+                  style={{
+                    justifyContent:
+                      data.senderName === myName ? "flex-end" : "flex-start",
+                  }}
                 >
-                  <Time>
-                    {data.sendTime
-                      ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(
-                          11,
-                          16
-                        )}`
-                      : null}
-                  </Time>
+                  {data.senderName === myName ? (
+                    <Time>
+                      {data.sendTime
+                        ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(
+                            11,
+                            16
+                          )}`
+                        : null}
+                    </Time>
+                  ) : null}
                   <WorkBubble key={index}>
                     <WorkTitleWrapper>
                       <WorkTitle>심부름 완료</WorkTitle>
                     </WorkTitleWrapper>
-                    <PaddingView></PaddingView>
+                    <PaddingView>
+                      <MainTitle>{adminWork.title}</MainTitle>
+                      <Divider />
+                      <MainDescription>{adminWork.context}</MainDescription>
+                      <MainDescription>
+                        마감시간 : {adminWork.deadLineTime}H
+                      </MainDescription>
+                      <View style={{ flexDirection: "row" }}>
+                        <MainDescription>보상금액: </MainDescription>
+                        <MoneyText>{adminWork.reward}원</MoneyText>
+                      </View>
+                    </PaddingView>
                   </WorkBubble>
+                  {data.senderName === myName ? null : (
+                    <Time>
+                      {data.sendTime
+                        ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(
+                            11,
+                            16
+                          )}`
+                        : null}
+                    </Time>
+                  )}
                 </WorkContiainer>
               ) : data.message === "Finish Work" ? (
                 <WorkContiainer
                   key={index}
-                  style={{ justifyContent: "flex-end" }}
+                  style={{
+                    justifyContent:
+                      data.senderName === myName ? "flex-end" : "flex-start",
+                  }}
                 >
-                  <Time>
-                    {data.sendTime
-                      ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(
-                          11,
-                          16
-                        )}`
-                      : null}
-                  </Time>
+                  {data.senderName === myName ? (
+                    <Time>
+                      {data.sendTime
+                        ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(
+                            11,
+                            16
+                          )}`
+                        : null}
+                    </Time>
+                  ) : null}
                   <WorkBubble key={index}>
                     <WorkTitleWrapper>
                       <WorkTitle>심부름 종료</WorkTitle>
                     </WorkTitleWrapper>
-                    <PaddingView></PaddingView>
+                    <PaddingView>
+                      <MainTitle>{adminWork.title}</MainTitle>
+                      <Divider />
+                      <MainDescription>{adminWork.context}</MainDescription>
+                      <MainDescription>
+                        마감시간 : {adminWork.deadLineTime}H
+                      </MainDescription>
+                      <View style={{ flexDirection: "row" }}>
+                        <MainDescription>보상금액: </MainDescription>
+                        <MoneyText>{adminWork.reward}원</MoneyText>
+                      </View>
+                    </PaddingView>
                   </WorkBubble>
+                  {data.senderName === myName ? null : (
+                    <Time>
+                      {data.sendTime
+                        ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(
+                            11,
+                            16
+                          )}`
+                        : null}
+                    </Time>
+                  )}
                 </WorkContiainer>
               ) : null)
             )

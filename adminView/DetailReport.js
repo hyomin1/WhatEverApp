@@ -69,7 +69,8 @@ const DetailReport = ({ route }) => {
       );
 
       navigation.navigate("AdminConversationView", {
-        chatList: res.data.chatList,
+        chatList: res.data,
+        report,
       });
     } catch (error) {
       console.log(error);

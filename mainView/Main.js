@@ -163,30 +163,43 @@ const Main = ({ navigation: { navigate }, route }) => {
   };
   const headers = { Authorization: `Bearer ${access}` };
 
-  client.onConnect = function (frame) {
-    console.log("웹소켓 연결완료");
+  client.reconnectDelay = 2000;
+
+  client.onWebSocketClose = async () => {
+    // 연결이 닫힌 경우 재연결 시도
+    console.log("연결이 끊어졌습니다. 재연결 시도 중...");
+    try {
+      const res = await axios.put(`${BASE_URL}/reIssueToken`);
+      await AsyncStorage.setItem("authToken", res.data.accessToken);
+      if (res.status === 200) {
+        client.connectHeaders.Authorization = `Bearer ${res.data.accessToken}}`;
+        axios.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${res.data.accessToken}`;
+      }
+    } catch (error) {}
   };
 
   client.onStompError = async function (frame) {
     console.log("프레임 정보", frame);
-    console.log("스톰프 에러: " + frame.headers);
+    console.log("스톰프 에러: " + frame.headers.stompCommand);
     console.log("스톰프 에러 디테일: " + frame.body);
-    if (frame.headers["message"] === "ReIssueJwt") {
-      try {
-        const res = await axios.put(`${BASE_URL}/reIssueToken`);
-        await AsyncStorage.setItem("authToken", res.data.accessToken);
-        client.connectHeaders.Authorization = `Bearer ${res.data.accessToken}}`;
-        // return client.publish({
-        //   destination: `/`,
-        // });
-      } catch (error) {}
-      if (frame.headers["CONNECT"]) {
-      } else if (frame.headers["SEND"]) {
-      } else if (frame.headers["SUBSCRIBE"]) {
+
+    if (frame.headers.errorType === "ReIssueToken") {
+      if (frame.headers.stompCommand === "CONNECT") {
+        console.log("connect error");
+      } else if (frame.headers.stompCommand === "SUBSCRIBE") {
+        console.log("SUBSCRIEB ERROR");
+        subscription = client.subscribe(
+          `/queue/${myId}`,
+          function (message) {}
+        );
+      } else if (frame.headers.stompCommand === "SEND") {
+        const h = frame.headers.nativeHeaders.toString();
+        // console.log("목적지", h.split(",")[0].substring(14, h.size() - 1));
+        console.log("목적지", h);
       }
-    } else if (frame.headers["message"] === "UNAUTHORIZED") {
-      client.deactivate();
-      navigate("Login");
+    } else if (frame.headers.errorType === "UNAUTHORIZED") {
     }
   };
 
@@ -235,7 +248,7 @@ const Main = ({ navigation: { navigate }, route }) => {
     //새로고침 함수
     getLocation();
   };
-
+  let subscription;
   useEffect(() => {
     getToken();
     getLocation();
@@ -254,72 +267,73 @@ const Main = ({ navigation: { navigate }, route }) => {
     if (subscription) {
       subscription.unsubscribe();
     }
-    let subscription;
-    setTimeout(() => {
-      try {
-        console.log("로그인 웹소켓");
-        subscription = client.subscribe(
-          `/queue/${myId}`,
-          //처음 채팅이 열렸을때 콜백 시작
-          async function (message) {
-            const token = await AsyncStorage.getItem("authToken");
-            console.log("token", token);
-            const parsedMessage = JSON.parse(message.body);
 
-            if (parsedMessage.messageType === "OpenChat") {
-              console.log("오픈챗");
+    // setTimeout(() => {
 
-              const chatId =
-                parsedMessage.data[parsedMessage.data.length - 1]._id; //새로운 채팅방 아이디 찾기
-              subscribeToChatTopic(client, chatId, setChatRoomList);
-            } else if (parsedMessage.messageType === "SendLocation") {
-              console.log("sendLocation");
-              try {
-                const res = await axios.post(
-                  `${BASE_URL}/api/location/sendToCustomer/${parsedMessage.data.id}`,
-                  {
-                    latitude: currentLocation.latitude,
-                    longitude: currentLocation.longitude,
-                  }
-                );
-              } catch (error) {
-                console.log(error);
-              }
-            } else if (parsedMessage.messageType === "HelperLocation") {
-              setHourMoreLocation(parsedMessage.data); //마감시간 1시간 초과 수락한 헬퍼 위치
-            } else if (parsedMessage.messageType === "SetConvSeenCount") {
-              setChatCount(parsedMessage.data);
-            } else if (parsedMessage.messageType === "LogOut") {
-              //정지 당할시
-              Alert.alert(parsedMessage.data);
-              navigate("Login");
-            }
-          },
-          headers
-        );
-        axios.get(`${BASE_URL}/api/conversations`).then(({ data }) => {
-          data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-          setChatRoomList(data);
-          console.log("확인용", data);
-          const subscribedChatIds = new Set();
-          data.forEach((chat) => {
-            if (!subscribedChatIds.has(chat._id)) {
-              subscribeToChatTopic(client, chat._id, setChatRoomList);
-              subscribedChatIds.add(chat._id);
-            }
-          });
-        });
-      } catch (error) {
-        console.error("웹소켓 에러", error);
-      }
-    }, 500);
+    // }, 500);
     return () => {
+      client.deactivate();
       if (subscription) {
         subscription.unsubscribe();
-        client.deactivate();
       }
     };
   }, []);
+  client.onConnect = function (frame) {
+    console.log("웹소켓 연결완료");
+    try {
+      subscription = client.subscribe(
+        `/queue/${myId}`,
+        //처음 채팅이 열렸을때 콜백 시작
+        async function (message) {
+          const token = await AsyncStorage.getItem("authToken");
+
+          const parsedMessage = JSON.parse(message.body);
+          if (parsedMessage.messageType === "OpenChat") {
+            console.log("오픈챗");
+            const chatId =
+              parsedMessage.data[parsedMessage.data.length - 1]._id; //새로운 채팅방 아이디 찾기
+            subscribeToChatTopic(client, chatId, setChatRoomList);
+          } else if (parsedMessage.messageType === "SendLocation") {
+            console.log("sendLocation");
+            try {
+              const res = await axios.post(
+                `${BASE_URL}/api/location/sendToCustomer/${parsedMessage.data.id}`,
+                {
+                  latitude: currentLocation.latitude,
+                  longitude: currentLocation.longitude,
+                }
+              );
+            } catch (error) {
+              console.log(error);
+            }
+          } else if (parsedMessage.messageType === "HelperLocation") {
+            setHourMoreLocation(parsedMessage.data); //마감시간 1시간 초과 수락한 헬퍼 위치
+          } else if (parsedMessage.messageType === "SetConvSeenCount") {
+            setChatCount(parsedMessage.data);
+          } else if (parsedMessage.messageType === "LogOut") {
+            //정지 당할시
+            Alert.alert(parsedMessage.data);
+            navigate("Login");
+          }
+        },
+        headers
+      );
+      axios.get(`${BASE_URL}/api/conversations`).then(({ data }) => {
+        data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+        setChatRoomList(data);
+
+        const subscribedChatIds = new Set();
+        data.forEach((chat) => {
+          if (!subscribedChatIds.has(chat._id)) {
+            subscribeToChatTopic(client, chat._id, setChatRoomList);
+            subscribedChatIds.add(chat._id);
+          }
+        });
+      });
+    } catch (error) {
+      console.error("웹소켓 에러", error);
+    }
+  };
 
   return (
     <View style={{ flex: 1 }}>

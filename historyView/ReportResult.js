@@ -7,7 +7,7 @@ import { historyReportData } from "../atom";
 import Report from "./Report";
 import axios from "axios";
 import { BASE_URL } from "../api";
-import { Alert } from "react-native";
+import { Alert, Modal, TouchableOpacity } from "react-native";
 
 const Container = styled.View`
   flex: 1;
@@ -65,7 +65,6 @@ const BtnText = styled.Text`
 
 const ReportResult = ({ status }) => {
   const [historyReport, setHistoryReport] = useRecoilState(historyReportData);
-
   const [reportVisible, setReportVisible] = useState(false);
   const onDeleteReport = async (id) => {
     try {
@@ -76,7 +75,7 @@ const ReportResult = ({ status }) => {
       console.log(error);
     }
   };
-
+  const [modalVisible, setModalVisible] = useState(false);
   return (
     <View>
       {historyReport?.map((data, index) =>
@@ -85,7 +84,7 @@ const ReportResult = ({ status }) => {
             <HistoryText>{data.reportTitle}</HistoryText>
             <HistoryDescription>{data.reportReason}</HistoryDescription>
             <HistoryDescription>
-              신고일 {data.createdTime.slice(0, 10)}
+              신고일 {data.createdTime.slice(0, 10)}{" "}
               {data.createdTime.slice(11, 16)}
             </HistoryDescription>
             <View
@@ -104,6 +103,34 @@ const ReportResult = ({ status }) => {
                 fix={true}
               />
             </View>
+            <TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
+              <Text>상세보기</Text>
+            </TouchableOpacity>
+            <Modal visible={modalVisible} animationType="slide">
+              <View>
+                <Text onPress={() => setModalVisible(!modalVisible)}>
+                  상세 정보
+                </Text>
+                <Text>{data.executeDetail}</Text>
+              </View>
+              {status === "처리 완료" && data.reportExecuteCode !== 0 ? (
+                <View>
+                  {data.reportExecuteCode === 1 ? (
+                    <Text>기각</Text>
+                  ) : data.reportExecuteCode === 2 ? (
+                    <Text>환불</Text>
+                  ) : data.reportExecuteCode === 3 ? (
+                    <Text>3일 정지</Text>
+                  ) : data.reportExecuteCode === 4 ? (
+                    <Text>7일 정지</Text>
+                  ) : data.reportExecuteCode === 5 ? (
+                    <Text>30일 정지</Text>
+                  ) : data.reportExecuteCode === 6 ? (
+                    <Text>영구 정지</Text>
+                  ) : null}
+                </View>
+              ) : null}
+            </Modal>
           </HistoryInformation>
         ) : (
           data.reportExecuteCode !== 0 &&
@@ -112,9 +139,37 @@ const ReportResult = ({ status }) => {
               <HistoryText>{data.reportTitle}</HistoryText>
               <HistoryDescription>{data.reportReason}</HistoryDescription>
               <HistoryDescription>
-                신고일 {data.createdTime.slice(0, 10)}
+                신고일 {data.createdTime.slice(0, 10)}{" "}
                 {data.createdTime.slice(11, 16)}
               </HistoryDescription>
+              <TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
+                <Text>상세보기</Text>
+              </TouchableOpacity>
+              <Modal visible={modalVisible} animationType="slide">
+                <View>
+                  <Text onPress={() => setModalVisible(!modalVisible)}>
+                    상세 정보
+                  </Text>
+                  <Text>{data.executeDetail}</Text>
+                </View>
+                {status === "처리 완료" && data.reportExecuteCode !== 0 ? (
+                  <View>
+                    {data.reportExecuteCode === 1 ? (
+                      <Text>기각</Text>
+                    ) : data.reportExecuteCode === 2 ? (
+                      <Text>환불</Text>
+                    ) : data.reportExecuteCode === 3 ? (
+                      <Text>3일 정지</Text>
+                    ) : data.reportExecuteCode === 4 ? (
+                      <Text>7일 정지</Text>
+                    ) : data.reportExecuteCode === 5 ? (
+                      <Text>30일 정지</Text>
+                    ) : data.reportExecuteCode === 6 ? (
+                      <Text>영구 정지</Text>
+                    ) : null}
+                  </View>
+                ) : null}
+              </Modal>
             </HistoryInformation>
           )
         )

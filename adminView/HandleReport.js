@@ -6,7 +6,7 @@ import SelectDropdown from "react-native-select-dropdown";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components/native";
 import { BASE_URL } from "../api";
-import { adminTokenData } from "../atom";
+import { adminTokenData, adminWorkData } from "../atom";
 
 const ModalContainer = styled.View`
   flex: 1;
@@ -56,6 +56,7 @@ const HandleReport = ({ modalVisible, setModalVisible, report }) => {
   const [code, setCode] = useState(0);
   const adminToken = useRecoilValue(adminTokenData);
   const navigation = useNavigation();
+  const adminWork = useRecoilValue(adminWorkData);
 
   const onHandleReport = async () => {
     setReason("");
@@ -79,13 +80,15 @@ const HandleReport = ({ modalVisible, setModalVisible, report }) => {
         }
       );
       navigation.navigate("AdminTab", { screen: "AdminView" });
-      console.log(res.data);
     } catch (error) {
       console.log(error);
     }
     setModalVisible(false);
   };
-
+  const result =
+    adminWork.workProceedingStatus === 3
+      ? ["기각", "3일정지", "7일정지", "30일정지", "영구정지"]
+      : ["기각", "환불", "3일정지", "7일정지", "30일정지", "영구정지"];
   return (
     <Modal
       animationType="slide"
@@ -120,16 +123,17 @@ const HandleReport = ({ modalVisible, setModalVisible, report }) => {
                 borderRadius: 10,
                 height: 40,
               }}
-              data={[
-                "기각",
-                "환불처리",
-                "3일정지",
-                "7일정지",
-                "30일정지",
-                "영구정지",
-              ]}
+              data={result}
               onSelect={(selectedItem, index) => {
-                setCode(index + 1);
+                if (adminWork.workProceedingStatus === 3) {
+                  if (index >= 1) {
+                    setCode(index + 2);
+                  } else {
+                    setCode(index + 1);
+                  }
+                } else {
+                  setCode(index + 1);
+                }
               }}
               buttonTextAfterSelection={(selectedItem) => selectedItem}
               defaultButtonText="선택"

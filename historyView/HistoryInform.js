@@ -131,7 +131,7 @@ const HistoryInform = ({ data, index, onPressReport }) => {
             <ButtonText>리뷰작성</ButtonText>
           </ActionButton>
         ) : null}
-        {data.workProceedingStatus === 1 || data.workProceedingStatus === 2 ? (
+        {/* {data.workProceedingStatus === 1 || data.workProceedingStatus === 2 ? (
           <ActionButton
             style={{ backgroundColor: "red" }}
             onPress={() => {
@@ -140,7 +140,17 @@ const HistoryInform = ({ data, index, onPressReport }) => {
           >
             <ButtonText style={{ color: "white" }}>신고하기</ButtonText>
           </ActionButton>
-        ) : null}
+        ) : null} */}
+        {data.workProceedingStatus === 2 && (
+          <ActionButton
+            style={{ backgroundColor: "red" }}
+            onPress={() => {
+              onPressReport(index);
+            }}
+          >
+            <ButtonText style={{ color: "white" }}>신고하기</ButtonText>
+          </ActionButton>
+        )}
         {data.workProceedingStatus === 3 && timeDiff <= 3 ? (
           <ActionButton
             style={{ backgroundColor: "red" }}

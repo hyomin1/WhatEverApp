@@ -92,6 +92,12 @@ function Login({ navigation: { navigate } }) {
   const goMain = () => {
     navigation.navigate("Tabs", { screen: "Main" });
   };
+  const a = async () => {
+    await AsyncStorage.setItem("authToken", "");
+  };
+  useEffect(() => {
+    a();
+  }, []);
   //유저 로그인시 비번,아이디 이상 없을 경우 실행
   const sendLogin = async () => {
     await axios
@@ -173,13 +179,13 @@ function Login({ navigation: { navigate } }) {
         <Button onPress={onPressLogin}>
           <LoginText>로그인</LoginText>
         </Button>
-        <JoinBtn onPress={onPressAdmin}>
-          <Text style={{ color: "white" }}>관리자 로그인</Text>
-        </JoinBtn>
+        <Button onPress={onPressAdmin}>
+          <LoginText>관리자 로그인</LoginText>
+        </Button>
         <Line />
-        <JoinBtn onPress={() => navigate("Join")}>
-          <JoinText>회원가입</JoinText>
-        </JoinBtn>
+        <Button onPress={() => navigate("Join")}>
+          <LoginText>회원가입</LoginText>
+        </Button>
       </View>
     </Container>
   );

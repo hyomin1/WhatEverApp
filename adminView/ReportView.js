@@ -1,7 +1,11 @@
 import { useNavigation } from "@react-navigation/native";
+import axios from "axios";
 import React from "react";
 import { FlatList, Text, View } from "react-native";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components/native";
+import { adminTokenData, adminWorkData } from "../atom";
+import { BASE_URL } from "../api";
 
 const Container = styled.View`
   flex: 1;
@@ -29,12 +33,21 @@ const SubTitle = styled.Text`
 
 const ReportView = ({ report, isHelper }) => {
   const navigation = useNavigation();
-
-  const onPressDetail = (report) => {
-    navigation.navigate("DetailReport", {
-      report, //report로 수정
-      isHelper,
-    });
+  const adminToken = useRecoilValue(adminTokenData);
+  const setAdminWork = useSetRecoilState(adminWorkData);
+  const onPressDetail = async (report) => {
+    try {
+      const res = await axios.get(`${BASE_URL}/admin/work/${report.workId}`, {
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
+      setAdminWork(res.data);
+      navigation.navigate("DetailReport", {
+        report, //report로 수정
+        isHelper,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const renderItem = ({ item }) => (

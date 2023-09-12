@@ -1,6 +1,8 @@
 import React from "react";
 import { Modal, View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { useRecoilValue } from "recoil";
 import styled from "styled-components/native";
+import { adminWorkData } from "../atom";
 
 const ModalContainer = styled.View`
   flex: 1;
