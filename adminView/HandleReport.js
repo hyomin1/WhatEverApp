@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import { useState } from "react";
@@ -61,6 +62,7 @@ const HandleReport = ({ modalVisible, setModalVisible, report }) => {
   const onHandleReport = async () => {
     setReason("");
     try {
+      const token = await AsyncStorage.getItem("adminToken");
       const res = await axios.put(
         `${BASE_URL}/admin/report/execute`,
         {
@@ -76,7 +78,7 @@ const HandleReport = ({ modalVisible, setModalVisible, report }) => {
           reportTitle: report.reportTitle,
         },
         {
-          headers: { Authorization: `Bearer ${adminToken}` },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       navigation.navigate("AdminTab", { screen: "AdminView" });

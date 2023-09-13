@@ -152,6 +152,7 @@ function Login({ navigation: { navigate } }) {
         userId: id,
         password,
       });
+      await AsyncStorage.setItem("adminToken", res.data.accessToken);
       setAdminToken(res.data.accessToken);
       setIsAdmin(true);
       navigation.navigate("AdminTab", { screen: "AdminView" });

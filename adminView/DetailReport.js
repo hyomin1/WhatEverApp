@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import React from "react";
@@ -60,11 +61,12 @@ const DetailReport = ({ route }) => {
   const adminToken = useRecoilValue(adminTokenData);
 
   const onViewConversation = async () => {
+    const token = await AsyncStorage.getItem("adminToken");
     try {
       const res = await axios.get(
         `${BASE_URL}/admin/conversation/${report.conversationId}`,
         {
-          headers: { Authorization: `Bearer ${adminToken}` },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
@@ -79,8 +81,9 @@ const DetailReport = ({ route }) => {
   };
   const onViewWork = async () => {
     try {
+      const token = await AsyncStorage.getItem("adminToken");
       const res = await axios.get(`${BASE_URL}/admin/work/${report.workId}`, {
-        headers: { Authorization: `Bearer ${adminToken}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       navigation.navigate("AdminWorkView", {
@@ -93,8 +96,9 @@ const DetailReport = ({ route }) => {
   };
   const onViewUser = async (userId) => {
     try {
+      const token = await AsyncStorage.getItem("adminToken");
       const res = await axios.get(`${BASE_URL}/admin/user/${userId}`, {
-        headers: { Authorization: `Bearer ${adminToken}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       navigation.navigate("AdminUserView", {

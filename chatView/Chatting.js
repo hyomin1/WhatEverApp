@@ -142,6 +142,7 @@ const Chatting = ({ route }) => {
   }, [chatRoomList]);
 
   const chatListItems = chatList?.chatList || [];
+
   return (
     <Container>
       <ScrollView>
@@ -163,6 +164,7 @@ const Chatting = ({ route }) => {
                 myName={myName}
                 data={data}
                 chatList={chatList}
+                prevData={index > 1 ? chatListItems[index - 1] : null}
               />
             ) : data.messageType === "Card" ? (
               <CardChat

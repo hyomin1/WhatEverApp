@@ -97,6 +97,9 @@ const Main = ({ navigation: { navigate }, route }) => {
   const routes = useRoute();
   const nState = useNavigationState((state) => state);
   const onChatting = useRecoilValue(onChattingData);
+  const [a, setA] = useState([]);
+  const [finishSub, setFinishSub] = useState(false);
+  const [isSendable, setIsSendable] = useState(false);
 
   const getToken = async () => {
     const token = await messaging().getToken();
@@ -161,13 +164,15 @@ const Main = ({ navigation: { navigate }, route }) => {
       return null;
     }
   };
-  const headers = { Authorization: `Bearer ${access}` };
+  //const headers = { Authorization: `Bearer ${access}` };
 
-  client.reconnectDelay = 2000;
+  //client.reconnectDelay = 2000;
 
   client.onWebSocketClose = async () => {
     // 연결이 닫힌 경우 재연결 시도
+    setIsSendable(false);
     console.log("연결이 끊어졌습니다. 재연결 시도 중...");
+    console.log("전", client.connectHeaders.Authorization);
     try {
       const res = await axios.put(`${BASE_URL}/reIssueToken`);
       await AsyncStorage.setItem("authToken", res.data.accessToken);
@@ -176,8 +181,12 @@ const Main = ({ navigation: { navigate }, route }) => {
         axios.defaults.headers.common[
           "Authorization"
         ] = `Bearer ${res.data.accessToken}`;
+        console.log("후", client.connectHeaders.Authorization);
       }
     } catch (error) {}
+  };
+  client.onWebSocketError = function (frame) {
+    console.log("웹소켓 에러 정보", frame);
   };
 
   client.onStompError = async function (frame) {
@@ -186,25 +195,45 @@ const Main = ({ navigation: { navigate }, route }) => {
     console.log("스톰프 에러 디테일: " + frame.body);
 
     if (frame.headers.errorType === "ReIssueToken") {
-      if (frame.headers.stompCommand === "CONNECT") {
-        console.log("connect error");
-      } else if (frame.headers.stompCommand === "SUBSCRIBE") {
-        console.log("SUBSCRIEB ERROR");
-        subscription = client.subscribe(
-          `/queue/${myId}`,
-          function (message) {}
+      try {
+        const res = await axios.put(`${BASE_URL}/reIssueToken`);
+        await AsyncStorage.setItem("authToken", res.data.accessToken);
+        if (res.status === 200) {
+          client.connectHeaders.Authorization = `Bearer ${res.data.accessToken}}`;
+          axios.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${res.data.accessToken}`;
+        }
+      } catch (error) {}
+      if (frame.headers.stompCommand === "SEND") {
+        console.log("챗보내기 에러");
+        client.activate();
+        const token = await AsyncStorage.getItem("authToken");
+
+        console.log("chatting send error");
+
+        const headrArr = frame.headers.nativeHeaders.toString();
+        const headerSplit = headrArr.split(",");
+        const destinationItem = headerSplit.find((item) =>
+          item.includes("destination")
         );
-      } else if (frame.headers.stompCommand === "SEND") {
-        const h = frame.headers.nativeHeaders.toString();
-        // console.log("목적지", h.split(",")[0].substring(14, h.size() - 1));
-        console.log("목적지", h);
+        const destinationValue = destinationItem.split("=")[1].trim();
+
+        const textCoder = new TextDecoder("utf-8");
+        const jsonString = textCoder.decode(frame.binaryBody);
+
+        const des = destinationValue.substring(1, destinationValue.length - 1);
+
+        setA((prev) => [...prev, { des, jsonString }]);
       }
     } else if (frame.headers.errorType === "UNAUTHORIZED") {
     }
   };
 
-  const subscribeToChatTopic = (client, chatId, setChatRoomList) => {
-    const subscription = client.subscribe(
+  const subscribeToChatTopic = async (client, chatId, setChatRoomList) => {
+    const token = await AsyncStorage.getItem("authToken");
+    const headers = { Authorization: `Bearer ${token}` };
+    const subs = client.subscribe(
       `/topic/chat/${chatId}`,
       async function (message) {
         const parsedMessage = JSON.parse(message.body);
@@ -278,8 +307,10 @@ const Main = ({ navigation: { navigate }, route }) => {
       }
     };
   }, []);
-  client.onConnect = function (frame) {
-    console.log("웹소켓 연결완료");
+  client.onConnect = async function (frame) {
+    console.log("웹소켓 연결완료", a);
+    const token = await AsyncStorage.getItem("authToken");
+    const headers = { Authorization: `Bearer ${token}` };
     try {
       subscription = client.subscribe(
         `/queue/${myId}`,
@@ -323,12 +354,25 @@ const Main = ({ navigation: { navigate }, route }) => {
         setChatRoomList(data);
 
         const subscribedChatIds = new Set();
+
         data.forEach((chat) => {
           if (!subscribedChatIds.has(chat._id)) {
             subscribeToChatTopic(client, chat._id, setChatRoomList);
             subscribedChatIds.add(chat._id);
           }
         });
+        setTimeout(() => {
+          if (a.length > 0) {
+            for (i = 0; i < a.length; i++) {
+              client.publish({
+                destination: a[i].des,
+                body: a[i].jsonString,
+                headers: { Authorization: `Bearer ${token}` },
+              });
+            }
+            setA([]);
+          }
+        }, 1000);
       });
     } catch (error) {
       console.error("웹소켓 에러", error);

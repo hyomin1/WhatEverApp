@@ -21,7 +21,6 @@ const ChatWrapper = styled.View`
   width: auto;
   height: auto;
   padding: 10px 15px;
-  margin-bottom: 10px;
 `;
 const ChatText = styled.Text`
   color: white;
@@ -89,6 +88,24 @@ const Time = styled.Text`
   margin-bottom: 10px;
   font-size: 12px;
 `;
+const ProfileView = styled.View`
+  flex-direction: row;
+  //margin-bottom: 220px;
+  margin: 0px 5px;
+`;
+const ProfileImage = styled.View`
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  background-color: white;
+  justify-content: center;
+  align-items: center;
+  margin-right: 3px;
+  margin-left: 3px;
+`;
+const Name = styled.Text`
+  font-weight: bold;
+`;
 
 const AdminConversationView = ({ route }) => {
   const chatList = route.params.chatList;
@@ -134,7 +151,14 @@ const AdminConversationView = ({ route }) => {
                       : null}
                   </Time>
                 ) : null}
-
+                {data.senderName === myName ? null : (
+                  <ProfileView style={{ marginBottom: 150 }}>
+                    <ProfileImage>
+                      <Text>사진</Text>
+                    </ProfileImage>
+                    <Name>{data.senderName}</Name>
+                  </ProfileView>
+                )}
                 <WorkBubble key={index}>
                   <WorkTitleWrapper>
                     <WorkTitle>심부름 요청서</WorkTitle>
@@ -166,7 +190,14 @@ const AdminConversationView = ({ route }) => {
                       : null}
                   </Time>
                 )}
-                <Text>{myName}</Text>
+                {data.senderName === myName ? (
+                  <ProfileView style={{ marginBottom: 150 }}>
+                    <Name>{data.senderName}</Name>
+                    <ProfileImage>
+                      <Text>사진</Text>
+                    </ProfileImage>
+                  </ProfileView>
+                ) : null}
               </WorkContiainer>
             ) : data.messageType === "Chat" ? (
               <View key={index}>
@@ -175,23 +206,39 @@ const AdminConversationView = ({ route }) => {
                     justifyContent:
                       data.senderName === myName ? "flex-end" : "flex-start",
                     flexDirection: "row",
-                    alignItems: "flex-end",
+                    alignItems: "center",
+                    marginBottom: 3,
                   }}
                 >
                   {data.senderName === myName ? (
-                    <Time style={{ marginRight: 3, marginBottom: 10 }}>
+                    <Time style={{ marginRight: 3, marginTop: 20 }}>
                       {data.sendTime.slice(0, 10)} {data.sendTime.slice(11, 16)}
                     </Time>
                   ) : null}
-
+                  {data.senderName === myName ? null : (
+                    <ProfileView>
+                      <ProfileImage>
+                        <Text>사진</Text>
+                      </ProfileImage>
+                      <Name>{data.senderName}</Name>
+                    </ProfileView>
+                  )}
                   <ChatWrapper>
                     <ChatText>{data.message ? data.message : null}</ChatText>
                   </ChatWrapper>
                   {data.senderName === myName ? null : (
-                    <Time style={{ marginRight: 3, marginBottom: 10 }}>
+                    <Time style={{ marginRight: 3, marginTop: 20 }}>
                       {data.sendTime.slice(0, 10)} {data.sendTime.slice(11, 16)}
                     </Time>
                   )}
+                  {data.senderName === myName ? (
+                    <ProfileView>
+                      <Name>{data.senderName}</Name>
+                      <ProfileImage>
+                        <Text>사진</Text>
+                      </ProfileImage>
+                    </ProfileView>
+                  ) : null}
                 </View>
               </View>
             ) : (
@@ -214,6 +261,14 @@ const AdminConversationView = ({ route }) => {
                         : null}
                     </Time>
                   ) : null}
+                  {data.senderName === myName ? null : (
+                    <ProfileView style={{ marginBottom: 120 }}>
+                      <ProfileImage>
+                        <Text>사진</Text>
+                      </ProfileImage>
+                      <Name>{data.senderName}</Name>
+                    </ProfileView>
+                  )}
                   <WorkBubble key={index}>
                     <WorkTitleWrapper>
                       <WorkTitle>심부름 수락</WorkTitle>
@@ -241,6 +296,14 @@ const AdminConversationView = ({ route }) => {
                         : null}
                     </Time>
                   )}
+                  {data.senderName === myName ? (
+                    <ProfileView style={{ marginBottom: 120 }}>
+                      <Name>{data.senderName}</Name>
+                      <ProfileImage>
+                        <Text>사진</Text>
+                      </ProfileImage>
+                    </ProfileView>
+                  ) : null}
                 </WorkContiainer>
               ) : data.message === "Complete work" ? (
                 <WorkContiainer
@@ -260,6 +323,14 @@ const AdminConversationView = ({ route }) => {
                         : null}
                     </Time>
                   ) : null}
+                  {data.senderName === myName ? null : (
+                    <ProfileView style={{ marginBottom: 120 }}>
+                      <ProfileImage>
+                        <Text>사진</Text>
+                      </ProfileImage>
+                      <Name>{data.senderName}</Name>
+                    </ProfileView>
+                  )}
                   <WorkBubble key={index}>
                     <WorkTitleWrapper>
                       <WorkTitle>심부름 완료</WorkTitle>
@@ -287,6 +358,14 @@ const AdminConversationView = ({ route }) => {
                         : null}
                     </Time>
                   )}
+                  {data.senderName === myName ? (
+                    <ProfileView style={{ marginBottom: 120 }}>
+                      <Name>{data.senderName}</Name>
+                      <ProfileImage>
+                        <Text>사진</Text>
+                      </ProfileImage>
+                    </ProfileView>
+                  ) : null}
                 </WorkContiainer>
               ) : data.message === "Finish Work" ? (
                 <WorkContiainer
@@ -306,6 +385,14 @@ const AdminConversationView = ({ route }) => {
                         : null}
                     </Time>
                   ) : null}
+                  {data.senderName === myName ? null : (
+                    <ProfileView style={{ marginBottom: 120 }}>
+                      <ProfileImage>
+                        <Text>사진</Text>
+                      </ProfileImage>
+                      <Name>{data.senderName}</Name>
+                    </ProfileView>
+                  )}
                   <WorkBubble key={index}>
                     <WorkTitleWrapper>
                       <WorkTitle>심부름 종료</WorkTitle>
@@ -333,6 +420,14 @@ const AdminConversationView = ({ route }) => {
                         : null}
                     </Time>
                   )}
+                  {data.senderName === myName ? (
+                    <ProfileView style={{ marginBottom: 120 }}>
+                      <Name>{data.senderName}</Name>
+                      <ProfileImage>
+                        <Text>사진</Text>
+                      </ProfileImage>
+                    </ProfileView>
+                  ) : null}
                 </WorkContiainer>
               ) : null)
             )

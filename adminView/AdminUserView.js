@@ -6,6 +6,7 @@ import { useRecoilValue } from "recoil";
 import { adminTokenData } from "../atom";
 import { useState } from "react";
 import PunishmentModal from "./PunishmentModal";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Container = styled.View`
   flex: 1;
@@ -70,7 +71,7 @@ const EditButtonText = styled.Text`
 const AdminUserView = ({ route }) => {
   const { user } = route.params;
 
-  const adminToken = useRecoilValue(adminTokenData);
+  //const adminToken = useRecoilValue(adminTokenData);
   const [punishmentLogs, setPunishmentLogs] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const openModal = () => {
@@ -83,10 +84,11 @@ const AdminUserView = ({ route }) => {
   };
   const getPunishmentLogs = async () => {
     try {
+      const token = await AsyncStorage.getItem("adminToken");
       const res = await axios.get(
         `${BASE_URL}/admin/punishReportList/${user.id}`,
         {
-          headers: { Authorization: `Bearer ${adminToken}` },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       setPunishmentLogs(res.data); //처벌 기록 데이터

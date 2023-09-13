@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useEffect } from "react";
 import { useState } from "react";
@@ -35,11 +36,12 @@ const AdminView = () => {
   const [helperReport, setHelperReport] = useState([]);
   const fetchCustmoerData = async () => {
     try {
+      const token = await AsyncStorage.getItem("adminToken");
       const res = await axios.get(
         `${BASE_URL}/admin/reportList/writeByCustomer`,
 
         {
-          headers: { Authorization: `Bearer ${adminToken}` },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
@@ -62,10 +64,11 @@ const AdminView = () => {
   const onViewHelper = async () => {
     setIsHelper(true);
     try {
+      const token = await AsyncStorage.getItem("adminToken");
       const res = await axios.get(
         `${BASE_URL}/admin/reportList/writeByHelper`,
         {
-          headers: { Authorization: `Bearer ${adminToken}` },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       setHelperReport(res.data);

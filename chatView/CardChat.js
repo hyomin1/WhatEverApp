@@ -99,6 +99,20 @@ const Time = styled.Text`
   margin-bottom: 30px;
   font-size: 12px;
 `;
+const ProfileView = styled.View`
+  flex-direction: row;
+  margin-bottom: 220px;
+  margin-right: 10px;
+`;
+const ProfileImage = styled.View`
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  background-color: white;
+  justify-content: center;
+  align-items: center;
+  margin-right: 3px;
+`;
 
 const CardChat = ({ data, myName, chatList, receiverName }) => {
   const navigation = useNavigation();
@@ -124,7 +138,7 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
     workProceedingStatusData
   );
   const [detailModal, setDetailModal] = useState(false);
-
+  console.log(messageData);
   const onPressDetail = () => {
     setDetailModal(!detailModal);
   };
@@ -268,6 +282,12 @@ const CardChat = ({ data, myName, chatList, receiverName }) => {
           </CardContiainer>
         ) : (
           <CardContiainer style={{ justifyContent: "flex-start" }}>
+            <ProfileView>
+              <ProfileImage>
+                <Text>사진</Text>
+              </ProfileImage>
+              <Text style={{ fontWeight: "bold" }}>{data.senderName}</Text>
+            </ProfileView>
             <CardBubble>
               <CardTitleWrapper>
                 <CardTitle>심부름 완료 확인</CardTitle>

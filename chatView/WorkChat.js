@@ -95,6 +95,23 @@ const Time = styled.Text`
   margin-bottom: 10px;
   font-size: 12px;
 `;
+const ProfileView = styled.View`
+  flex-direction: row;
+  margin-bottom: 85px;
+  margin-right: 10px;
+`;
+const ProfileView2 = styled(ProfileView)`
+  margin-bottom: 90px;
+`;
+const ProfileImage = styled.View`
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  background-color: white;
+  justify-content: center;
+  align-items: center;
+  margin-right: 3px;
+`;
 
 const WorkChat = ({
   data,
@@ -168,6 +185,12 @@ const WorkChat = ({
           </WorkContiainer>
         ) : (
           <WorkContiainer>
+            <ProfileView2>
+              <ProfileImage>
+                <Text>사진</Text>
+              </ProfileImage>
+              <Text style={{ fontWeight: "bold" }}>{data.senderName}</Text>
+            </ProfileView2>
             <WorkBubble>
               <WorkTitleWrapper>
                 <WorkTitle>심부름 검증서 도착</WorkTitle>
@@ -205,6 +228,15 @@ const WorkChat = ({
         )
       ) : myId !== creatorId ? (
         <WorkContiainer>
+          <ProfileView>
+            <ProfileImage>
+              <Text>사진</Text>
+            </ProfileImage>
+            <Text style={{ color: "black", fontWeight: "bold" }}>
+              {data.senderName}
+            </Text>
+          </ProfileView>
+
           <WorkBubble>
             <WorkTitleWrapper>
               <WorkTitle>심부름 요청서 도착</WorkTitle>

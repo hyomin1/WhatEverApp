@@ -6,6 +6,7 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components/native";
 import { adminTokenData, adminWorkData } from "../atom";
 import { BASE_URL } from "../api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Container = styled.View`
   flex: 1;
@@ -37,8 +38,9 @@ const ReportView = ({ report, isHelper }) => {
   const setAdminWork = useSetRecoilState(adminWorkData);
   const onPressDetail = async (report) => {
     try {
+      const token = await AsyncStorage.getItem("adminToken");
       const res = await axios.get(`${BASE_URL}/admin/work/${report.workId}`, {
-        headers: { Authorization: `Bearer ${adminToken}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       setAdminWork(res.data);
       navigation.navigate("DetailReport", {

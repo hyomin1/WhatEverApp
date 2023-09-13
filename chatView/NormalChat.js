@@ -1,5 +1,5 @@
 import styled from "styled-components/native";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 
 const ChatWrapper = styled.View`
   background-color: #0fbcf9;
@@ -13,6 +13,7 @@ const ChatWrapper = styled.View`
 `;
 const ChatWrapper2 = styled(ChatWrapper)`
   background-color: white;
+  margin-bottom: 0px;
 `;
 const ChatText = styled.Text`
   color: white;
@@ -26,8 +27,17 @@ const Time = styled.Text`
   margin-top: 5px;
   font-size: 12px;
 `;
+const ProfileImage = styled.View`
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  background-color: white;
+  justify-content: center;
+  align-items: center;
+  margin-right: 3px;
+`;
 
-const NormalChat = ({ myName, data }) => {
+const NormalChat = ({ myName, data, prevData }) => {
   return (
     <View>
       {data.senderName === myName ? (
@@ -36,6 +46,7 @@ const NormalChat = ({ myName, data }) => {
             justifyContent: "flex-end",
             flexDirection: "row",
             alignItems: "center",
+            marginBottom: 3,
           }}
         >
           <Time style={{ marginRight: 5 }}>
@@ -51,11 +62,36 @@ const NormalChat = ({ myName, data }) => {
             justifyContent: "flex-start",
             flexDirection: "row",
             alignItems: "center",
+            marginBottom: 3,
           }}
         >
-          <ChatWrapper2>
-            <ChatText2>{data.message}</ChatText2>
-          </ChatWrapper2>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            {prevData && prevData.senderName === data.senderName ? null : (
+              <View style={{ flexDirection: "row", marginRight: 10 }}>
+                <ProfileImage>
+                  <Text>사진</Text>
+                </ProfileImage>
+                <Text style={{ color: "black", fontWeight: "bold" }}>
+                  {data.senderName}
+                </Text>
+              </View>
+            )}
+            {prevData && prevData.senderName === data.senderName ? (
+              <ChatWrapper2 style={{ marginLeft: 80 }}>
+                <ChatText2>{data.message}</ChatText2>
+              </ChatWrapper2>
+            ) : (
+              <ChatWrapper2>
+                <ChatText2>{data.message}</ChatText2>
+              </ChatWrapper2>
+            )}
+          </View>
+
           <Time style={{ marginLeft: 5 }}>
             {data.sendTime.slice(0, 10)} {data.sendTime.slice(11, 16)}
           </Time>
