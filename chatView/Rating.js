@@ -62,7 +62,9 @@ const Rating = ({ isSetStarRating, workId }) => {
         rating,
         body: review,
       })
-      .then((res) => {})
+      .then((res) => {
+        Alert.alert("리뷰가 등록되었습니다");
+      })
       .catch((error) => Alert.alert(error.response.data.message));
   };
 

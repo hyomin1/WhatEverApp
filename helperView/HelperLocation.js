@@ -35,11 +35,42 @@ const HelperLocation = ({ route }) => {
   }, []);
 
   const isHour = route.params.isHour;
-  //console.log("helper location", hourMoreLocation.latitude);
 
   return (
     <View style={{ flex: 1 }}>
-      {!location || hourMoreLocation === null ? (
+      {isHour ? (
+        location === undefined ? (
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <ActivityIndicator />
+          </View>
+        ) : (
+          <MapView
+            style={{ flex: 1 }}
+            region={{
+              latitude: location.latitude,
+              longitude: location.longitude,
+              latitudeDelta: 0.005,
+              longitudeDelta: 0.005,
+            }}
+            provider={PROVIDER_GOOGLE}
+          >
+            <Marker
+              coordinate={{
+                latitude: locations[locations.length - 1].latitude,
+                longitude: locations[locations.length - 1].longitude,
+              }}
+            >
+              <Image
+                style={{ width: 50, height: 50, borderRadius: 25 }}
+                source={require("../images/rider.jpg")}
+              />
+            </Marker>
+            <Polyline coordinates={locations} strokeWidth={6} />
+          </MapView>
+        )
+      ) : hourMoreLocation === null ? (
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
@@ -49,8 +80,8 @@ const HelperLocation = ({ route }) => {
         <MapView
           style={{ flex: 1 }}
           region={{
-            latitude: isHour ? location.latitude : hourMoreLocation.latitude,
-            longitude: isHour ? location.longitude : hourMoreLocation.longitude,
+            latitude: hourMoreLocation.latitude,
+            longitude: hourMoreLocation.longitude,
             latitudeDelta: 0.005,
             longitudeDelta: 0.005,
           }}
@@ -58,12 +89,8 @@ const HelperLocation = ({ route }) => {
         >
           <Marker
             coordinate={{
-              latitude: isHour
-                ? locations[locations.length - 1].latitude
-                : hourMoreLocation.latitude,
-              longitude: isHour
-                ? locations[locations.length - 1].longitude
-                : hourMoreLocation.longitude,
+              latitude: hourMoreLocation.latitude,
+              longitude: hourMoreLocation.longitude,
             }}
           >
             <Image
@@ -71,7 +98,6 @@ const HelperLocation = ({ route }) => {
               source={require("../images/rider.jpg")}
             />
           </Marker>
-          {isHour ? <Polyline coordinates={locations} strokeWidth={6} /> : null}
         </MapView>
       )}
     </View>

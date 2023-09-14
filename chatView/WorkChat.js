@@ -15,24 +15,22 @@ import DetailWork from "../mainView/DetailWork";
 import DetailWorkChat from "./DetailWorkChat";
 import { useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
 const WorkContiainer = styled.View`
   width: 100%;
   flex-direction: row;
   align-items: flex-end;
+  margin-bottom: 20px;
 `;
 const WorkBubble = styled.View`
   background-color: white;
   border-radius: 10px;
-  margin: 5px;
-  width: 50%;
-  margin-bottom: 10px;
+
+  width: 180px;
 `;
 
 const WorkTitleWrapper = styled.View`
   background-color: #0fbcf9;
-  width: 100%;
-  flex: 1;
   justify-content: center;
   align-items: flex-start;
   border-top-left-radius: 10px;
@@ -149,7 +147,7 @@ const WorkChat = ({
       {myId === customerId ? (
         myId === creatorId ? (
           <WorkContiainer style={{ justifyContent: "flex-end" }}>
-            <Time>
+            <Time style={{ marginRight: 5, marginBottom: 5 }}>
               {data.sendTime
                 ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(11, 16)}`
                 : null}
@@ -185,24 +183,85 @@ const WorkChat = ({
           </WorkContiainer>
         ) : (
           <WorkContiainer>
-            <ProfileView2>
+            <View style={{ flexDirection: "row" }}>
+              <ProfileView2>
+                <ProfileImage>
+                  <Text>사진</Text>
+                </ProfileImage>
+                <Text style={{ fontWeight: "bold" }}>{data.senderName}</Text>
+              </ProfileView2>
+              <WorkBubble>
+                <WorkTitleWrapper>
+                  <WorkTitle>심부름 검증서 도착</WorkTitle>
+                </WorkTitleWrapper>
+                <PaddingView>
+                  <MainText>심부름 검증서</MainText>
+                  <MainTitle>{messageData.title}</MainTitle>
+                  <Divider />
+                  {workProceedingStatus === 0 ? (
+                    <LocationBtn
+                      onPress={() => {
+                        setDetailModal(!detailModal);
+                      }}
+                    >
+                      <LocationText>상세보기</LocationText>
+                    </LocationBtn>
+                  ) : null}
+                  <DetailWorkChat
+                    detailModal={detailModal}
+                    setDetailModal={setDetailModal}
+                    messageData={messageData}
+                    address={address}
+                    myName={myName}
+                    receiverName={receiverName}
+                    validate={true}
+                  />
+                </PaddingView>
+              </WorkBubble>
+            </View>
+
+            <Time style={{ marginBottom: 0, marginLeft: 5 }}>
+              {data.sendTime
+                ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(11, 16)}`
+                : null}
+            </Time>
+          </WorkContiainer>
+        )
+      ) : myId !== creatorId ? (
+        <WorkContiainer>
+          <View style={{ flexDirection: "row", marginRight: 5 }}>
+            <ProfileView>
               <ProfileImage>
                 <Text>사진</Text>
               </ProfileImage>
-              <Text style={{ fontWeight: "bold" }}>{data.senderName}</Text>
-            </ProfileView2>
-            <WorkBubble>
+              <Text style={{ color: "black", fontWeight: "bold" }}>
+                {data.senderName}
+              </Text>
+            </ProfileView>
+
+            <WorkBubble style={{ marginTop: 5 }}>
               <WorkTitleWrapper>
-                <WorkTitle>심부름 검증서 도착</WorkTitle>
+                <WorkTitle>심부름 요청서 도착</WorkTitle>
               </WorkTitleWrapper>
               <PaddingView>
-                <MainText>심부름 검증서</MainText>
+                <MainText>심부름 요청서</MainText>
                 <MainTitle>{messageData.title}</MainTitle>
                 <Divider />
                 {workProceedingStatus === 0 ? (
                   <LocationBtn
-                    onPress={() => {
-                      setDetailModal(!detailModal);
+                    onPress={async () => {
+                      try {
+                        const res = await axios.get(
+                          `${BASE_URL}/api/work/${messageData.id}`
+                        );
+                        if (res.data.workProceedingStatus === 1) {
+                          Alert.alert("다른 헬퍼가 심부름을 진행 중 입니다.");
+                        } else {
+                          setDetailModal(!detailModal);
+                        }
+                      } catch (error) {
+                        console.log(error);
+                      }
                     }}
                   >
                     <LocationText>상세보기</LocationText>
@@ -215,67 +274,12 @@ const WorkChat = ({
                   address={address}
                   myName={myName}
                   receiverName={receiverName}
-                  validate={true}
+                  validate={false}
                 />
               </PaddingView>
             </WorkBubble>
-            <Time>
-              {data.sendTime
-                ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(11, 16)}`
-                : null}
-            </Time>
-          </WorkContiainer>
-        )
-      ) : myId !== creatorId ? (
-        <WorkContiainer>
-          <ProfileView>
-            <ProfileImage>
-              <Text>사진</Text>
-            </ProfileImage>
-            <Text style={{ color: "black", fontWeight: "bold" }}>
-              {data.senderName}
-            </Text>
-          </ProfileView>
+          </View>
 
-          <WorkBubble>
-            <WorkTitleWrapper>
-              <WorkTitle>심부름 요청서 도착</WorkTitle>
-            </WorkTitleWrapper>
-            <PaddingView>
-              <MainText>심부름 요청서</MainText>
-              <MainTitle>{messageData.title}</MainTitle>
-              <Divider />
-              {workProceedingStatus === 0 ? (
-                <LocationBtn
-                  onPress={async () => {
-                    try {
-                      const res = await axios.get(
-                        `${BASE_URL}/api/work/${messageData.id}`
-                      );
-                      if (res.data.workProceedingStatus === 1) {
-                        Alert.alert("다른 헬퍼가 심부름을 진행 중 입니다.");
-                      } else {
-                        setDetailModal(!detailModal);
-                      }
-                    } catch (error) {
-                      console.log(error);
-                    }
-                  }}
-                >
-                  <LocationText>상세보기</LocationText>
-                </LocationBtn>
-              ) : null}
-              <DetailWorkChat
-                detailModal={detailModal}
-                setDetailModal={setDetailModal}
-                messageData={messageData}
-                address={address}
-                myName={myName}
-                receiverName={receiverName}
-                validate={false}
-              />
-            </PaddingView>
-          </WorkBubble>
           <Time>
             {data.sendTime
               ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(11, 16)}`
@@ -284,7 +288,7 @@ const WorkChat = ({
         </WorkContiainer>
       ) : (
         <WorkContiainer style={{ justifyContent: "flex-end" }}>
-          <Time>
+          <Time style={{ marginBottom: 0, marginRight: 5 }}>
             {data.sendTime
               ? `${data.sendTime.slice(0, 10)} ${data.sendTime.slice(11, 16)}`
               : null}

@@ -9,11 +9,10 @@ const ChatWrapper = styled.View`
   width: auto;
   height: auto;
   padding: 10px 15px;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 `;
 const ChatWrapper2 = styled(ChatWrapper)`
   background-color: white;
-  margin-bottom: 0px;
 `;
 const ChatText = styled.Text`
   color: white;
@@ -71,7 +70,9 @@ const NormalChat = ({ myName, data, prevData }) => {
               alignItems: "center",
             }}
           >
-            {prevData && prevData.senderName === data.senderName ? null : (
+            {prevData &&
+            prevData.senderName === data.senderName &&
+            prevData.messageType !== "Card" ? null : (
               <View style={{ flexDirection: "row", marginRight: 10 }}>
                 <ProfileImage>
                   <Text>사진</Text>
@@ -82,9 +83,15 @@ const NormalChat = ({ myName, data, prevData }) => {
               </View>
             )}
             {prevData && prevData.senderName === data.senderName ? (
-              <ChatWrapper2 style={{ marginLeft: 80 }}>
-                <ChatText2>{data.message}</ChatText2>
-              </ChatWrapper2>
+              prevData.messageType === "Card" ? (
+                <ChatWrapper2>
+                  <ChatText2>{data.message}</ChatText2>
+                </ChatWrapper2>
+              ) : (
+                <ChatWrapper2 style={{ marginLeft: 80 }}>
+                  <ChatText2>{data.message}</ChatText2>
+                </ChatWrapper2>
+              )
             ) : (
               <ChatWrapper2>
                 <ChatText2>{data.message}</ChatText2>

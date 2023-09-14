@@ -326,8 +326,8 @@ const DetailWorkChat = ({
             ? chatList.creatorId
             : chatList.participantId,
       });
+      Alert.alert("심부름을 거절하였습니다.");
       setDetailModal(!detailModal);
-      setOnChatting(1);
     } catch (error) {}
   };
   const onWorkComplete = async () => {

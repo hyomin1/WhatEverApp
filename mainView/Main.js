@@ -166,7 +166,7 @@ const Main = ({ navigation: { navigate }, route }) => {
   };
   //const headers = { Authorization: `Bearer ${access}` };
 
-  //client.reconnectDelay = 2000;
+  client.reconnectDelay = 500;
 
   client.onWebSocketClose = async () => {
     // 연결이 닫힌 경우 재연결 시도
@@ -272,6 +272,7 @@ const Main = ({ navigation: { navigate }, route }) => {
       },
       headers
     );
+    return subs;
   };
   const handleRefresh = () => {
     //새로고침 함수
@@ -307,6 +308,11 @@ const Main = ({ navigation: { navigate }, route }) => {
       }
     };
   }, []);
+
+  const test1 = (chatId) => {
+    console.log("채팅 토픽을 성공적으로 구독했습니다.");
+  };
+
   client.onConnect = async function (frame) {
     console.log("웹소켓 연결완료", a);
     const token = await AsyncStorage.getItem("authToken");
@@ -372,7 +378,7 @@ const Main = ({ navigation: { navigate }, route }) => {
             }
             setA([]);
           }
-        }, 1000);
+        }, 500);
       });
     } catch (error) {
       console.error("웹소켓 에러", error);

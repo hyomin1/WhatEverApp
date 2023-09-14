@@ -28,7 +28,7 @@ export default function App() {
   const setMyImg = useSetRecoilState(myImgData);
   const setHistoryWork = useSetRecoilState(historyWorkData);
   const setHistoryReport = useSetRecoilState(historyReportData);
-  const instance = axios.create();
+
   messaging().setBackgroundMessageHandler(async (remoteMessage) => {
     //background
     const token = await AsyncStorage.getItem("authToken");
@@ -162,9 +162,10 @@ export default function App() {
           delete error.config.headers.Authorization;
           console.log("403 ", error);
           navigation.navigate("Login");
+        } else if (error.response.data.error === "ValidException") {
+          Alert.alert(error.response.data.message);
         }
 
-        console.log("asdfasdf");
         return Promise.reject(error);
       }
     );

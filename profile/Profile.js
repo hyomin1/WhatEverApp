@@ -1,4 +1,11 @@
-import { View, Text, Modal, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Modal,
+  TouchableOpacity,
+  Pressable,
+  TextInput,
+} from "react-native";
 import styled from "styled-components/native";
 import { useEffect, useState } from "react";
 import ProfileFix from "./ProfileFix";
@@ -22,6 +29,7 @@ import ReviewModal from "../components/ReviewModal";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import Config from "react-native-config";
 import { Alert } from "react-native-web";
+import WithDraw from "./WithDraw";
 
 const Container = styled.ScrollView`
   flex: 1;
@@ -121,6 +129,13 @@ const LocationInfo = styled.Text`
   color: #666;
   text-align: center;
 `;
+const MoneyText = styled.Text`
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+
+  color: #666;
+`;
 
 const Profile = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -141,10 +156,28 @@ const Profile = () => {
 
   const [address, setAddress] = useRecoilState(addressData);
   const [loc, setLoc] = useState();
+  const [rewardModal, setRewardModal] = useState(false);
+  const [reward, setReward] = useState();
 
   const API_KEY = Config.GOOGLE_MAPS_API_KEY;
   const goProfileFix = () => {
     setModalVisible(!modalVisible);
+  };
+  const onChangeReward = (payload) => {
+    setReward(payload);
+  };
+  const onPressReward = async () => {
+    if (reward >= 1000 && reward <= user.reward) {
+      try {
+        const res = await axios.get(
+          `${BASE_URL}/api/reward/transfer?amount=${reward}`
+        );
+        console.log("userreward", res.data);
+        setUser(res.data);
+      } catch (error) {
+        Alert.alert(error.response.data.message);
+      }
+    }
   };
 
   const onPressReview = async () => {
@@ -309,11 +342,22 @@ const Profile = () => {
       </Section>
       <Section>
         <SectionHeader>리워드</SectionHeader>
+        {/* {user.reward ? (
+          <MoneyText>{user.reward}원</MoneyText>
+        ) : (
+          <MoneyText>0원</MoneyText>
+        )} */}
+        <MoneyText>{user.reward}원</MoneyText>
         <ButtonContainer>
-          <Button>
+          <Button onPress={() => setRewardModal(!rewardModal)}>
             <ButtonText>출금</ButtonText>
           </Button>
         </ButtonContainer>
+        <WithDraw
+          rewardModal={rewardModal}
+          setRewardModal={setRewardModal}
+          reward={user.reward}
+        />
       </Section>
     </Container>
   );

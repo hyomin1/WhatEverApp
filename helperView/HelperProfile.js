@@ -201,11 +201,14 @@ const HelperProfile = ({ route }) => {
         setChatRoomList([...chatRoomList, data]);
         setChatList(data);
         const token = await AsyncStorage.getItem("authToken");
-        client.publish({
-          destination: `/pub/work/${data._id}`,
-          body: JSON.stringify(selectWork),
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        setTimeout(() => {
+          client.publish({
+            destination: `/pub/work/${data._id}`,
+            body: JSON.stringify(selectWork),
+            headers: { Authorization: `Bearer ${token}` },
+          });
+        }, 500);
+
         axios
           .post(`${BASE_URL}/api/fcm/chatNotification/${data._id}`)
           .then()

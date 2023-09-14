@@ -33,7 +33,7 @@ const HelperInform = ({ helperData }) => {
   const navigation = useNavigation();
   const { name, introduce, rating, id, image, distance, avgReactTime } =
     helperData;
-
+  console.log(helperData);
   const onPressHelper = async () => {
     try {
       const res = await axios.get(`${BASE_URL}/api/workList/byHelper/${id}`);
